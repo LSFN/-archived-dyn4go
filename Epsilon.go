@@ -1,19 +1,9 @@
 package dyn4go
 
-type Epsilon struct {
-	epsilon float64
-}
+var Epsilon = 0.5
 
-func (e *Epsilon) getEpsilon() float64 {
-	if e.epsilon == 0 {
-		e.computeEpsilon()
-	}
-	return e.epsilon
-}
-
-func (e *Epsilon) computeEpsilon() {
-	e.epsilon = 0.5
-	for 1.0+e.epsilon > 1.0 {
-		e.epsilon *= 0.5
+func init() {
+	for 1.0+Epsilon > 1.0 {
+		Epsilon *= 0.5
 	}
 }
