@@ -6,9 +6,9 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
-const (
-	X_AXIS Vector2 = Vector2{1.0, 0.0}
-	Y_AXIS Vector2 = Vector2{0.0, 1.0}
+var (
+	X_AXIS = Vector2{1.0, 0.0}
+	Y_AXIS = Vector2{0.0, 1.0}
 )
 
 type Vector2 struct {
@@ -16,24 +16,16 @@ type Vector2 struct {
 }
 
 func NewVector2FromXY(x, y float64) *Vector2 {
-	v := new(Vector2)
-	v.x = x
-	v.y = y
-	return v
+	return &Vector2{x, y}
 }
 
 func NewVector2FromVector2(vOrig *Vector2) *Vector2 {
-	v := new(Vector2)
-	v.x = vOrig.x
-	v.y = vOrig.y
-	return v
+	v := *vOrig
+	return &v
 }
 
 func NewVector2FromA2B_XY(xa, ya, xb, yb float64) *Vector2 {
-	v := new(Vector2)
-	v.x = xb - xa
-	v.y = yb - ya
-	return v
+	return &Vector2{xb - xa, yb - ya}
 }
 
 func NewVector2FromA2B(a, b *Vector2) *Vector2 {
@@ -44,17 +36,11 @@ func NewVector2FromA2B(a, b *Vector2) *Vector2 {
 }
 
 func NewVector2FromDirection(direction float64) *Vector2 {
-	v := new(Vector2)
-	v.x = math.Cos(direction)
-	v.y = math.Sin(direction)
-	return v
+	return &Vector2{math.Cos(direction), math.Sin(direction)}
 }
 
 func NewVector2FromMagnitudeAndDirection(magnitude, direction float64) *Vector2 {
-	v := new(Vector2)
-	v.x = magnitude * math.Cos(direction)
-	v.y = magnitude * math.Sin(direction)
-	return v
+	return &Vector2{magnitude * math.Cos(direction), magnitude * math.Sin(direction)}
 }
 
 func (v *Vector2) DistanceFromXY(x, y float64) float64 {
@@ -94,27 +80,21 @@ func (v *Vector2) EqualsXY(x, y float64) bool {
 }
 
 func (v *Vector2) SetToVector2(v2 *Vector2) *Vector2 {
-	v.x = v2.x
-	v.y = v2.y
+	*v = *v2
 	return v
 }
 
-func (v *Vector2) SetToVector2(x, y float64) *Vector2 {
-	v.x = x
-	v.y = y
+func (v *Vector2) SetToXY(x, y float64) *Vector2 {
+	v = &Vector2{x, y}
 	return v
 }
 
 func (v *Vector2) GetXComponent() *Vector2 {
-	v2 := new(Vector2)
-	v2.x = v.x
-	return v2
+	return &Vector2{x: v.x}
 }
 
 func (v *Vector2) GetYComponent() *Vector2 {
-	v2 := new(Vector2)
-	v2.y = v.y
-	return v2
+	return &Vector2{y: v.y}
 }
 
 func (v *Vector2) GetMagnitude() float64 {
@@ -146,7 +126,7 @@ func (v *Vector2) GetDirection() float64 {
 }
 
 func (v *Vector2) SetDirection(angle float64) *Vector2 {
-	magnitude = math.Hypot(v.x, v.y)
+	magnitude := math.Hypot(v.x, v.y)
 	v.x = magnitude * math.Cos(angle)
 	v.y = magnitude * math.Sin(angle)
 	return v
@@ -166,8 +146,8 @@ func (v *Vector2) AddXY(x, y float64) *Vector2 {
 
 func (v *Vector2) SumVector2(v2 *Vector2) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = vx + v2.x
-	v3.y = vy + v2.y
+	v3.x = v.x + v2.x
+	v3.y = v.y + v2.y
 	return v3
 }
 
@@ -251,6 +231,7 @@ func (v *Vector2) CrossZ(z float64) *Vector2 {
 	v2 := new(Vector2)
 	v2.x = -v.y * z
 	v2.y = v.x * z
+	return v2
 }
 
 func (v *Vector2) IsOrthogonalVector2(v2 *Vector2) bool {
@@ -303,7 +284,7 @@ func (v *Vector2) RotateAboutXY(theta, x, y float64) *Vector2 {
 	return v
 }
 
-func (v *Vector2) RotateAboutXY(theta float64, v2 *Vector2) *Vector2 {
+func (v *Vector2) RotateAboutVector2(theta float64, v2 *Vector2) *Vector2 {
 	v.x -= v2.x
 	v.y -= v2.y
 	v.RotateAboutOrigin(theta)
@@ -366,9 +347,9 @@ func (v *Vector2) Normalize() float64 {
 func (v *Vector2) GetAngleBetween(v2 *Vector2) float64 {
 	a := math.Atan2(v2.y, v2.x) - math.Atan2(v.y, v.x)
 	if a > math.Pi {
-		return a - TwoPi
+		return a - 2*math.Pi
 	} else if a < math.Pi {
-		return a + TwoPi
+		return a + 2*math.Pi
 	}
 	return a
 }
