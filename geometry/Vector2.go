@@ -12,7 +12,7 @@ var (
 )
 
 type Vector2 struct {
-	x, y float64
+	X, Y float64
 }
 
 func NewVector2FromXY(x, y float64) *Vector2 {
@@ -30,8 +30,8 @@ func NewVector2FromA2B_XY(xa, ya, xb, yb float64) *Vector2 {
 
 func NewVector2FromA2B(a, b *Vector2) *Vector2 {
 	v := new(Vector2)
-	v.x = b.x - a.x
-	v.y = b.y - a.y
+	v.X = b.X - a.X
+	v.Y = b.Y - a.Y
 	return v
 }
 
@@ -44,27 +44,27 @@ func NewVector2FromMagnitudeAndDirection(magnitude, direction float64) *Vector2 
 }
 
 func (v *Vector2) DistanceFromXY(x, y float64) float64 {
-	return math.Hypot(v.x-x, v.y-y)
+	return math.Hypot(v.X-x, v.Y-y)
 }
 
 func (v *Vector2) DistanceFromVector2(v2 *Vector2) float64 {
-	return math.Hypot(v.x-v2.x, v.y-v2.y)
+	return math.Hypot(v.X-v2.X, v.Y-v2.Y)
 }
 
 func (v *Vector2) DistanceSquaredFromCY(x, y float64) float64 {
-	return (v.x-x)*(v.x-x) + (v.y-y)*(v.y-y)
+	return (v.X-x)*(v.X-x) + (v.Y-y)*(v.Y-y)
 }
 
 func (v *Vector2) DistanceSquaredFromVector2(v2 *Vector2) float64 {
-	return (v.x-v2.x)*(v.x-v2.x) + (v.y-v2.y)*(v.y-v2.y)
+	return (v.X-v2.X)*(v.X-v2.X) + (v.Y-v2.Y)*(v.Y-v2.Y)
 }
 
 func TripleProduct(a, b, c *Vector2) *Vector2 {
 	v := new(Vector2)
-	ac := a.x*c.x + a.y*c.y
-	bc := b.x*c.x + b.y*c.y
-	v.x = b.x*ac - a.x*bc
-	v.y = b.y*ac - a.y*bc
+	ac := a.X*c.X + a.Y*c.Y
+	bc := b.X*c.X + b.Y*c.Y
+	v.X = b.X*ac - a.X*bc
+	v.Y = b.Y*ac - a.Y*bc
 	return v
 }
 
@@ -72,11 +72,11 @@ func (v *Vector2) EqualsVector2(v2 *Vector2) bool {
 	if v == nil {
 		return false
 	}
-	return v == v2 || (v.x == v2.x && v.y == v2.y)
+	return v == v2 || (v.X == v2.X && v.Y == v2.Y)
 }
 
 func (v *Vector2) EqualsXY(x, y float64) bool {
-	return v.x == x && v.y == y
+	return v.X == x && v.Y == y
 }
 
 func (v *Vector2) SetToVector2(v2 *Vector2) *Vector2 {
@@ -90,206 +90,206 @@ func (v *Vector2) SetToXY(x, y float64) *Vector2 {
 }
 
 func (v *Vector2) GetXComponent() *Vector2 {
-	return &Vector2{x: v.x}
+	return &Vector2{X: v.X}
 }
 
 func (v *Vector2) GetYComponent() *Vector2 {
-	return &Vector2{y: v.y}
+	return &Vector2{Y: v.Y}
 }
 
 func (v *Vector2) GetMagnitude() float64 {
-	return math.Hypot(v.x, v.y)
+	return math.Hypot(v.X, v.Y)
 }
 
 func (v *Vector2) GetMagnitudeSquared() float64 {
-	return v.x*v.x + v.y*v.y
+	return v.X*v.X + v.Y*v.Y
 }
 
 func (v *Vector2) SetMagnitude(magnitude float64) *Vector2 {
 	if math.Abs(magnitude) <= dyn4go.Epsilon {
-		v.x = 0.0
-		v.y = 0.0
+		v.X = 0.0
+		v.Y = 0.0
 		return v
 	}
 	if v.IsZero() {
 		return v
 	}
-	mag := math.Hypot(v.x, v.y)
+	mag := math.Hypot(v.X, v.Y)
 	mag = magnitude / mag
-	v.x *= mag
-	v.y *= mag
+	v.X *= mag
+	v.Y *= mag
 	return v
 }
 
 func (v *Vector2) GetDirection() float64 {
-	return math.Atan2(v.y, v.x)
+	return math.Atan2(v.Y, v.X)
 }
 
 func (v *Vector2) SetDirection(angle float64) *Vector2 {
-	magnitude := math.Hypot(v.x, v.y)
-	v.x = magnitude * math.Cos(angle)
-	v.y = magnitude * math.Sin(angle)
+	magnitude := math.Hypot(v.X, v.Y)
+	v.X = magnitude * math.Cos(angle)
+	v.Y = magnitude * math.Sin(angle)
 	return v
 }
 
 func (v *Vector2) AddVector2(v2 *Vector2) *Vector2 {
-	v.x += v2.x
-	v.y += v2.y
+	v.X += v2.X
+	v.Y += v2.Y
 	return v
 }
 
 func (v *Vector2) AddXY(x, y float64) *Vector2 {
-	v.x += x
-	v.y += y
+	v.X += x
+	v.Y += y
 	return v
 }
 
 func (v *Vector2) SumVector2(v2 *Vector2) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = v.x + v2.x
-	v3.y = v.y + v2.y
+	v3.X = v.X + v2.X
+	v3.Y = v.Y + v2.Y
 	return v3
 }
 
 func (v *Vector2) SumXY(x, y float64) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = v.x + x
-	v3.y = v.y + y
+	v3.X = v.X + x
+	v3.Y = v.Y + y
 	return v3
 }
 
 func (v *Vector2) SubtractVector2(v2 *Vector2) *Vector2 {
-	v.x -= v2.x
-	v.y -= v2.y
+	v.X -= v2.X
+	v.Y -= v2.Y
 	return v
 }
 
 func (v *Vector2) SubtractXY(x, y float64) *Vector2 {
-	v.x -= x
-	v.y -= y
+	v.X -= x
+	v.Y -= y
 	return v
 }
 
 func (v *Vector2) DifferenceVector2(v2 *Vector2) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = v.x - v2.x
-	v3.y = v.y - v2.y
+	v3.X = v.X - v2.X
+	v3.Y = v.Y - v2.Y
 	return v3
 }
 
 func (v *Vector2) DifferenceXY(x, y float64) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = v.x - x
-	v3.y = v.y - y
+	v3.X = v.X - x
+	v3.Y = v.Y - y
 	return v3
 }
 
 func (v *Vector2) HereToVector2(v2 *Vector2) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = v2.x - v.x
-	v3.y = v2.y - v.y
+	v3.X = v2.X - v.X
+	v3.Y = v2.Y - v.Y
 	return v3
 }
 
 func (v *Vector2) HereToXY(x, y float64) *Vector2 {
 	v3 := new(Vector2)
-	v3.x = x - v.x
-	v3.y = y - v.y
+	v3.X = x - v.X
+	v3.Y = y - v.Y
 	return v3
 }
 
 func (v *Vector2) Multiply(scalar float64) *Vector2 {
-	v.x *= scalar
-	v.y *= scalar
+	v.X *= scalar
+	v.Y *= scalar
 	return v
 }
 
 func (v *Vector2) Product(scalar float64) *Vector2 {
 	v2 := new(Vector2)
-	v2.x = v.x * scalar
-	v2.y = v.y * scalar
+	v2.X = v.X * scalar
+	v2.Y = v.Y * scalar
 	return v2
 }
 
 func (v *Vector2) DotVector2(v2 *Vector2) float64 {
-	return v.x*v2.x + v.y*v2.y
+	return v.X*v2.X + v.Y*v2.Y
 }
 
 func (v *Vector2) DotXY(x, y float64) float64 {
-	return v.x*x + v.y*y
+	return v.X*x + v.Y*y
 }
 
 func (v *Vector2) CrossVector2(v2 *Vector2) float64 {
-	return v.x*v2.y - v.y*v2.x
+	return v.X*v2.Y - v.Y*v2.X
 }
 
 func (v *Vector2) CrossXY(x, y float64) float64 {
-	return v.x*y - v.y*x
+	return v.X*y - v.Y*x
 }
 
 func (v *Vector2) CrossZ(z float64) *Vector2 {
 	v2 := new(Vector2)
-	v2.x = -v.y * z
-	v2.y = v.x * z
+	v2.X = -v.Y * z
+	v2.Y = v.X * z
 	return v2
 }
 
 func (v *Vector2) IsOrthogonalVector2(v2 *Vector2) bool {
-	return math.Abs(v.x*v2.x+v.y*v2.y) <= dyn4go.Epsilon
+	return math.Abs(v.X*v2.X+v.Y*v2.Y) <= dyn4go.Epsilon
 }
 
 func (v *Vector2) IsOrthogonalXY(x, y float64) bool {
-	return math.Abs(v.x*x+v.y*y) <= dyn4go.Epsilon
+	return math.Abs(v.X*x+v.Y*y) <= dyn4go.Epsilon
 }
 
 func (v *Vector2) IsZero() bool {
-	return math.Abs(v.x) <= dyn4go.Epsilon && math.Abs(v.y) <= dyn4go.Epsilon
+	return math.Abs(v.X) <= dyn4go.Epsilon && math.Abs(v.Y) <= dyn4go.Epsilon
 }
 
 func (v *Vector2) Negate() *Vector2 {
-	v.x *= 1.0
-	v.y *= 1.0
+	v.X *= 1.0
+	v.Y *= 1.0
 	return v
 }
 
 func (v *Vector2) GetNegative() *Vector2 {
 	v2 := new(Vector2)
-	v2.x = -v.x
-	v2.y = -v.y
+	v2.X = -v.X
+	v2.Y = -v.Y
 	return v2
 }
 
 func (v *Vector2) Zero() *Vector2 {
-	v.x = 0
-	v.y = 0
+	v.X = 0
+	v.Y = 0
 	return v
 }
 
 func (v *Vector2) RotateAboutOrigin(theta float64) *Vector2 {
 	cos := math.Cos(theta)
 	sin := math.Sin(theta)
-	x := v.x
-	y := v.y
-	v.x = x*cos - y*sin
-	v.y = x*sin + y*cos
+	x := v.X
+	y := v.Y
+	v.X = x*cos - y*sin
+	v.Y = x*sin + y*cos
 	return v
 }
 
 func (v *Vector2) RotateAboutXY(theta, x, y float64) *Vector2 {
-	v.x -= x
-	v.y -= y
+	v.X -= x
+	v.Y -= y
 	v.RotateAboutOrigin(theta)
-	v.x += x
-	v.y += y
+	v.X += x
+	v.Y += y
 	return v
 }
 
 func (v *Vector2) RotateAboutVector2(theta float64, v2 *Vector2) *Vector2 {
-	v.x -= v2.x
-	v.y -= v2.y
+	v.X -= v2.X
+	v.Y -= v2.Y
 	v.RotateAboutOrigin(theta)
-	v.x += v2.x
-	v.y += v2.y
+	v.X += v2.X
+	v.Y += v2.Y
 	return v
 }
 
@@ -301,26 +301,26 @@ func (v *Vector2) Project(v2 *Vector2) *Vector2 {
 		return v3
 	}
 	denominator = dotProd / denominator
-	v3.x = denominator * v2.x
-	v3.y = denominator * v2.y
+	v3.X = denominator * v2.X
+	v3.Y = denominator * v2.Y
 	return v3
 }
 
 func (v *Vector2) GetRightHandOrthogonalVector() *Vector2 {
-	return NewVector2FromXY(-v.y, v.x)
+	return NewVector2FromXY(-v.Y, v.X)
 }
 
 func (v *Vector2) Right() *Vector2 {
-	v.x, v.y = -v.y, v.x
+	v.X, v.Y = -v.Y, v.X
 	return v
 }
 
 func (v *Vector2) GetLeftHandOrthogonalVector() *Vector2 {
-	return NewVector2FromXY(v.y, -v.x)
+	return NewVector2FromXY(v.Y, -v.X)
 }
 
 func (v *Vector2) Left() *Vector2 {
-	v.x, v.y = v.y, -v.x
+	v.X, v.Y = v.Y, -v.X
 	return v
 }
 
@@ -330,22 +330,22 @@ func (v *Vector2) GetNormalized() *Vector2 {
 		return new(Vector2)
 	}
 	magnitude = 1 / magnitude
-	return NewVector2FromXY(v.x*magnitude, v.y*magnitude)
+	return NewVector2FromXY(v.X*magnitude, v.Y*magnitude)
 }
 
 func (v *Vector2) Normalize() float64 {
-	magnitude := math.Hypot(v.x, v.y)
+	magnitude := math.Hypot(v.X, v.Y)
 	if magnitude <= dyn4go.Epsilon {
 		return 0
 	}
 	m := 1 / magnitude
-	v.x *= m
-	v.y *= m
+	v.X *= m
+	v.Y *= m
 	return magnitude
 }
 
 func (v *Vector2) GetAngleBetween(v2 *Vector2) float64 {
-	a := math.Atan2(v2.y, v2.x) - math.Atan2(v.y, v.x)
+	a := math.Atan2(v2.Y, v2.X) - math.Atan2(v.Y, v.X)
 	if a > math.Pi {
 		return a - 2*math.Pi
 	} else if a < math.Pi {
