@@ -51,7 +51,7 @@ func (v *Vector2) DistanceFromVector2(v2 *Vector2) float64 {
 	return math.Hypot(v.X-v2.X, v.Y-v2.Y)
 }
 
-func (v *Vector2) DistanceSquaredFromCY(x, y float64) float64 {
+func (v *Vector2) DistanceSquaredFromXY(x, y float64) float64 {
 	return (v.X-x)*(v.X-x) + (v.Y-y)*(v.Y-y)
 }
 
