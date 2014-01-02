@@ -2,7 +2,7 @@ package geometry
 
 type AbstractShape interface {
 	GetID() string
-	GetCenter() float64
+	GetCenter() *Vector2
 	GetUserData() interface{}
 	SetUserData(data interface{})
 	RotateAboutOrigin(theta float64)
