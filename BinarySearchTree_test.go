@@ -53,3 +53,54 @@ func TestInsert(t *testing.T) {
 		t.Error("Binary tree does not contain multiple values that it should")
 	}
 }
+
+func TestRemove(t *testing.T) {
+	tree := setupTree()
+	if !tree.Remove(ComparableInteger(-3)) {
+		t.Error("Element not removed from tree")
+	}
+	if tree.Contains(ComparableInteger(-3)) {
+		t.Error("Tree still contains removed value")
+	}
+	if !(tree.Contains(ComparableInteger(-4)) && tree.Contains(ComparableInteger(0)) && tree.Contains(ComparableInteger(1)) && tree.Contains(ComparableInteger(2)) && tree.Contains(ComparableInteger(3))) {
+		t.Error("Tree no longer contains removed node's surrounding values")
+	}
+	s := tree.GetSize()
+	tree.RemoveMinimum()
+	if tree.Contains(ComparableInteger(-4)) {
+		t.Error("Removing minimum did not remove minimum")
+	}
+	if tree.GetSize() != s-1 {
+		t.Error("Tree is of the wrong size after removing minimum")
+	}
+	n := tree.Get(ComparableInteger(0))
+	tree.RemoveMinimumNode(n)
+	if tree.Contains(ComparableInteger(0)) {
+		t.Error("Removing minimum node did not remove minimum node")
+	}
+	if tree.GetSize() != s-2 {
+		t.Error("Tree is of the wrong size after removing minimum node")
+	}
+	tree.RemoveMaximum()
+	if tree.Contains(ComparableInteger(19)) {
+		t.Error("Removing maximum did not remove maximum")
+	}
+	if tree.GetSize() != s-3 {
+		t.Error("Tree is of the wrong size after removing maximum")
+	}
+	n = tree.Get(ComparableInteger(3))
+	tree.RemoveMaximumNode(n)
+	if tree.Contains(ComparableInteger(9)) {
+		t.Error("Removing maximum node did not remove maximum node")
+	}
+	if tree.GetSize() != s-4 {
+		t.Error("Tree is of the wrong size after removing maximum node")
+	}
+	tree.RemoveSubtreeByComparable(ComparableInteger(3))
+	if tree.Contains(ComparableInteger(3)) || tree.Contains(ComparableInteger(4)) || tree.Contains(ComparableInteger(6)) || tree.Contains(ComparableInteger(-1)) || tree.Contains(ComparableInteger(-4)) {
+		t.Error("Tree contains supposedly removed elements")
+	} 
+	if tree.GetSize() != 2 {
+		t.Error("Tree is of the wrong size")
+	}
+}
