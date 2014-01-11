@@ -5,7 +5,7 @@ import (
 )
 
 type BinarySearchTree struct {
-	root          *Node
+	Root          *Node
 	size          int
 	selfBalancing bool
 }
@@ -74,18 +74,21 @@ func (iter *TreeIterator) AssembleQueue(n *Node, ascending bool) {
 		if n.Left != nil {
 			iter.AssembleQueue(n.Left, ascending)
 		}
-		if n.Right != nil {
-			iter.AssembleQueue(n.Right, ascending)
-		}
 	} else {
 		if n.Right != nil {
 			iter.AssembleQueue(n.Right, ascending)
 		}
+	}
+	iter.NodeQueue = append(iter.NodeQueue, n)
+	if ascending {
+		if n.Right != nil {
+			iter.AssembleQueue(n.Right, ascending)
+		}
+	} else {
 		if n.Left != nil {
 			iter.AssembleQueue(n.Left, ascending)
 		}
 	}
-	iter.NodeQueue = append(iter.NodeQueue, n)
 }
 
 func (iter *TreeIterator) Next() Comparable {
@@ -102,14 +105,14 @@ func NewBinarySearchTree(selfBalancing bool) *BinarySearchTree {
 	b := new(BinarySearchTree)
 	b.selfBalancing = selfBalancing
 	b.size = 0
-	b.root = nil
+	b.Root = nil
 	return b
 }
 
 func CopyBinarySearchTree(oldTree *BinarySearchTree, selfBalancing bool) {
 	b := new(BinarySearchTree)
 	b.selfBalancing = selfBalancing
-	b.InsertSubBinaryTree(oldTree)
+	b.insertSubBinaryTree(oldTree)
 }
 
 func (b *BinarySearchTree) IsSelfBalancing() bool {
@@ -117,15 +120,13 @@ func (b *BinarySearchTree) IsSelfBalancing() bool {
 }
 
 func (b *BinarySearchTree) SetSelfBalancing(selfBalancing bool) {
-	if b.selfBalancing {
-		b.selfBalancing = selfBalancing
-	} else {
-		if !selfBalancing {
-			if b.size > 2 {
-				b.BalanceTree()
-			}
+	if selfBalancing && !b.selfBalancing {
+		b.selfBalancing = true
+		if b.size > 2 {
+			b.balanceTree()
 		}
 	}
+	b.selfBalancing = selfBalancing
 }
 
 func (b *BinarySearchTree) Insert(comparable Comparable) bool {
@@ -133,72 +134,72 @@ func (b *BinarySearchTree) Insert(comparable Comparable) bool {
 		return false
 	}
 	n := NewNode(comparable, nil, nil, nil)
-	b.InsertNode(n)
+	b.insertNode(n)
 	return true
 }
 
 func (b *BinarySearchTree) Remove(comparable Comparable) bool {
-	if comparable == nil || b.root == nil {
+	if comparable == nil || b.Root == nil {
 		return false
 	}
-	n := b.RemoveByComparable(comparable, b.root)
+	n := b.removeByComparable(comparable, b.Root)
 	return n != nil
 }
 
 func (b *BinarySearchTree) RemoveMinimum() Comparable {
-	if b.root == nil {
+	if b.Root == nil {
 		return nil
 	}
-	return b.RemoveMinimumNode(b.root).Data
+	return b.removeMinimumNode(b.Root).Data
 }
 
 func (b *BinarySearchTree) RemoveMaximum() Comparable {
-	if b.root == nil {
+	if b.Root == nil {
 		return nil
 	}
-	return b.RemoveMaximumNode(b.root).Data
+	return b.removeMaximumNode(b.Root).Data
 }
 
 func (b *BinarySearchTree) GetMinimum() Comparable {
-	if b.root == nil {
+	if b.Root == nil {
 		return nil
 	}
-	return b.GetMinimumNode(b.root).Data
+	return b.getMinimumNode(b.Root).Data
 }
 
 func (b *BinarySearchTree) GetMaximum() Comparable {
-	if b.root == nil {
+	if b.Root == nil {
 		return nil
 	}
-	return b.GetMaximumNode(b.root).Data
+	return b.getMaximumNode(b.Root).Data
 }
 
 func (b *BinarySearchTree) Contains(comparable Comparable) bool {
-	if comparable == nil || b.root == nil {
+	if comparable == nil || b.Root == nil {
 		return false
 	}
-	Node := b.ContainsByComparable(b.root, comparable)
+	Node := b.containsNodeComparable(b.Root, comparable)
 	return Node != nil
 }
 
 func (b *BinarySearchTree) GetRoot() Comparable {
-	if b.root == nil {
+	if b.Root == nil {
 		return nil
 	}
-	return b.root.Data
+	return b.Root.Data
 }
 
 func (b *BinarySearchTree) Clear() {
-	b.root = nil
+	b.Root = nil
 	b.size = 0
 }
 
 func (b *BinarySearchTree) IsEmpty() bool {
-	return b.root == nil
+	return b.Root == nil
 }
 
 func (b *BinarySearchTree) GetHeight() int {
-	return b.GetHeightNode(b.root)
+	return b.getHeightNode(b.Root)
 }
 
 func (b *BinarySearchTree) GetSize() int {
@@ -210,14 +211,14 @@ func (b *BinarySearchTree) Iterator() *TreeIterator {
 }
 
 func (b *BinarySearchTree) InOrderIterator() *TreeIterator {
-	return b.root.NewTreeIterator(true)
+	return b.Root.NewTreeIterator(true)
 }
 
 func (b *BinarySearchTree) ReverseOrderIterator() *TreeIterator {
-	return b.root.NewTreeIterator(false)
+	return b.Root.NewTreeIterator(false)
 }
 
-func (b *BinarySearchTree) GetMinimumNode(n *Node) *Node {
+func (b *BinarySearchTree) getMinimumNode(n *Node) *Node {
 	if n == nil {
 		return nil
 	}
@@ -227,7 +228,7 @@ func (b *BinarySearchTree) GetMinimumNode(n *Node) *Node {
 	return n
 }
 
-func (b *BinarySearchTree) GetMaximumNode(n *Node) *Node {
+func (b *BinarySearchTree) getMaximumNode(n *Node) *Node {
 	if n == nil {
 		return nil
 	}
@@ -237,17 +238,17 @@ func (b *BinarySearchTree) GetMaximumNode(n *Node) *Node {
 	return n
 }
 
-func (b *BinarySearchTree) GetRootNode() *Node {
-	return b.root
+func (b *BinarySearchTree) getRootNode() *Node {
+	return b.Root
 }
 
-func (b *BinarySearchTree) RemoveMinimumNode(n *Node) *Node {
-	n = b.GetMinimumNode(n)
+func (b *BinarySearchTree) removeMinimumNode(n *Node) *Node {
+	n = b.getMinimumNode(n)
 	if n == nil {
 		return nil
 	}
-	if n == b.root {
-		b.root = n.Right
+	if n == b.Root {
+		b.Root = n.Right
 	} else if n.Parent.Right == n {
 		n.Parent.Right = n.Right
 	} else {
@@ -257,13 +258,13 @@ func (b *BinarySearchTree) RemoveMinimumNode(n *Node) *Node {
 	return n
 }
 
-func (b *BinarySearchTree) RemoveMaximumNode(n *Node) *Node {
-	n = b.GetMaximumNode(n)
+func (b *BinarySearchTree) removeMaximumNode(n *Node) *Node {
+	n = b.getMaximumNode(n)
 	if n == nil {
 		return nil
 	}
-	if n == b.root {
-		b.root = n.Left
+	if n == b.Root {
+		b.Root = n.Left
 	} else if n.Parent.Right == n {
 		n.Parent.Right = n.Left
 	} else {
@@ -273,34 +274,34 @@ func (b *BinarySearchTree) RemoveMaximumNode(n *Node) *Node {
 	return n
 }
 
-func (b *BinarySearchTree) GetHeightNode(n *Node) int {
+func (b *BinarySearchTree) getHeightNode(n *Node) int {
 	if n == nil {
 		return 0
 	}
 	if n.Left == nil && n.Right == nil {
 		return 1
 	}
-	return 1 + int(math.Max(float64(b.GetHeightNode(n.Left)), float64(b.GetHeightNode(n.Right))))
+	return 1 + int(math.Max(float64(b.getHeightNode(n.Left)), float64(b.getHeightNode(n.Right))))
 }
 
-func (b *BinarySearchTree) GetSizeNode(n *Node) int {
+func (b *BinarySearchTree) getSizeNode(n *Node) int {
 	if n == nil {
 		return 0
 	}
 	if n.Left == nil && n.Right == nil {
 		return 1
 	}
-	return 1 + b.GetSizeNode(n.Left) + b.GetSizeNode(n.Right)
+	return 1 + b.getSizeNode(n.Left) + b.getSizeNode(n.Right)
 }
 
-func (b *BinarySearchTree) ContainsNode(n *Node) bool {
-	if n == nil || b.root == nil {
+func (b *BinarySearchTree) containsNode(n *Node) bool {
+	if n == nil || b.Root == nil {
 		return false
 	}
-	if n == b.root {
+	if n == b.Root {
 		return true
 	}
-	curr := b.root
+	curr := b.Root
 	for curr != nil {
 		if curr == n {
 			return true
@@ -317,45 +318,45 @@ func (b *BinarySearchTree) ContainsNode(n *Node) bool {
 	return false
 }
 
-func (b *BinarySearchTree) Get(comparable Comparable) *Node {
-	if comparable == nil || b.root == nil {
+func (b *BinarySearchTree) get(comparable Comparable) *Node {
+	if comparable == nil || b.Root == nil {
 		return nil
 	}
-	return b.ContainsByComparable(b.root, comparable)
+	return b.containsNodeComparable(b.Root, comparable)
 }
 
-func (b *BinarySearchTree) InsertSubtree(n *Node) bool {
+func (b *BinarySearchTree) insertSubtree(n *Node) bool {
 	if n == nil {
 		return false
 	}
 	iter := n.NewTreeIterator(true)
 	for iter.HasNext() {
 		n2 := NewNode(iter.Next(), nil, nil, nil)
-		b.InsertNode(n2)
+		b.insertNode(n2)
 	}
 	return true
 }
 
-func (b *BinarySearchTree) InsertSubBinaryTree(b2 *BinarySearchTree) bool {
+func (b *BinarySearchTree) insertSubBinaryTree(b2 *BinarySearchTree) bool {
 	if b2 == nil {
 		return false
 	}
-	if b2.root == nil {
+	if b2.Root == nil {
 		return true
 	}
 	iter := b2.InOrderIterator()
 	for iter.HasNext() {
 		n2 := NewNode(iter.Next(), nil, nil, nil)
-		b.InsertNode(n2)
+		b.insertNode(n2)
 	}
 	return true
 }
 
-func (b *BinarySearchTree) RemoveSubtreeByComparable(comparable Comparable) bool {
-	if comparable == nil || b.root == nil {
+func (b *BinarySearchTree) removeSubtree(comparable Comparable) bool {
+	if comparable == nil || b.Root == nil {
 		return false
 	}
-	n := b.root
+	n := b.Root
 	for n != nil {
 		diff := comparable.CompareTo(n.Data)
 		if diff < 0 {
@@ -368,9 +369,9 @@ func (b *BinarySearchTree) RemoveSubtreeByComparable(comparable Comparable) bool
 			} else {
 				n.Parent.Right = nil
 			}
-			b.size -= b.GetSizeNode(n)
+			b.size -= b.getSizeNode(n)
 			if b.selfBalancing {
-				b.BalanceTreeByNode(n.Parent)
+				b.balanceTreeByNode(n.Parent)
 			}
 			return true
 		}
@@ -378,22 +379,22 @@ func (b *BinarySearchTree) RemoveSubtreeByComparable(comparable Comparable) bool
 	return false
 }
 
-func (b *BinarySearchTree) RemoveSubtree(n *Node) bool {
-	if n == nil || b.root == nil {
+func (b *BinarySearchTree) removeSubtreeNode(n *Node) bool {
+	if n == nil || b.Root == nil {
 		return false
 	}
-	if b.root == n {
-		b.root = nil
+	if b.Root == n {
+		b.Root = nil
 	} else {
-		if b.ContainsNode(n) {
+		if b.containsNode(n) {
 			if n.IsLeftChild() {
 				n.Parent.Left = nil
 			} else {
 				n.Parent.Right = nil
 			}
-			b.size -= b.GetSizeNode(n)
+			b.size -= b.getSizeNode(n)
 			if b.selfBalancing {
-				b.BalanceTreeByNode(n.Parent)
+				b.balanceTreeByNode(n.Parent)
 			}
 			return true
 		}
@@ -401,17 +402,17 @@ func (b *BinarySearchTree) RemoveSubtree(n *Node) bool {
 	return false
 }
 
-func (b *BinarySearchTree) InsertNode(n *Node) bool {
-	if b.root == nil {
-		b.root = n
+func (b *BinarySearchTree) insertNode(n *Node) bool {
+	if b.Root == nil {
+		b.Root = n
 		b.size += 1
 		return true
 	} else {
-		return b.InsertAtNode(n, b.root)
+		return b.insertAtNode(n, b.Root)
 	}
 }
 
-func (b *BinarySearchTree) InsertAtNode(n *Node, at *Node) bool {
+func (b *BinarySearchTree) insertAtNode(n *Node, at *Node) bool {
 	if at == nil {
 		return false
 	}
@@ -436,23 +437,23 @@ func (b *BinarySearchTree) InsertAtNode(n *Node, at *Node) bool {
 	}
 	b.size++
 	if b.selfBalancing {
-		b.BalanceTreeByNode(at)
+		b.balanceTreeByNode(at)
 	}
 	return true
 }
 
-func (b *BinarySearchTree) RemoveNodeBool(n *Node) bool {
-	if n == nil || b.root == nil {
+func (b *BinarySearchTree) removeNodeBool(n *Node) bool {
+	if n == nil || b.Root == nil {
 		return false
 	}
-	if b.ContainsNode(n) {
-		b.RemoveNode(n)
+	if b.containsNode(n) {
+		b.removeNode(n)
 		return true
 	}
 	return false
 }
 
-func (b *BinarySearchTree) RemoveByComparable(comparable Comparable, n *Node) *Node {
+func (b *BinarySearchTree) removeByComparable(comparable Comparable, n *Node) *Node {
 	for n != nil {
 		diff := comparable.CompareTo(n.Data)
 		if diff < 0 {
@@ -460,17 +461,17 @@ func (b *BinarySearchTree) RemoveByComparable(comparable Comparable, n *Node) *N
 		} else if diff > 0 {
 			n = n.Right
 		} else {
-			b.RemoveNode(n)
+			b.removeNode(n)
 			return n
 		}
 	}
 	return nil
 }
 
-func (b *BinarySearchTree) RemoveNode(n *Node) {
+func (b *BinarySearchTree) removeNode(n *Node) {
 	isLeftChild := n.IsLeftChild()
 	if n.Left != nil && n.Right != nil {
-		min := b.GetMinimumNode(n.Right)
+		min := b.getMinimumNode(n.Right)
 		if min != n.Right {
 			min.Parent.Left = min.Right
 			if min.Right != nil {
@@ -484,8 +485,8 @@ func (b *BinarySearchTree) RemoveNode(n *Node) {
 		if n.Left != nil {
 			n.Left.Parent = min
 		}
-		if n == b.root {
-			b.root = min
+		if n == b.Root {
+			b.Root = min
 		} else if isLeftChild {
 			n.Parent.Left = min
 		} else {
@@ -494,11 +495,11 @@ func (b *BinarySearchTree) RemoveNode(n *Node) {
 		min.Left = n.Left
 		min.Parent = n.Parent
 		if b.selfBalancing {
-			b.BalanceTreeByNode(min.Parent)
+			b.balanceTreeByNode(min.Parent)
 		}
 	} else if n.Left != nil {
-		if n == b.root {
-			b.root = n.Left
+		if n == b.Root {
+			b.Root = n.Left
 		} else if isLeftChild {
 			n.Parent.Left = n.Left
 		} else {
@@ -508,8 +509,8 @@ func (b *BinarySearchTree) RemoveNode(n *Node) {
 			n.Left.Parent = n.Parent
 		}
 	} else if n.Right != nil {
-		if n == b.root {
-			b.root = n.Right
+		if n == b.Root {
+			b.Root = n.Right
 		} else if isLeftChild {
 			n.Parent.Left = n.Right
 		} else {
@@ -519,8 +520,8 @@ func (b *BinarySearchTree) RemoveNode(n *Node) {
 			n.Right.Parent = n.Parent
 		}
 	} else {
-		if n == b.root {
-			b.root = nil
+		if n == b.Root {
+			b.Root = nil
 		} else if isLeftChild {
 			n.Parent.Left = nil
 		} else {
@@ -530,7 +531,7 @@ func (b *BinarySearchTree) RemoveNode(n *Node) {
 	b.size--
 }
 
-func (b *BinarySearchTree) ContainsByComparable(n *Node, comparable Comparable) *Node {
+func (b *BinarySearchTree) containsNodeComparable(n *Node, comparable Comparable) *Node {
 	for n != nil {
 		nData := n.Data
 		diff := comparable.CompareTo(nData)
@@ -545,39 +546,39 @@ func (b *BinarySearchTree) ContainsByComparable(n *Node, comparable Comparable) 
 	return nil
 }
 
-func (b *BinarySearchTree) BalanceTree() {
-	root := b.root
-	b.root = nil
+func (b *BinarySearchTree) balanceTree() {
+	Root := b.Root
+	b.Root = nil
 	b.size = 0
-	iter := root.NewTreeIterator(true)
+	iter := Root.NewTreeIterator(true)
 	for iter.HasNext() {
 		n := NewNode(iter.Next(), nil, nil, nil)
-		b.InsertNode(n)
+		b.insertNode(n)
 	}
 }
 
-func (b *BinarySearchTree) BalanceTreeByNode(n *Node) {
+func (b *BinarySearchTree) balanceTreeByNode(n *Node) {
 	for n != nil {
-		n = b.Balance(n)
+		n = b.balance(n)
 		n = n.Parent
 	}
 }
 
-func (b *BinarySearchTree) Balance(n *Node) *Node {
+func (b *BinarySearchTree) balance(n *Node) *Node {
 	if n == nil {
 		return nil
 	}
-	if b.GetHeightNode(n) < 2 {
+	if b.getHeightNode(n) < 2 {
 		return n
 	}
 	p := n.Parent
 	l := n.Left
 	r := n.Right
-	lh := b.GetHeightNode(l)
-	rh := b.GetHeightNode(r)
+	lh := b.getHeightNode(l)
+	rh := b.getHeightNode(r)
 	balance := lh - rh
 	if balance > 1 {
-		lch := b.GetHeightNode(l.Right)
+		lch := b.getHeightNode(l.Right)
 		if lch > 1 {
 			c := l.Right
 			l.Right = c.Left
@@ -604,12 +605,12 @@ func (b *BinarySearchTree) Balance(n *Node) *Node {
 				p.Right = c
 			}
 		} else {
-			b.root = c
+			b.Root = c
 		}
 		return c
 	}
 	if balance < -1 {
-		rch := b.GetHeightNode(r.Left)
+		rch := b.getHeightNode(r.Left)
 		if rch > 1 {
 			d := r.Left
 			r.Left = d.Right
@@ -636,7 +637,7 @@ func (b *BinarySearchTree) Balance(n *Node) *Node {
 				p.Right = d
 			}
 		} else {
-			b.root = d
+			b.Root = d
 		}
 		return d
 	}
