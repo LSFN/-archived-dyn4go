@@ -9,19 +9,20 @@ type AABB struct {
 }
 
 func NewAABBFromFloats(minX, minY, maxX, maxY float64) *AABB {
+	if minX > maxX || minY > maxY {
+		panic("min and max are invalid")
+	}
 	a := new(AABB)
-	a.min.X = minX
-	a.min.Y = minY
-	a.max.X = maxX
-	a.max.Y = maxY
+	a.min = NewVector2FromXY(minX, minY)
+	a.max = NewVector2FromXY(maxX, maxY)
 	return a
 }
 
 func NewAABBFromVector2(min, max *Vector2) *AABB {
-	a := new(AABB)
 	if min.X > max.X || min.Y > max.Y {
 		panic("min and max are invalid")
 	}
+	a := new(AABB)
 	a.min = NewVector2FromVector2(min)
 	a.max = NewVector2FromVector2(max)
 	return a
@@ -60,8 +61,8 @@ func (a *AABB) Translate(translation *Vector2) {
 
 func (a *AABB) GetTranslated(translation *Vector2) *AABB {
 	a2 := new(AABB)
-	a2.min.SumVector2(translation)
-	a2.max.SumVector2(translation)
+	a2.min = a.min.SumVector2(translation)
+	a2.max = a.max.SumVector2(translation)
 	return a2
 }
 

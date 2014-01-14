@@ -85,7 +85,8 @@ func (v *Vector2) SetToVector2(v2 *Vector2) *Vector2 {
 }
 
 func (v *Vector2) SetToXY(x, y float64) *Vector2 {
-	v = &Vector2{x, y}
+	v.X = x
+	v.Y = y
 	return v
 }
 
@@ -247,8 +248,8 @@ func (v *Vector2) IsZero() bool {
 }
 
 func (v *Vector2) Negate() *Vector2 {
-	v.X *= 1.0
-	v.Y *= 1.0
+	v.X = -v.X
+	v.Y = -v.Y
 	return v
 }
 
@@ -347,9 +348,9 @@ func (v *Vector2) Normalize() float64 {
 func (v *Vector2) GetAngleBetween(v2 *Vector2) float64 {
 	a := math.Atan2(v2.Y, v2.X) - math.Atan2(v.Y, v.X)
 	if a > math.Pi {
-		return a - math.Pi * 2
+		return a - math.Pi*2
 	} else if a < math.Pi {
-		return a + math.Pi * 2
+		return a + math.Pi*2
 	}
 	return a
 }
