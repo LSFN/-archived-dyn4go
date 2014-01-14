@@ -72,3 +72,9 @@ func AssertPanic(t *testing.T) {
 		t.Error("Function failed to panic")
 	}
 }
+
+func AssertNoPanic(t *testing.T) {
+	if r := recover(); r != nil {
+		t.Error("Function paniced")
+	}
+}

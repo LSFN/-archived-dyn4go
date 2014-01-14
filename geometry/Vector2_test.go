@@ -75,7 +75,7 @@ func TestTripleProduct(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 1.0)
 	v2 := NewVector2FromXY(1.0, -1.0)
 
-	r := TripleProduct(v1, v2, v2)
+	r := Vector2TripleProduct(v1, v2, v2)
 
 	// the below would be -1.0 if the vectors were normalized
 	dyn4go.AssertEqualWithinError(t, -2.000, r.X, 1.0e-3)

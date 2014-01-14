@@ -59,7 +59,7 @@ func (v *Vector2) DistanceSquaredFromVector2(v2 *Vector2) float64 {
 	return (v.X-v2.X)*(v.X-v2.X) + (v.Y-v2.Y)*(v.Y-v2.Y)
 }
 
-func TripleProduct(a, b, c *Vector2) *Vector2 {
+func Vector2TripleProduct(a, b, c *Vector2) *Vector2 {
 	v := new(Vector2)
 	ac := a.X*c.X + a.Y*c.Y
 	bc := b.X*c.X + b.Y*c.Y

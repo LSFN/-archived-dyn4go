@@ -9,13 +9,16 @@ type Interval struct {
 }
 
 func NewIntervalFromMinMax(min, max float64) *Interval {
+	if min > max {
+		panic("Min is greater than max")
+	}
 	i := new(Interval)
 	i.min = min
 	i.max = max
 	return i
 }
 
-func NewIntervalFromIntervat(orig *Interval) *Interval {
+func NewIntervalFromInterval(orig *Interval) *Interval {
 	i := *orig
 	return &i
 }
@@ -64,10 +67,10 @@ func (i *Interval) GetOverlap(i2 *Interval) float64 {
 }
 
 func (i *Interval) Clamp(x float64) float64 {
-	return Clamp(x, i.min, i.max)
+	return IntervalClamp(x, i.min, i.max)
 }
 
-func Clamp(x, min, max float64) float64 {
+func IntervalClamp(x, min, max float64) float64 {
 	if x <= max && x >= min {
 		return x
 	} else if max < x {
