@@ -19,7 +19,7 @@ func TestCreateRadius(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 0.500, aabb.getMaxX(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 0.500, aabb.getMaxY(), 1.0e-3)
 
-	aabb = NewAABBFromRadiusAndCenter(NewVector2FromXY(-1.0, 1.0), 0.5)
+	aabb = NewAABBFromCenterRadius(NewVector2FromXY(-1.0, 1.0), 0.5)
 	dyn4go.AssertEqualWithinError(t, -1.500, aabb.getMinX(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 0.500, aabb.getMinY(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, -0.500, aabb.getMaxX(), 1.0e-3)

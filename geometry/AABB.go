@@ -32,7 +32,7 @@ func NewAABBFromRadius(radius float64) *AABB {
 	return NewAABBFromRadiusAndCenter(nil, radius)
 }
 
-func NewAABBFromRadiusAndCenter(center *Vector2, radius float64) *AABB {
+func NewAABBFromCenterRadius(center *Vector2, radius float64) *AABB {
 	if radius < 0 {
 		panic("invalid radius")
 	}
