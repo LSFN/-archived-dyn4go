@@ -6,9 +6,7 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
-type Polygon struct {
-	Wound
-}
+type Polygon Wound
 
 func NewPolygon(vertices ...*Vector2) *Polygon {
 	if vertices == nil || len(vertices) < 3 {

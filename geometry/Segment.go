@@ -62,6 +62,23 @@ func (s *Segment) GetPointOnLineClosestToPoint(point *Vector2) *Vector2 {
 	return GetPointOnLineClosestToPoint(point, s.vertices[0], s.vertices[1])
 }
 
+func GetPointOnSegmentClosestToPoint(point, linePoint1, linePoint2 *Vector2) *Vector2 {
+	p1ToP := point.DifferenceVector2(linePoint1)
+	line := linePoint2.DifferenceVector2(linePoint1)
+	ab2 := line.DotVector2(line)
+	ap_ab := p1ToP.DotVector2(line)
+	if ab2 <= dyn4go.Epsilon {
+		return NewVector2FromVector2(linePoint1)
+	}
+	t := ap_ab / ab2
+	t = IntervalClamp(t, 0, 1)
+	return line.Multiply(t).AddVector2(linePoint1)
+}
+
+func (s *Segment) GetPointOnSegmentClosestToPoint(point *Vector2) *Vector2 {
+	return GetPointOnSegmentClosestToPoint(point, s.vertices[0], s.vertices[1])
+}
+
 func GetLineIntersection(ap1, ap2, bp1, bp2 *Vector2) *Vector2 {
 	a := ap1.HereToVector2(ap2)
 	b := bp1.HereToVector2(bp2)
