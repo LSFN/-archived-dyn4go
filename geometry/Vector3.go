@@ -27,7 +27,7 @@ func NewVector3FromFloats(x, y, z float64) *Vector3 {
 func NewVector3FromFloatsDifference(x1, y1, z1, x2, y2, z2 float64) *Vector3 {
 	v := new(Vector3)
 	v.X = x2 - x1
-	v.y = y2 - y1
+	v.Y = y2 - y1
 	v.Z = z2 - z1
 	return v
 }
@@ -68,7 +68,7 @@ func (v *Vector3) DistanceSquaredVector3(v2 *Vector3) float64 {
 	return xd*xd + yd*yd + zd*zd
 }
 
-func TripleProduct(a, b, c *Vector3) *Vector3 {
+func Vector3TripleProduct(a, b, c *Vector3) *Vector3 {
 	v := new(Vector3)
 	ac := a.X*c.X + a.Y*c.Y + a.Z*c.Z
 	bc := b.X*c.X + b.Y*c.Y + b.Z*c.Z
@@ -78,8 +78,15 @@ func TripleProduct(a, b, c *Vector3) *Vector3 {
 	return v
 }
 
-func (v *Vector3) Set(v2 *Vector3) *Vector3 {
+func (v *Vector3) SetVector3(v2 *Vector3) *Vector3 {
 	*v = *v2
+	return v
+}
+
+func (v *Vector3) SetFloats(x, y, z float64) *Vector3 {
+	v.X = x
+	v.Y = y
+	v.Z = z
 	return v
 }
 
@@ -91,8 +98,8 @@ func (v *Vector3) GetYComponent() *Vector3 {
 	return NewVector3FromFloats(0, v.Y, 0)
 }
 
-func (v *Vector3) GetXComponent() *Vector3 {
-	return NewVector3FromFloats(v.X, 0, 0)
+func (v *Vector3) GetZComponent() *Vector3 {
+	return NewVector3FromFloats(0, 0, v.Z)
 }
 
 func (v *Vector3) GetMagnitude() float64 {
@@ -187,9 +194,9 @@ func (v *Vector3) HereToFloats(x, y, z float64) *Vector3 {
 }
 
 func (v *Vector3) Multiply(s float64) *Vector3 {
-	v.X * s
-	v.Y * s
-	v.Z * s
+	v.X *= s
+	v.Y *= s
+	v.Z *= s
 	return v
 }
 
@@ -213,8 +220,12 @@ func (v *Vector3) CrossFloats(x, y, z float64) *Vector3 {
 	return NewVector3FromFloats(v.Y*z-v.Z*y, v.Z*x-v.X*z, v.X*y-v.Y*x)
 }
 
-func (v *Vector3) IsOrthogonal(v2 *Vector3) bool {
+func (v *Vector3) IsOrthogonalVector3(v2 *Vector3) bool {
 	return math.Abs(v.X*v2.X+v.Y*v2.Y+v.Z*v2.Z) <= dyn4go.Epsilon
+}
+
+func (v *Vector3) IsOrthogonalFloats(x, y, z float64) bool {
+	return math.Abs(v.X*x+v.Y*y+v.Z*z) <= dyn4go.Epsilon
 }
 
 func (v *Vector3) IsZero() bool {
@@ -249,7 +260,7 @@ func (v *Vector3) Project(v2 *Vector3) *Vector3 {
 	return NewVector3FromFloats(denom*v2.X, denom*v2.Y, denom*v2.Z)
 }
 
-func (v *Vector3) GetNormailised() *Vector3 {
+func (v *Vector3) GetNormalised() *Vector3 {
 	mag := math.Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z)
 	if mag <= dyn4go.Epsilon {
 		return new(Vector3)
@@ -261,9 +272,9 @@ func (v *Vector3) GetNormailised() *Vector3 {
 func (v *Vector3) Normalise() float64 {
 	magnitude := math.Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z)
 	if magnitude <= dyn4go.Epsilon {
-		return new(Vector3)
+		return 0
 	}
-	m = 1 / magnitude
+	m := 1 / magnitude
 	v.X *= m
 	v.Y *= m
 	v.Z *= m
