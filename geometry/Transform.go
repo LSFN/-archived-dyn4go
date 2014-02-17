@@ -4,10 +4,6 @@ import (
 	"math"
 )
 
-const (
-	TWO_PI = math.Pi * 2
-)
-
 type Transform struct {
 	X, Y, m00, m01, m10, m11 float64
 }

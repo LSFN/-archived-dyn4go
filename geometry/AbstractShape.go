@@ -7,6 +7,8 @@ type AbstractShape struct {
 	userData interface{}
 }
 
+/*
+
 func (a *AbstractShape) GetID() string {
 	return a.id
 }
@@ -15,7 +17,7 @@ func (a *AbstractShape) GetCenter() *Vector2 {
 	return a.center
 }
 
-func (a *AbstractShape) GetRadius() *Vector2 {
+func (a *AbstractShape) GetRadius() float64 {
 	return a.radius
 }
 
@@ -57,22 +59,12 @@ func (a *AbstractShape) Project(v *Vector2) *Interval {
 	return a.ProjectTransform(v, NewTransform())
 }
 
-func (a *AbstractShape) ProjectTransform(v *Vector2, t *Transform) *Interval {
-	return nil
-}
-
 func (a *AbstractShape) Contains(v *Vector2) bool {
 	return a.ContainsTransform(v, NewTransform())
-}
-
-func (a *AbstractShape) ContainsTransform(v *Vector2, t *Transform) bool {
-	return nil
 }
 
 func (a *AbstractShape) CreateAABB() *AABB {
 	return a.CreateAABBTransform(NewTransform())
 }
 
-func (a *AbstractShape) CreateAABBTransform(t *Transform) *AABB {
-	return nil
-}
+*/

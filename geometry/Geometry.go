@@ -2,7 +2,6 @@ package geometry
 
 import (
 	"math"
-	"sort"
 
 	"github.com/LSFN/dyn4go"
 )
@@ -16,7 +15,7 @@ func GetWindingFromList(points []*Vector2) float64 {
 		panic("List of points must not be nil")
 	}
 	area := 0.0
-	for i = 0; i < len(points); i++ {
+	for i := 0; i < len(points); i++ {
 		p1 := points[i]
 		i2 := i + 1
 		if i2 == len(points) {
@@ -35,11 +34,17 @@ func GetWinding(points ...*Vector2) float64 {
 	return GetWindingFromList(points)
 }
 
-func ReverseWindingFromList(points *[]*Vector2) {
-	if points == nil {
-		panic("List of points must not be nil")
+func ReverseWindingFromList(points []*Vector2) {
+	if points == nil || len(points) < 2 {
+		panic("List of points must not be nil or of length less than 2")
 	}
-	sort.Reverse(points)
+	i := 0
+	j := len(points) - 1
+	for j > i {
+		points[i], points[j] = points[j], points[i]
+		j--
+		i++
+	}
 }
 
 func ReverseWinding(points ...*Vector2) {
@@ -57,11 +62,11 @@ func GetAverageCenterFromList(points []*Vector2) *Vector2 {
 	for _, v := range points {
 		a.AddVector2(v)
 	}
-	return a.Multiply(1.0 / len(points))
+	return a.Multiply(1.0 / float64(len(points)))
 }
 
 func GetAverageCenter(points ...*Vector2) *Vector2 {
-	return GetWindingFromList(points)
+	return GetAverageCenterFromList(points)
 }
 
 func GetAreaWeightedCenterFromList(points []*Vector2) *Vector2 {
@@ -74,7 +79,7 @@ func GetAreaWeightedCenterFromList(points []*Vector2) *Vector2 {
 	ac := GetAverageCenterFromList(points)
 	center := new(Vector2)
 	var area float64
-	for i, v := range points {
+	for i := range points {
 		p1 := points[i]
 		var p2 *Vector2
 		if i == len(points)-1 {
@@ -97,4 +102,30 @@ func GetAreaWeightedCenterFromList(points []*Vector2) *Vector2 {
 
 func GetAreaWeightedCenter(points ...*Vector2) *Vector2 {
 	return GetAverageCenterFromList(points)
+}
+
+func CreateCircle(radius float64) *Circle {
+	return NewCircle(radius)
+}
+
+func CreatePolygon(vertices ...*Vector2) *Polygon {
+	if vertices == nil {
+		panic("Polygon cannot be created without a few vertices to go on.")
+	}
+	verts := make([]*Vector2, len(vertices))
+	for i, v := range vertices {
+		if v != nil {
+			verts[i] = NewVector2FromVector2(v)
+		} else {
+			panic("Polygon cannot be created from nil points")
+		}
+	}
+	return NewPolygon(verts...)
+}
+
+func CreatePolygonAtOrigin(vertices ...*Vector2) *Polygon {
+	polygon := CreatePolygon(vertices...)
+	center := polygon.GetCenter()
+	polygon.TranslateXY(-center.X, -center.Y)
+	return polygon
 }

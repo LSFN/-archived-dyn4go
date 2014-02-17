@@ -29,7 +29,7 @@ func NewAABBFromVector2(min, max *Vector2) *AABB {
 }
 
 func NewAABBFromRadius(radius float64) *AABB {
-	return NewAABBFromRadiusAndCenter(nil, radius)
+	return NewAABBFromCenterRadius(nil, radius)
 }
 
 func NewAABBFromCenterRadius(center *Vector2, radius float64) *AABB {
@@ -193,18 +193,18 @@ func (a *AABB) IsDegenerateWithError(e float64) bool {
 	return math.Abs(a.max.X-a.min.X) <= e || math.Abs(a.max.Y-a.min.Y) <= e
 }
 
-func (a *AABB) getMinX() float64 {
+func (a *AABB) GetMinX() float64 {
 	return a.min.X
 }
 
-func (a *AABB) getMaxX() float64 {
+func (a *AABB) GetMaxX() float64 {
 	return a.max.X
 }
 
-func (a *AABB) getMinY() float64 {
+func (a *AABB) GetMinY() float64 {
 	return a.min.Y
 }
 
-func (a *AABB) getMaxY() float64 {
+func (a *AABB) GetMaxY() float64 {
 	return a.max.Y
 }

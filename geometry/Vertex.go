@@ -1,18 +1,20 @@
 package geometry
 
 type Vertex struct {
-	Feature
 	point *Vector2
 	index int
 }
 
-func NewVertexFromPoint(v *Vector2) *Vertex {
-	return NewVertexFromPointIndex(v, NOT_INDEXED)
+const (
+	NOT_INDEXED = -1
+)
+
+func NewVertexFromVector2(v *Vector2) *Vertex {
+	return NewVertexFromVector2Int(v, NOT_INDEXED)
 }
 
-func NewVertexFromPointIndex(v *Vector2, i int) *Vertex {
+func NewVertexFromVector2Int(v *Vector2, i int) *Vertex {
 	vertex := new(Vertex)
-	vertex = VERTEX_FEATURE
 	vertex.point = v
 	vertex.index = i
 	return vertex
@@ -24,4 +26,12 @@ func (v *Vertex) GetPoint() *Vector2 {
 
 func (v *Vertex) GetIndex() int {
 	return v.index
+}
+
+func (v *Vertex) IsEdge() bool {
+	return false
+}
+
+func (v *Vertex) IsVertex() bool {
+	return true
 }

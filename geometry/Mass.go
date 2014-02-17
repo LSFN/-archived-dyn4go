@@ -5,12 +5,12 @@ import (
 )
 
 type Mass struct {
-	massType    int
-	center      *Vector2
-	mass        float64
-	inertia     float64
-	invMass     float64
-	invIntertia float64
+	massType   int
+	center     *Vector2
+	mass       float64
+	inertia    float64
+	invMass    float64
+	invInertia float64
 }
 
 const (
@@ -49,9 +49,9 @@ func NewMassFromCenterMassInertia(center *Vector2, mass, inertia float64) *Mass 
 		m.massType = FIXED_LINEAR_VELOCITY
 	}
 	if m.inertia > dyn4go.Epsilon {
-		m.invIntertia = 1 / m.inertia
+		m.invInertia = 1 / m.inertia
 	} else {
-		m.invIntertia = 0
+		m.invInertia = 0
 		m.massType = FIXED_ANGULAR_VELOCITY
 	}
 	if m.mass <= dyn4go.Epsilon && m.inertia <= dyn4go.Epsilon {

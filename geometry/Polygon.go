@@ -3,7 +3,7 @@ package geometry
 import (
 	"math"
 
-	"github.com/LSFN/dyn4go"
+	"code.google.com/p/uuid"
 )
 
 type Polygon Wound
@@ -18,7 +18,7 @@ func NewPolygon(vertices ...*Vector2) *Polygon {
 		}
 	}
 	var area, sign float64
-	for i, v := range vertices {
+	for i := range vertices {
 		var p0, p1, p2 *Vector2
 		if i-1 < 0 {
 			p0 = vertices[len(vertices)-1]
@@ -52,6 +52,7 @@ func NewPolygon(vertices ...*Vector2) *Polygon {
 		panic("Invalid polygon winding")
 	}
 	p := new(Polygon)
+	p.id = uuid.New()
 	p.vertices = vertices
 	p.normals = make([]*Vector2, len(vertices))
 	for i, p1 := range p.vertices {
@@ -61,7 +62,8 @@ func NewPolygon(vertices ...*Vector2) *Polygon {
 		} else {
 			p2 = vertices[i+1]
 		}
-		n := p1.HereToVector2(p2).Left().Normalize()
+		n := p1.HereToVector2(p2).Left()
+		n.Normalize()
 		p.normals[i] = n
 	}
 	p.center = GetAreaWeightedCenterFromList(p.vertices)
@@ -70,6 +72,7 @@ func NewPolygon(vertices ...*Vector2) *Polygon {
 		r2 = math.Max(r2, p.center.DistanceSquaredFromVector2(v))
 	}
 	p.radius = math.Sqrt(r2)
+	return p
 }
 
 func (p *Polygon) GetAxes(foci []*Vector2, transform *Transform) []*Vector2 {
@@ -77,7 +80,7 @@ func (p *Polygon) GetAxes(foci []*Vector2, transform *Transform) []*Vector2 {
 	if foci != nil {
 		arrLen += len(foci)
 	}
-	axes = make([]*Vector2, arrLen)
+	axes := make([]*Vector2, arrLen)
 	n := 0
 	for _, v := range p.normals {
 		axes[n] = transform.GetTransformedR(v)
@@ -94,7 +97,8 @@ func (p *Polygon) GetAxes(foci []*Vector2, transform *Transform) []*Vector2 {
 				d = dt
 			}
 		}
-		axis := f.HereToVector2(closest).Normalize()
+		axis := f.HereToVector2(closest)
+		axis.Normalize()
 		axes[n] = axis
 		n++
 	}
@@ -105,14 +109,14 @@ func (p *Polygon) GetFoci(transform *Transform) []*Vector2 {
 	return nil
 }
 
-func (p *Polygon) Contains(point *Vector2, transform *Transform) bool {
+func (p *Polygon) ContainsVector2Transform(point *Vector2, transform *Transform) bool {
 	p0 := transform.GetInverseTransformedVector2(point)
 	p1 := p.vertices[0]
 	p2 := p.vertices[1]
 	last := GetLocation(p0, p1, p2)
 	for i := range p.vertices {
 		p1 = p2
-		if i+1 == size {
+		if i+1 == len(p.vertices) {
 			p2 = p.vertices[0]
 		} else {
 			p2 = p.vertices[i+1]
@@ -120,29 +124,29 @@ func (p *Polygon) Contains(point *Vector2, transform *Transform) bool {
 		if p0.EqualsVector2(p1) {
 			return true
 		}
-		if last * GetLocation(p0, p1, p2) {
+		if last*GetLocation(p0, p1, p2) < 0 {
 			return false
 		}
 	}
 	return true
 }
 
-func (p *Polygon) Rotate(theta, x, y float64) {
-	p.Rotate(theta, x, y)
+func (p *Polygon) RotateAboutXY(theta, x, y float64) {
+	p.RotateAboutXY(theta, x, y)
 	for i := range p.vertices {
 		p.vertices[i].RotateAboutXY(theta, x, y)
 		p.normals[i].RotateAboutXY(theta, x, y)
 	}
 }
 
-func (p *Polygon) Translate(x, y float64) {
-	p.Translate(x, y)
+func (p *Polygon) TranslateXY(x, y float64) {
+	p.TranslateXY(x, y)
 	for _, v := range p.vertices {
 		v.AddXY(x, y)
 	}
 }
 
-func (p *Polygon) Project(n *Vector2, transform *Transform) *Interval {
+func (p *Polygon) ProjectVector2Transform(n *Vector2, transform *Transform) *Interval {
 	point := transform.GetInverseTransformedVector2(p.vertices[0])
 	min := n.DotVector2(point)
 	max := min
@@ -185,14 +189,14 @@ func (p *Polygon) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
 	leftN := p.normals[c]
 	rightN := p.normals[index]
 	transform.TranslateVector2(maximum)
-	vm := NewVertexFromPointIndex(maximum, index)
+	vm := NewVertexFromVector2Int(maximum, index)
 	if leftN.DotVector2(localn) < rightN.DotVector2(localn) {
 		left := transform.GetTransformedVector2(p.vertices[l])
-		vl = NewVertexFromPointIndex(left, l)
+		vl := NewVertexFromVector2Int(left, l)
 		return NewEdge(vm, vl, vm, maximum.HereToVector2(left), index+1)
 	} else {
 		right := transform.GetTransformedVector2(p.vertices[r])
-		vr = NewVertexFromPointIndex(right, r)
+		vr := NewVertexFromVector2Int(right, r)
 		return NewEdge(vr, vm, vm, right.HereToVector2(maximum), index)
 	}
 }
@@ -219,10 +223,10 @@ func (p *Polygon) CreateMass(density float64) *Mass {
 	for _, v := range p.vertices {
 		ac.AddVector2(v)
 	}
-	ac.Multiply(1.0 / n)
+	ac.Multiply(1.0 / float64(len(p.vertices)))
 	for i, v := range p.vertices {
 		a := i + 1
-		if a >= n {
+		if a >= len(p.vertices) {
 			a = 0
 		}
 		p1 := v.DifferenceVector2(ac)
@@ -239,23 +243,75 @@ func (p *Polygon) CreateMass(density float64) *Mass {
 	c := center.SumVector2(ac)
 	I *= density / 6.0
 	I -= m * center.GetMagnitudeSquared()
-	return NewMassFromCenterMassInertia(c, m, i)
+	return NewMassFromCenterMassInertia(c, m, I)
 }
 
-func (p *Polygon) CreateAABB(transform *Transform) *AABB {
+func (p *Polygon) CreateAABBTransform(transform *Transform) *AABB {
 	point := transform.GetTransformedVector2(p.vertices[0])
-	minX := NewVector2FromVector2(X_AXIS).DotVector2(point)
+	minX := NewVector2FromVector2(&X_AXIS).DotVector2(point)
 	maxX := minX
-	minY := NewVector2FromVector2(Y_AXIS).DotVector2(point)
+	minY := NewVector2FromVector2(&Y_AXIS).DotVector2(point)
 	maxY := minY
 	for _, v := range p.vertices {
 		point = transform.GetTransformedVector2(v)
-		vx := NewVector2FromVector2(X_AXIS).DotVector2(point)
-		vy := NewVector2FromVector2(Y_AXIS).DotVector2(point)
+		vx := NewVector2FromVector2(&X_AXIS).DotVector2(point)
+		vy := NewVector2FromVector2(&Y_AXIS).DotVector2(point)
 		minX = math.Min(minX, vx)
 		maxX = math.Max(maxX, vx)
 		minY = math.Min(minY, vy)
 		maxY = math.Max(maxY, vy)
 	}
 	return NewAABBFromFloats(minX, minY, maxX, maxY)
+}
+
+func (p *Polygon) GetVertices() []*Vector2 {
+	return p.vertices
+}
+
+func (p *Polygon) GetNormals() []*Vector2 {
+	return p.normals
+}
+
+func (p *Polygon) GetID() string {
+	return p.id
+}
+
+func (p *Polygon) GetCenter() *Vector2 {
+	return p.center
+}
+
+func (p *Polygon) GetUserData() interface{} {
+	return p.userData
+}
+
+func (p *Polygon) SetUserData(data interface{}) {
+	p.userData = data
+}
+
+func (p *Polygon) RotateAboutOrigin(theta float64) {
+	p.RotateAboutXY(theta, 0, 0)
+}
+
+func (p *Polygon) RotateAboutCenter(theta float64) {
+	p.RotateAboutXY(theta, p.center.X, p.center.Y)
+}
+
+func (p *Polygon) RotateAboutVector2(theta float64, v *Vector2) {
+	p.RotateAboutXY(theta, v.X, v.Y)
+}
+
+func (p *Polygon) TranslateVector2(v *Vector2) {
+	p.TranslateXY(v.X, v.Y)
+}
+
+func (p *Polygon) ProjectVector2(v *Vector2) *Interval {
+	return p.ProjectVector2Transform(v, NewTransform())
+}
+
+func (p *Polygon) ContainsVector2(v *Vector2) bool {
+	return p.ContainsVector2Transform(v, NewTransform())
+}
+
+func (p *Polygon) CreateAABB() *AABB {
+	return p.CreateAABBTransform(NewTransform())
 }
