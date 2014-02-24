@@ -2,6 +2,8 @@ package geometry
 
 import (
 	"math"
+
+	"code.google.com/p/uuid"
 )
 
 const (
@@ -17,10 +19,13 @@ type Capsule struct {
 }
 
 func NewCapsule(width, height float64) *Capsule {
+	if width <= 0 || height <= 0 {
+		panic("Capsule cannot be created from non-positive width or height.")
+	}
 	major := width
 	minor := height
 	vertical := false
-	if width < heigth {
+	if width < height {
 		major, minor = minor, major
 		vertical = true
 	}
@@ -31,27 +36,27 @@ func NewCapsule(width, height float64) *Capsule {
 	c.radius = major * 0.5
 	c.center = NewVector2FromXY(0, 0)
 
-	f = (major - minor) * 0.5
+	f := (major - minor) * 0.5
 	if vertical {
-		c.foci = [2]*Vector2{NewVector2FromXY(0, -f), NewVector2FromXY(0, f)}
-		c.loaclXAxis = NewVector2FromXY(0, 1)
+		c.foci = []*Vector2{NewVector2FromXY(0, -f), NewVector2FromXY(0, f)}
+		c.localXAxis = NewVector2FromXY(0, 1)
 	} else {
-		c.foci = [2]*Vector2{NewVector2FromXY(-f, 0), NewVector2FromXY(f, 0)}
-		c.loaclXAxis = NewVector2FromXY(1, 0)
+		c.foci = []*Vector2{NewVector2FromXY(-f, 0), NewVector2FromXY(f, 0)}
+		c.localXAxis = NewVector2FromXY(1, 0)
 	}
-
+	c.id = uuid.New()
 	return c
 }
 
-func (c *Capsule) GetAxes(foci []*Vector2, t *Transform) {
+func (c *Capsule) GetAxes(foci []*Vector2, t *Transform) []*Vector2 {
 	if c.foci != nil {
 		axes := make([]*Vector2, 2+len(c.foci))
-		axes[0] = t.GetTransformedR(c.locallXAxis)
-		axes[1] = t.GetTransformedR(c.locallXAxis.GetRightHandOrthogonalVector())
-		f1 := t.GetTransformed(c.foci[0])
-		f2 := t.GetTransformed(c.foci[1])
+		axes[0] = t.GetTransformedR(c.localXAxis)
+		axes[1] = t.GetTransformedR(c.localXAxis.GetRightHandOrthogonalVector())
+		f1 := t.GetTransformedVector2(c.foci[0])
+		f2 := t.GetTransformedVector2(c.foci[1])
 		for i, f := range c.foci {
-			if f1.DistanceSquared(f) < f2.DistanceSquared(f) {
+			if f1.DistanceSquaredFromVector2(f) < f2.DistanceSquaredFromVector2(f) {
 				axes[2+i] = f1.HereToVector2(f)
 			} else {
 				axes[2+i] = f2.HereToVector2(f)
@@ -63,24 +68,24 @@ func (c *Capsule) GetAxes(foci []*Vector2, t *Transform) {
 	}
 }
 
-func (c *Capsule) GetFoci(t *Transform) {
-	return []*Vector2{t.GetTransformed(c.foci[0]), t.GetTransformed(c.foci[1])}
+func (c *Capsule) GetFoci(t *Transform) []*Vector2 {
+	return []*Vector2{t.GetTransformedVector2(c.foci[0]), t.GetTransformedVector2(c.foci[1])}
 }
 
-func (c *Capsule) GetFarthestPoint(v *Vector2, t *Transform) {
+func (c *Capsule) GetFarthestPoint(v *Vector2, t *Transform) *Vector2 {
 	v.Normalize()
 	p := GetFarthestPoint(c.foci[0], c.foci[1], v, t)
 	return p.AddVector2(v.Product(c.capRadius))
 }
 
-func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) *Feature {
+func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
 	localAxis := transform.GetInverseTransformedVector2(n)
 	n1 := c.localXAxis.GetLeftHandOrthogonalVector()
 	d := localAxis.DotVector2(localAxis)
 	d1 := localAxis.DotVector2(n1)
 	if math.Abs(d1) < d {
 		point := c.GetFarthestPoint(n, transform)
-		return NewVertexFromPoint(point)
+		return NewVertexFromVector2(point)
 	} else {
 		v := n1.Multiply(c.capRadius)
 		e := c.localXAxis.Product(c.length * 0.5 * EDGE_FEATURE_EXPANSION_FACTOR)
@@ -96,7 +101,7 @@ func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) *Feature 
 	}
 }
 
-func (c *Capsule) Project(n *Vector2, transform *Transform) *Interval {
+func (c *Capsule) ProjectTransform(n *Vector2, transform *Transform) *Interval {
 	p1 := c.GetFarthestPoint(n, transform)
 	center := transform.GetTransformedVector2(c.center)
 	cDot := center.DotVector2(n)
@@ -104,9 +109,9 @@ func (c *Capsule) Project(n *Vector2, transform *Transform) *Interval {
 	return NewIntervalFromMinMax(2*cDot-d, d)
 }
 
-func (c *Capsule) CreateAABB(transform *Transform) *AABB {
-	x := c.Project(NewVector2FromVector2(X_AXIS), transform)
-	y := c.Project(NewVector2FromVector2(Y_AXIS), transform)
+func (c *Capsule) CreateAABBTransform(transform *Transform) *AABB {
+	x := c.ProjectTransform(NewVector2FromVector2(&X_AXIS), transform)
+	y := c.ProjectTransform(NewVector2FromVector2(&Y_AXIS), transform)
 	return NewAABBFromFloats(x.GetMin(), y.GetMin(), x.GetMax(), y.GetMax())
 }
 
@@ -126,26 +131,28 @@ func (c *Capsule) CreateMass(density float64) *Mass {
 	return NewMassFromCenterMassInertia(c.center, m, I)
 }
 
-func (c *Capsule) GetRadius(center *Vector2) float64 {
+func (c *Capsule) GetRadiusVector2(center *Vector2) float64 {
 	return c.radius + c.center.DistanceFromVector2(center)
 }
 
-func (c *Capsule) Contains(point *Vector2, transform *Transform) bool {
-	p := GetPointOnSegmentClosestToPoint(point, transform.getTransformed(c.foci[0]), transform.getTransformed(c.foci[1]))
+func (c *Capsule) ContainsTransform(point *Vector2, transform *Transform) bool {
+	p := GetPointOnSegmentClosestToPoint(point, transform.GetTransformedVector2(c.foci[0]), transform.GetTransformedVector2(c.foci[1]))
 	r2 := c.capRadius * c.capRadius
 	d2 := p.DistanceSquaredFromVector2(point)
 	return d2 <= r2
 }
 
-func (c *Capsule) Rotate(theta, x, y float64) {
-	c.RotateAboutXY(theta, x, y)
+func (c *Capsule) RotateAboutXY(theta, x, y float64) {
+	if !(c.center.X == x && c.center.Y == y) {
+		c.center.RotateAboutXY(theta, x, y)
+	}
 	c.foci[0].RotateAboutXY(theta, x, y)
 	c.foci[1].RotateAboutXY(theta, x, y)
 	c.localXAxis.RotateAboutOrigin(theta)
 }
 
-func (c *Capsule) Translate(x, y float64) {
-	c.TranslateXY(x, y)
+func (c *Capsule) TranslateXY(x, y float64) {
+	c.center.AddXY(x, y)
 	c.foci[0].AddXY(x, y)
 	c.foci[1].AddXY(x, y)
 }
@@ -160,4 +167,52 @@ func (c *Capsule) GetLength() float64 {
 
 func (c *Capsule) GetCapRadius() float64 {
 	return c.capRadius
+}
+
+func (c *Capsule) GetID() string {
+	return c.id
+}
+
+func (c *Capsule) GetCenter() *Vector2 {
+	return c.center
+}
+
+func (c *Capsule) GetRadius() float64 {
+	return c.radius
+}
+
+func (c *Capsule) GetUserData() interface{} {
+	return c.userData
+}
+
+func (c *Capsule) SetUserData(data interface{}) {
+	c.userData = data
+}
+
+func (c *Capsule) RotateAboutOrigin(theta float64) {
+	c.RotateAboutXY(theta, 0, 0)
+}
+
+func (c *Capsule) RotateAboutCenter(theta float64) {
+	c.RotateAboutXY(theta, c.center.X, c.center.Y)
+}
+
+func (c *Capsule) RotateAboutVector2(theta float64, v *Vector2) {
+	c.RotateAboutXY(theta, v.X, v.Y)
+}
+
+func (c *Capsule) TranslateVector2(v *Vector2) {
+	c.TranslateXY(v.X, v.Y)
+}
+
+func (c *Capsule) Project(v *Vector2) *Interval {
+	return c.ProjectTransform(v, NewTransform())
+}
+
+func (c *Capsule) Contains(v *Vector2) bool {
+	return c.ContainsTransform(v, NewTransform())
+}
+
+func (c *Capsule) CreateAABB() *AABB {
+	return c.CreateAABBTransform(NewTransform())
 }

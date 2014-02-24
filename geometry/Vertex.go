@@ -5,10 +5,6 @@ type Vertex struct {
 	index int
 }
 
-const (
-	NOT_INDEXED = -1
-)
-
 func NewVertexFromVector2(v *Vector2) *Vertex {
 	return NewVertexFromVector2Int(v, NOT_INDEXED)
 }

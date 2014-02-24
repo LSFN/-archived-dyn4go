@@ -1,9 +1,9 @@
 package geometry
 
 const (
-	NOT_INDEXED = iota
-	EDGE_FEATURE
-	VERTEX_FEATURE
+	NOT_INDEXED    = -1
+	EDGE_FEATURE   = 0
+	VERTEX_FEATURE = 1
 )
 
 type Feature interface {

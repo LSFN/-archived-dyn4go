@@ -47,13 +47,15 @@ func AssertFalse(t *testing.T, a bool) {
 }
 
 func AssertNil(t *testing.T, a interface{}) {
-	if a != nil {
+	var b interface{}
+	if a != b {
 		t.Error(preambleCorrection("Value is not nil in assertion"))
 	}
 }
 
 func AssertNotNil(t *testing.T, a interface{}) {
-	if a == nil {
+	var b interface{}
+	if a == b {
 		t.Error(preambleCorrection("Value is nil in assertion"))
 	}
 }

@@ -3,6 +3,7 @@ package geometry
 import (
 	"math"
 
+	"code.google.com/p/uuid"
 	"github.com/LSFN/dyn4go"
 )
 
@@ -30,6 +31,7 @@ func NewSegment(p1, p2 *Vector2) *Segment {
 	s.center = GetAverageCenterFromList(s.vertices)
 	s.length = p1.DistanceSquaredFromVector2(p2)
 	s.radius = s.length * 0.5
+	s.id = uuid.New()
 	return s
 }
 
@@ -270,13 +272,13 @@ func (s *Segment) CreateMass(density float64) *Mass {
 	return NewMassFromCenterMassInertia(s.center, mass, inertia)
 }
 
-func (s *Segment) CreateAABB(transform *Transform) *AABB {
+func (s *Segment) CreateAABBTransform(transform *Transform) *AABB {
 	p := transform.GetTransformedVector2(s.vertices[0])
 	minX := NewVector2FromVector2(&X_AXIS).DotVector2(p)
 	maxX := minX
 	minY := NewVector2FromVector2(&Y_AXIS).DotVector2(p)
 	maxY := minY
-	p = transform.GetInverseTransformedVector2(s.vertices[1])
+	p = transform.GetTransformedVector2(s.vertices[1])
 	vx := NewVector2FromVector2(&X_AXIS).DotVector2(p)
 	vy := NewVector2FromVector2(&Y_AXIS).DotVector2(p)
 	minX = math.Min(minX, vx)
@@ -341,4 +343,8 @@ func (s *Segment) Project(v *Vector2) *Interval {
 
 func (s *Segment) Contains(v *Vector2) bool {
 	return s.ContainsTransform(v, NewTransform())
+}
+
+func (s *Segment) CreateAABB() *AABB {
+	return s.CreateAABBTransform(NewTransform())
 }
