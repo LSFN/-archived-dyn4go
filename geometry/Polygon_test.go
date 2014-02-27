@@ -10,7 +10,7 @@ import (
  * Tests not enough points.
  */
 func TestCreateNotEnoughPoints(t *testing.T) {
-	dyn4go.AssertPanic(t)
+	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		new(Vector2),
 		new(Vector2),
@@ -85,6 +85,7 @@ func TestCreateNullPoints(t *testing.T) {
  * Tests an array with nil points
  */
 func TestCreateNullPoint(t *testing.T) {
+	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		new(Vector2),
 		nil,
@@ -116,7 +117,7 @@ func TestContains(t *testing.T) {
 	}
 	p := NewPolygon(vertices...)
 
-	transform := new(Transform)
+	transform := NewTransform()
 	pt := NewVector2FromXY(2.0, 4.0)
 
 	// shouldn't be in the polygon
@@ -144,7 +145,7 @@ func TestProject(t *testing.T) {
 		NewVector2FromXY(1.0, 0.0),
 	}
 	p := NewPolygon(vertices...)
-	transform := new(Transform)
+	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
 	y := NewVector2FromXY(0.0, 1.0)
 
@@ -174,7 +175,7 @@ func TestGetFarthest(t *testing.T) {
 		NewVector2FromXY(1.0, -1.0),
 	}
 	p := NewPolygon(vertices...)
-	transform := new(Transform)
+	transform := NewTransform()
 	y := NewVector2FromXY(0.0, -1.0)
 
 	f := p.GetFarthestFeature(y, transform)
@@ -211,7 +212,7 @@ func TestGetAxes(t *testing.T) {
 		NewVector2FromXY(1.0, -1.0),
 	}
 	p := NewPolygon(vertices...)
-	transform := new(Transform)
+	transform := NewTransform()
 
 	axes := p.GetAxes(nil, transform)
 	dyn4go.AssertNotNil(t, axes)
@@ -245,10 +246,10 @@ func TestGetFoci(t *testing.T) {
 		NewVector2FromXY(1.0, -1.0),
 	}
 	p := NewPolygon(vertices...)
-	transform := new(Transform)
+	transform := NewTransform()
 	// should return none
 	foci := p.GetFoci(transform)
-	dyn4go.AssertNil(t, foci)
+	dyn4go.AssertTrue(t, foci == nil)
 }
 
 /**
@@ -310,7 +311,7 @@ func TestCreateAABB(t *testing.T) {
 	}
 	p := NewPolygon(vertices...)
 
-	aabb := p.CreateAABBTransform(new(Transform))
+	aabb := p.CreateAABBTransform(NewTransform())
 	dyn4go.AssertEqualWithinError(t, -1.0, aabb.GetMinX(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, -1.0, aabb.GetMinY(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 1.0, aabb.GetMaxX(), 1.0e-3)
@@ -323,7 +324,7 @@ func TestCreateAABB(t *testing.T) {
 	dyn4go.AssertEqual(t, aabb.GetMaxX(), aabb2.GetMaxX())
 	dyn4go.AssertEqual(t, aabb.GetMaxY(), aabb2.GetMaxY())
 
-	tx := new(Transform)
+	tx := NewTransform()
 	tx.RotateAboutOrigin(dyn4go.DegToRad(30.0))
 	tx.TranslateXY(1.0, 2.0)
 	aabb = p.CreateAABBTransform(tx)

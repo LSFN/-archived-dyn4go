@@ -69,14 +69,22 @@ func AssertNotNil(t *testing.T, a interface{}) {
  * }
  *
  */
+func deferredPreambleCorrection(message string) string {
+	_, f, l, r := runtime.Caller(2)
+	if !r {
+		return message
+	}
+	return "\r\t" + filepath.Base(f) + ":" + strconv.Itoa(l) + ": " + message
+}
+
 func AssertPanic(t *testing.T) {
 	if r := recover(); r == nil {
-		t.Error("Function failed to panic")
+		t.Error(deferredPreambleCorrection("Function failed to panic"))
 	}
 }
 
 func AssertNoPanic(t *testing.T) {
 	if r := recover(); r != nil {
-		t.Error("Function paniced")
+		t.Error(deferredPreambleCorrection("Function paniced"))
 	}
 }

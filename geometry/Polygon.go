@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"code.google.com/p/uuid"
+	"github.com/LSFN/dyn4go"
 )
 
 type Polygon Wound
@@ -23,7 +24,7 @@ func NewPolygon(vertices ...*Vector2) *Polygon {
 		if i-1 < 0 {
 			p0 = vertices[len(vertices)-1]
 		} else {
-			p0 = vertices[i]
+			p0 = vertices[i-1]
 		}
 		p1 = vertices[i]
 		if i+1 == len(vertices) {
@@ -36,15 +37,13 @@ func NewPolygon(vertices ...*Vector2) *Polygon {
 			panic("Points on polygon may not coincide")
 		}
 		cross := p0.HereToVector2(p1).CrossVector2(p1.HereToVector2(p2))
-		if cross > 0 {
-			cross = 1
-		} else if cross < 0 {
-			cross = -1
-		} else {
-			cross = 0
+		if cross > 0.0 {
+			cross = 1.0
+		} else if cross < 0.0 {
+			cross = -1.0
 		}
-		if sign != 0 && cross != sign {
-			panic("Convex polygons are not allowed")
+		if math.Abs(cross) > dyn4go.Epsilon && sign != 0 && cross != sign {
+			panic("Non convex polygons are not allowed")
 		}
 		sign = cross
 	}
@@ -132,7 +131,9 @@ func (p *Polygon) ContainsVector2Transform(point *Vector2, transform *Transform)
 }
 
 func (p *Polygon) RotateAboutXY(theta, x, y float64) {
-	p.RotateAboutXY(theta, x, y)
+	if !(p.center.X == x && p.center.Y == y) {
+		p.center.RotateAboutXY(theta, x, y)
+	}
 	for i := range p.vertices {
 		p.vertices[i].RotateAboutXY(theta, x, y)
 		p.normals[i].RotateAboutXY(theta, x, y)
@@ -140,7 +141,7 @@ func (p *Polygon) RotateAboutXY(theta, x, y float64) {
 }
 
 func (p *Polygon) TranslateXY(x, y float64) {
-	p.TranslateXY(x, y)
+	p.center.AddXY(x, y)
 	for _, v := range p.vertices {
 		v.AddXY(x, y)
 	}
@@ -150,12 +151,14 @@ func (p *Polygon) ProjectVector2Transform(n *Vector2, transform *Transform) *Int
 	point := transform.GetInverseTransformedVector2(p.vertices[0])
 	min := n.DotVector2(point)
 	max := min
-	for _, a := range p.vertices {
-		v := n.DotVector2(a)
-		if v < min {
-			min = v
-		} else if v > max {
-			max = v
+	for i, a := range p.vertices {
+		if i != 0 {
+			v := n.DotVector2(transform.GetTransformedVector2(a))
+			if v < min {
+				min = v
+			} else if v > max {
+				max = v
+			}
 		}
 	}
 	return NewIntervalFromMinMax(min, max)
@@ -183,12 +186,12 @@ func (p *Polygon) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
 		r = len(p.vertices) - 1
 	}
 	c := index - 1
-	if c == 0 {
+	if index == 0 {
 		c = len(p.vertices) - 1
 	}
 	leftN := p.normals[c]
 	rightN := p.normals[index]
-	transform.TranslateVector2(maximum)
+	transform.Transform(maximum)
 	vm := NewVertexFromVector2Int(maximum, index)
 	if leftN.DotVector2(localn) < rightN.DotVector2(localn) {
 		left := transform.GetTransformedVector2(p.vertices[l])
