@@ -2,6 +2,8 @@ package geometry
 
 import (
 	"math"
+
+	"code.google.com/p/uuid"
 )
 
 type Ellipse struct {
@@ -11,7 +13,7 @@ type Ellipse struct {
 }
 
 func NewEllipse(width, height float64) *Ellipse {
-	if width < 0 || height < 0 {
+	if width <= 0 || height <= 0 {
 		panic("Ellipse may not have negative width or height")
 	}
 	e := new(Ellipse)
@@ -22,6 +24,8 @@ func NewEllipse(width, height float64) *Ellipse {
 	e.b = height * 0.5
 	e.radius = math.Max(e.a, e.b)
 	e.localXAxis = NewVector2FromXY(1, 0)
+	e.id = uuid.New()
+	return e
 }
 
 func (e *Ellipse) GetAxes(foci []*Vector2, transform *Transform) []*Vector2 {
@@ -33,7 +37,7 @@ func (e *Ellipse) GetFoci(transform *Transform) []*Vector2 {
 }
 
 func (e *Ellipse) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
-	localAxis := transform.GetInverseTransformedVector2(n)
+	localAxis := transform.GetInverseTransformedR(n)
 	r := e.GetRotation()
 	localAxis.RotateAboutOrigin(-r)
 	localAxis.X *= e.a
@@ -42,26 +46,26 @@ func (e *Ellipse) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
 	p := NewVector2FromXY(localAxis.X*e.a, localAxis.Y*e.b)
 	p.RotateAboutOrigin(r)
 	p.AddVector2(e.center)
-	transform.TranslateVector2(p)
+	transform.Transform(p)
 	return p
 }
 
-func (e *Ellipse) GetFarthestFeature(n *Vector2, transform *Transform) *Feature {
+func (e *Ellipse) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
 	farthest := e.GetFarthestPoint(n, transform)
-	return NewVertexFromPoint(farthest)
+	return NewVertexFromVector2(farthest)
 }
 
-func (e *Ellipse) Project(n *Vector2, transform *Transform) *Interval {
+func (e *Ellipse) ProjectTransform(n *Vector2, transform *Transform) *Interval {
 	p1 := e.GetFarthestPoint(n, transform)
-	center := transform.GetInverseTransformedVector2(e.center)
+	center := transform.GetTransformedVector2(e.center)
 	c := center.DotVector2(n)
 	d := p1.DotVector2(n)
 	return NewIntervalFromMinMax(2*c-d, d)
 }
 
-func (e *Ellipse) CreateAABB(transform *Transform) *AABB {
-	x := e.Project(NewVector2FromVector2(X_AXIS), transform)
-	y := e.Project(NewVector2FromVector2(Y_AXIS), transform)
+func (e *Ellipse) CreateAABBTransform(transform *Transform) *AABB {
+	x := e.ProjectTransform(NewVector2FromVector2(&X_AXIS), transform)
+	y := e.ProjectTransform(NewVector2FromVector2(&Y_AXIS), transform)
 	return NewAABBFromFloats(x.GetMin(), y.GetMin(), x.GetMax(), y.GetMax())
 }
 
@@ -76,7 +80,7 @@ func (e *Ellipse) GetRadius(center *Vector2) float64 {
 	return e.radius + center.DistanceFromVector2(e.center)
 }
 
-func (e *Ellipse) Contains(point *Vector2, transform *Transform) bool {
+func (e *Ellipse) ContainsTransform(point *Vector2, transform *Transform) bool {
 	localPoint := transform.GetInverseTransformedVector2(point)
 	r := e.GetRotation()
 	localPoint.RotateAboutXY(-r, e.center.X, e.center.Y)
@@ -90,8 +94,10 @@ func (e *Ellipse) Contains(point *Vector2, transform *Transform) bool {
 	return value <= 1
 }
 
-func (e *Ellipse) Rotate(theta, x, y float64) {
-	e.RotateAboutXY(theta, x, y)
+func (e *Ellipse) RotateAboutXY(theta, x, y float64) {
+	if !(e.center.X == x && e.center.Y == y) {
+		e.center.RotateAboutXY(theta, x, y)
+	}
 	e.localXAxis.RotateAboutOrigin(theta)
 }
 
@@ -113,4 +119,52 @@ func (e *Ellipse) GetHalfWidth() float64 {
 
 func (e *Ellipse) GetHalfHeight() float64 {
 	return e.b
+}
+
+func (e *Ellipse) GetID() string {
+	return e.id
+}
+
+func (e *Ellipse) GetCenter() *Vector2 {
+	return e.center
+}
+
+func (e *Ellipse) GetUserData() interface{} {
+	return e.userData
+}
+
+func (e *Ellipse) SetUserData(data interface{}) {
+	e.userData = data
+}
+
+func (e *Ellipse) RotateAboutOrigin(theta float64) {
+	e.RotateAboutXY(theta, 0, 0)
+}
+
+func (e *Ellipse) RotateAboutCenter(theta float64) {
+	e.RotateAboutXY(theta, e.center.X, e.center.Y)
+}
+
+func (e *Ellipse) RotateAboutVector2(theta float64, v *Vector2) {
+	e.RotateAboutXY(theta, v.X, v.Y)
+}
+
+func (e *Ellipse) TranslateXY(x, y float64) {
+	e.center.AddXY(x, y)
+}
+
+func (e *Ellipse) TranslateVector2(v *Vector2) {
+	e.TranslateXY(v.X, v.Y)
+}
+
+func (e *Ellipse) Project(v *Vector2) *Interval {
+	return e.ProjectTransform(v, NewTransform())
+}
+
+func (e *Ellipse) Contains(v *Vector2) bool {
+	return e.ContainsTransform(v, NewTransform())
+}
+
+func (e *Ellipse) CreateAABB() *AABB {
+	return e.CreateAABBTransform(NewTransform())
 }

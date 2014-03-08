@@ -129,3 +129,55 @@ func CreatePolygonAtOrigin(vertices ...*Vector2) *Polygon {
 	polygon.TranslateXY(-center.X, -center.Y)
 	return polygon
 }
+
+func CreateUnitCirclePolygon(count int, radius float64) *Polygon {
+	return CreateUnitCirclePolygonTheta(count, radius, 0)
+}
+
+func CreateUnitCirclePolygonTheta(count int, radius, theta float64) *Polygon {
+	if count < 3 {
+		panic("Too few vertices")
+	}
+	if radius <= 0 {
+		panic("Radius must be strictly positive")
+	}
+	return CreatePolygonalCircleTheta(count, radius, theta)
+}
+
+/*
+func CreateSquare(size float64) *Rectangle {
+
+}*/
+
+func CreatePolygonalCircle(count int, radius float64) *Polygon {
+	return CreatePolygonalCircleTheta(count, radius, 0)
+}
+
+func CreatePolygonalCircleTheta(count int, radius, theta float64) *Polygon {
+	if count < 3 {
+		panic("Too few vertices")
+	}
+	if radius <= 0 {
+		panic("Radius must be strictly positive")
+	}
+	pin := TWO_PI / float64(count)
+	vertices := make([]*Vector2, count)
+	c := math.Cos(pin)
+	s := math.Sin(pin)
+	t := 0.0
+	x := radius
+	y := 0.0
+	if theta != 0 {
+		x = radius * math.Cos(theta)
+		y = radius * math.Sin(theta)
+	}
+	for i := 0; i < count; i++ {
+		vertices[i] = NewVector2FromXY(x, y)
+
+		//apply the rotation matrix
+		t = x
+		x = c*x - s*y
+		y = s*t + c*y
+	}
+	return NewPolygon(vertices...)
+}
