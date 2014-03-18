@@ -348,9 +348,9 @@ func (v *Vector2) Normalize() float64 {
 func (v *Vector2) GetAngleBetween(v2 *Vector2) float64 {
 	a := math.Atan2(v2.Y, v2.X) - math.Atan2(v.Y, v.X)
 	if a > math.Pi {
-		return a - math.Pi*2
-	} else if a < math.Pi {
-		return a + math.Pi*2
+		return a - TWO_PI
+	} else if a < -math.Pi {
+		return a + TWO_PI
 	}
 	return a
 }

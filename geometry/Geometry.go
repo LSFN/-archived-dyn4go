@@ -144,10 +144,116 @@ func CreateUnitCirclePolygonTheta(count int, radius, theta float64) *Polygon {
 	return CreatePolygonalCircleTheta(count, radius, theta)
 }
 
-/*
 func CreateSquare(size float64) *Rectangle {
+	if size <= 0 {
+		panic("Size of square must be positive")
+	}
+	return NewRectangle(size, size)
+}
 
-}*/
+func CreateRectangle(width, height float64) *Rectangle {
+	return NewRectangle(width, height)
+}
+
+func CreateTriangle(p1, p2, p3 *Vector2) *Triangle {
+	if p1 == nil || p2 == nil || p3 == nil {
+		panic("Triangle cannot be created from nil vertices")
+	}
+	return NewTriangle(p1, p2, p3)
+}
+
+func CreateTriangleAtOrigin(p1, p2, p3 *Vector2) *Triangle {
+	triangle := CreateTriangle(p1, p2, p3)
+	center := triangle.GetCenter()
+	triangle.TranslateXY(-center.X, -center.Y)
+	return triangle
+}
+
+func CreateRightTriangle(width, height float64) *Triangle {
+	return CreateRightTriangleMirror(width, height, false)
+}
+
+func CreateRightTriangleMirror(width, height float64, mirror bool) *Triangle {
+	if width <= 0 || height <= 0 {
+		panic("Width and height must be positive")
+	}
+	top := NewVector2FromXY(0, height)
+	left := NewVector2FromXY(0, 0)
+	right := NewVector2FromXY(width, 0)
+	if mirror {
+		right.X = -right.X
+	}
+	var triangle *Triangle
+	if mirror {
+		triangle = NewTriangle(top, right, left)
+	} else {
+		triangle = NewTriangle(top, left, right)
+	}
+	center := triangle.GetCenter()
+	triangle.TranslateXY(-center.X, -center.Y)
+	return triangle
+}
+
+func CreateEquilateralTriangle(height float64) *Triangle {
+	if height <= 0 {
+		panic("Height of equilateral triangle must be positive")
+	}
+	a := 2 * height * INV_3_SQRT
+	return CreateIsoscelesTriangle(a, height)
+}
+
+func CreateIsoscelesTriangle(width, height float64) *Triangle {
+	if width <= 0 || height <= 0 {
+		panic("Width and height must both be strictly positive")
+	}
+	top := NewVector2FromXY(0, height)
+	left := NewVector2FromXY(-width*0.5, 0)
+	right := NewVector2FromXY(width*0.5, 0)
+	triangle := NewTriangle(top, left, right)
+	center := triangle.GetCenter()
+	triangle.TranslateXY(-center.X, -center.Y)
+	return triangle
+}
+
+func CreateSegment(p1, p2 *Vector2) *Segment {
+	if p1 == nil || p2 == nil {
+		panic("Cannot create segment from nil points")
+	}
+	return NewSegment(NewVector2FromVector2(p1), NewVector2FromVector2(p2))
+}
+
+func CreateHorizontalSegment(length float64) *Segment {
+	if length <= 0 {
+		panic("Length must be strictly positive")
+	}
+	start := NewVector2FromXY(-length*0.5, 0)
+	end := NewVector2FromXY(length*0.5, 0)
+	return NewSegment(start, end)
+}
+
+func CreateVerticalSegment(length float64) *Segment {
+	if length <= 0 {
+		panic("Length must be strictly positive")
+	}
+	start := NewVector2FromXY(0, -length*0.5)
+	end := NewVector2FromXY(0, length*0.5)
+	return NewSegment(start, end)
+}
+
+func CreateCapsule(width, height float64) *Capsule {
+	return NewCapsule(width, height)
+}
+
+func CreateSlice(radius, theta float64) *Slice {
+	return NewSlice(radius, theta)
+}
+
+/*
+func CreateSliceAtOrigin(radius, theta float64) *Slice {
+	slice := NewSlice(radius, theta)
+	slice.
+}
+*/
 
 func CreatePolygonalCircle(count int, radius float64) *Polygon {
 	return CreatePolygonalCircleTheta(count, radius, 0)

@@ -12,11 +12,11 @@ type Slice struct {
 }
 
 func NewSlice(radius, theta float64) *Slice {
-	if radius == 0 || theta <= 0 || theta > math.Pi {
+	if radius <= 0 || theta <= 0 || theta > math.Pi {
 		panic("Cannot create Slice from zero radius, zero theta or theta greater than Pi")
 	}
 	s := new(Slice)
-	s.radius = radius
+	s.sliceRadius = radius
 	s.theta = theta
 	s.alpha = theta * 0.5
 	cx := 2 * radius * math.Sin(s.alpha) / (3 * s.alpha)
@@ -79,7 +79,8 @@ func (s *Slice) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
 		point := new(Vector2)
 		point.SetToVector2(s.vertices[0])
 		max := localn.DotVector2(s.vertices[0])
-		for _, v := range s.vertices {
+		for i := 1; i < len(s.vertices); i++ {
+			v := s.vertices[i]
 			projection := localn.DotVector2(v)
 			if projection > max {
 				point.SetToVector2(v)
@@ -96,11 +97,11 @@ func (s *Slice) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
 	}
 }
 
-func (s *Slice) GetFarthestFeature(n *Vector2, transform *Transform) *Feature {
+func (s *Slice) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
 	localAxis := transform.GetInverseTransformedR(n)
 	if math.Abs(localAxis.GetAngleBetween(s.localXAxis)) <= s.alpha {
-		point := s.GetFarthestFeature(n, transform)
-		return NewVertexFromPoint(point)
+		point := s.GetFarthestPoint(n, transform)
+		return NewVertexFromVector2(point)
 	} else {
 		if math.Pi-s.theta <= 1.0e-6 {
 			return GetFarthestFeature(s.vertices[1], s.vertices[2], n, transform)
@@ -110,12 +111,12 @@ func (s *Slice) GetFarthestFeature(n *Vector2, transform *Transform) *Feature {
 		} else if localAxis.Y < 0 {
 			return GetFarthestFeature(s.vertices[0], s.vertices[2], n, transform)
 		} else {
-			return NewVertexFromPoint(transform.GetTransformedVector2(s.vertices[0]))
+			return NewVertexFromVector2(transform.GetTransformedVector2(s.vertices[0]))
 		}
 	}
 }
 
-func (s *Slice) Project(n *Vector2, transform *Transform) *Interval {
+func (s *Slice) ProjectVector2Transform(n *Vector2, transform *Transform) *Interval {
 	p1 := s.GetFarthestPoint(n, transform)
 	p2 := s.GetFarthestPoint(n.GetNegative(), transform)
 	d1 := p1.DotVector2(n)
@@ -123,9 +124,9 @@ func (s *Slice) Project(n *Vector2, transform *Transform) *Interval {
 	return NewIntervalFromMinMax(d2, d1)
 }
 
-func (s *Slice) CreateAABB(transform *Transform) *AABB {
-	x := s.Project(X_AXIS, transform)
-	y := s.Project(Y_AXIS, transform)
+func (s *Slice) CreateAABBTransform(transform *Transform) *AABB {
+	x := s.ProjectVector2Transform(&X_AXIS, transform)
+	y := s.ProjectVector2Transform(&Y_AXIS, transform)
 	return NewAABBFromFloats(x.GetMin(), y.GetMin(), x.GetMax(), y.GetMax())
 }
 
@@ -137,11 +138,11 @@ func (s *Slice) CreateMass(density float64) *Mass {
 	return NewMassFromCenterMassInertia(s.center, m, I)
 }
 
-func (s *Slice) GetRadius(center *Vector2) float64 {
+func (s *Slice) GetRadiusVector2(center *Vector2) float64 {
 	return s.radius + center.DistanceFromVector2(s.center)
 }
 
-func (s *Slice) Contains(point *Vector2, transform *Transform) bool {
+func (s *Slice) ContainsVector2Transform(point *Vector2, transform *Transform) bool {
 	lp := transform.GetInverseTransformedVector2(point)
 	radiusSquared := s.sliceRadius * s.sliceRadius
 	v := s.vertices[0].HereToVector2(lp)
@@ -154,8 +155,10 @@ func (s *Slice) Contains(point *Vector2, transform *Transform) bool {
 	return false
 }
 
-func (s *Slice) Rotate(theta, x, y float64) {
-	s.Rotate(theta, x, y)
+func (s *Slice) RotateAboutXY(theta, x, y float64) {
+	if !(s.center.X == x && s.center.Y == y) {
+		s.center.RotateAboutXY(theta, x, y)
+	}
 	for _, v := range s.vertices {
 		v.RotateAboutXY(theta, x, y)
 	}
@@ -165,8 +168,8 @@ func (s *Slice) Rotate(theta, x, y float64) {
 	s.localXAxis.RotateAboutOrigin(theta)
 }
 
-func (s *Slice) Translate(x, y float64) {
-	s.Translate(x, y)
+func (s *Slice) TranslateXY(x, y float64) {
+	s.center.AddXY(x, y)
 	for _, v := range s.vertices {
 		v.AddXY(x, y)
 	}
@@ -186,4 +189,52 @@ func (s *Slice) GetSliceRadius() float64 {
 
 func (s *Slice) GetCircleCenter() *Vector2 {
 	return s.vertices[0]
+}
+
+func (s *Slice) GetID() string {
+	return s.id
+}
+
+func (s *Slice) GetCenter() *Vector2 {
+	return s.center
+}
+
+func (s *Slice) GetUserData() interface{} {
+	return s.userData
+}
+
+func (s *Slice) SetUserData(data interface{}) {
+	s.userData = data
+}
+
+func (s *Slice) RotateAboutOrigin(theta float64) {
+	s.RotateAboutXY(theta, 0, 0)
+}
+
+func (s *Slice) RotateAboutCenter(theta float64) {
+	s.RotateAboutXY(theta, s.center.X, s.center.Y)
+}
+
+func (s *Slice) RotateAboutVector2(theta float64, v *Vector2) {
+	s.RotateAboutXY(theta, v.X, v.Y)
+}
+
+func (s *Slice) TranslateVector2(v *Vector2) {
+	s.TranslateXY(v.X, v.Y)
+}
+
+func (s *Slice) ProjectVector2(v *Vector2) *Interval {
+	return s.ProjectVector2Transform(v, NewTransform())
+}
+
+func (s *Slice) ContainsVector2(v *Vector2) bool {
+	return s.ContainsVector2Transform(v, NewTransform())
+}
+
+func (s *Slice) CreateAABB() *AABB {
+	return s.CreateAABBTransform(NewTransform())
+}
+
+func (s *Slice) GetRadius() float64 {
+	return s.radius
 }

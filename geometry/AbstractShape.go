@@ -55,11 +55,11 @@ func (a *AbstractShape) TranslateVector2(v *Vector2) {
 	a.TranslateXY(v.X, v.Y)
 }
 
-func (a *AbstractShape) Project(v *Vector2) *Interval {
+func (a *AbstractShape) ProjectVector2(v *Vector2) *Interval {
 	return a.ProjectTransform(v, NewTransform())
 }
 
-func (a *AbstractShape) Contains(v *Vector2) bool {
+func (a *AbstractShape) ContainsVector2(v *Vector2) bool {
 	return a.ContainsTransform(v, NewTransform())
 }
 
