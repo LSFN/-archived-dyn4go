@@ -56,11 +56,11 @@ func (a *AbstractShape) TranslateVector2(v *Vector2) {
 }
 
 func (a *AbstractShape) ProjectVector2(v *Vector2) *Interval {
-	return a.ProjectTransform(v, NewTransform())
+	return a.ProjectVector2Transform(v, NewTransform())
 }
 
 func (a *AbstractShape) ContainsVector2(v *Vector2) bool {
-	return a.ContainsTransform(v, NewTransform())
+	return a.ContainsVector2Transform(v, NewTransform())
 }
 
 func (a *AbstractShape) CreateAABB() *AABB {

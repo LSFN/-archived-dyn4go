@@ -248,10 +248,24 @@ func CreateSlice(radius, theta float64) *Slice {
 	return NewSlice(radius, theta)
 }
 
-/*
 func CreateSliceAtOrigin(radius, theta float64) *Slice {
 	slice := NewSlice(radius, theta)
-	slice.
+	slice.TranslateXY(-slice.center.X, -slice.center.Y)
+	return slice
+}
+
+func CreateEllipse(width, height float64) *Ellipse {
+	return NewEllipse(width, height)
+}
+
+func CreateHalfEllipse(width, height float64) *HalfEllipse {
+	return NewHalfEllipse(width, height)
+}
+
+/*
+func CreateHalfEllipseAtOrigin(width, height float64) *HalfEllipse {
+	half := NewHalfEllipse(width, height)
+	c := half.getC
 }
 */
 
