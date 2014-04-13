@@ -1,4 +1,4 @@
-package geometry2
+package geometry
 
 const (
 	FEATURE_NOT_INDEXED = -1

@@ -1,4 +1,4 @@
-package geometry2
+package geometry
 
 type Transformer interface {
 	RotateAboutOrigin(theta float64)

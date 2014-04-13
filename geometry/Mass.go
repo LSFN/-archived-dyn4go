@@ -1,4 +1,4 @@
-package geometry2
+package geometry
 
 import (
 	"github.com/LSFN/dyn4go"

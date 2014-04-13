@@ -1,4 +1,4 @@
-package geometry2
+package geometry
 
 type Wounder interface {
 	Shaper

@@ -1,4 +1,4 @@
-package geometry2
+package geometry
 
 type Convexer interface {
 	GetAxes(foci []*Vector2, t *Transform) []*Vector2
