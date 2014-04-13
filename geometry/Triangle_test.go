@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -6,11 +6,21 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestTriangleInterfaces(t *testing.T) {
+	triangle := NewTriangle(
+		NewVector2FromXY(0.0, 0.5),
+		NewVector2FromXY(-0.5, -0.5),
+		NewVector2FromXY(0.5, -0.5),
+	)
+	var _ Convexer = triangle
+	var _ Wounder = triangle
+}
+
 /**
  * Tests the failed creation of a triangle with one point being nil.
  * @since 3.1.0
  */
-func TestCreateNullPoint1(t *testing.T) {
+func TestTriangleCreateNullPoint1(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewTriangle(
 		nil,
@@ -23,7 +33,7 @@ func TestCreateNullPoint1(t *testing.T) {
  * Tests the failed creation of a triangle with one point being nil.
  * @since 3.1.0
  */
-func TestCreateNullPoint2(t *testing.T) {
+func TestTriangleCreateNullPoint2(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewTriangle(
 		NewVector2FromXY(-0.5, -0.5),
@@ -36,7 +46,7 @@ func TestCreateNullPoint2(t *testing.T) {
  * Tests the failed creation of a triangle with one point being nil.
  * @since 3.1.0
  */
-func TestCreateNullPoint3(t *testing.T) {
+func TestTriangleCreateNullPoint3(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewTriangle(
 		NewVector2FromXY(-0.5, -0.5),
@@ -48,7 +58,7 @@ func TestCreateNullPoint3(t *testing.T) {
 /**
  * Tests the contains method.
  */
-func TestContains(t *testing.T) {
+func TestTriangleContains(t *testing.T) {
 	triangle := NewTriangle(
 		NewVector2FromXY(0.0, 0.5),
 		NewVector2FromXY(-0.5, -0.5),

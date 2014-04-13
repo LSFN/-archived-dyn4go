@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
  * Tests the create methods.
  */
 
-func TestCreate(t *testing.T) {
+func TestVector3Create(t *testing.T) {
 	v1 := new(Vector3)
 	// should default to zero
 	dyn4go.AssertEqual(t, 0.0, v1.X)
@@ -43,7 +43,7 @@ func TestCreate(t *testing.T) {
  * Tests the copy method.
  */
 
-func TestCopy(t *testing.T) {
+func TestVector3Copy(t *testing.T) {
 	v := NewVector3FromFloats(1.0, 3.0, 2.0)
 	vc := NewVector3FromVector3(v)
 
@@ -57,7 +57,7 @@ func TestCopy(t *testing.T) {
  * Tests the distance methods.
  */
 
-func TestDistance(t *testing.T) {
+func TestVector3Distance(t *testing.T) {
 	v := new(Vector3)
 
 	dyn4go.AssertEqualWithinError(t, 4.000, v.DistanceSquaredFloats(2.0, 0.0, 0.0), 1.0e-3)
@@ -75,7 +75,7 @@ func TestDistance(t *testing.T) {
  * Tests the triple product method.
  */
 
-func TestTripleProduct(t *testing.T) {
+func TestVector3TripleProduct(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 1.0, 0.0)
 	v2 := NewVector3FromFloats(0.0, -1.0, 1.0)
 
@@ -90,7 +90,7 @@ func TestTripleProduct(t *testing.T) {
  * Tests the equals method.
  */
 
-func TestEquals(t *testing.T) {
+func TestVector3Equals(t *testing.T) {
 	v := NewVector3FromFloats(1.0, 2.0, -1.0)
 
 	dyn4go.AssertTrue(t, *v == *v)
@@ -105,7 +105,7 @@ func TestEquals(t *testing.T) {
  * Tests the set methods.
  */
 
-func TestSet(t *testing.T) {
+func TestVector3Set(t *testing.T) {
 	v := new(Vector3)
 
 	v2 := NewVector3FromFloats(1.0, -3.0, 2.0)
@@ -131,7 +131,7 @@ func TestSet(t *testing.T) {
  * Tests the get methods.
  */
 
-func TestGet(t *testing.T) {
+func TestVector3Get(t *testing.T) {
 	v := NewVector3FromFloats(2.0, 1.0, -2.0)
 
 	x := v.GetXComponent()
@@ -168,7 +168,7 @@ func TestGet(t *testing.T) {
  * Tests the add and sum methods.
  */
 
-func TestAdd(t *testing.T) {
+func TestVector3Add(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 2.0, 3.0)
 	v2 := NewVector3FromFloats(-2.0, 1.0, -1.0)
 
@@ -197,7 +197,7 @@ func TestAdd(t *testing.T) {
  * Tests the subtact and difference methods.
  */
 
-func TestSubtract(t *testing.T) {
+func TestVector3Subtract(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 2.0, 3.0)
 	v2 := NewVector3FromFloats(-2.0, 1.0, -1.0)
 
@@ -226,7 +226,7 @@ func TestSubtract(t *testing.T) {
  * Tests the to method.
  */
 
-func TestTo(t *testing.T) {
+func TestVector3To(t *testing.T) {
 	p1 := NewVector3FromFloats(1.0, 1.0, 1.0)
 	p2 := NewVector3FromFloats(0.0, 1.0, 0.0)
 
@@ -247,7 +247,7 @@ func TestTo(t *testing.T) {
  * Tests the multiply and product methods.
  */
 
-func TestMultiply(t *testing.T) {
+func TestVector3Multiply(t *testing.T) {
 	v1 := NewVector3FromFloats(2.0, 1.0, -1.0)
 
 	r := v1.Product(-1.5)
@@ -265,7 +265,7 @@ func TestMultiply(t *testing.T) {
  * Tests the dot method.
  */
 
-func TestDot(t *testing.T) {
+func TestVector3Dot(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 1.0, -1.0)
 	v2 := NewVector3FromFloats(0.0, 1.0, 0.0)
 
@@ -283,7 +283,7 @@ func TestDot(t *testing.T) {
  * Tests the cross product methods.
  */
 
-func TestCross(t *testing.T) {
+func TestVector3Cross(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 1.0, 0.0)
 	v2 := NewVector3FromFloats(0.0, 1.0, -1.0)
 
@@ -317,7 +317,7 @@ func TestCross(t *testing.T) {
  * Tests the isOrthoganal method.
  */
 
-func TestIsOrthogonal(t *testing.T) {
+func TestVector3IsOrthogonal(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 1.0, 0.0)
 	v2 := NewVector3FromFloats(0.0, 1.0, 2.0)
 
@@ -334,7 +334,7 @@ func TestIsOrthogonal(t *testing.T) {
  * Tests the isZero method.
  */
 
-func TestIsZero(t *testing.T) {
+func TestVector3IsZero(t *testing.T) {
 	v := new(Vector3)
 
 	dyn4go.AssertTrue(t, v.IsZero())
@@ -356,7 +356,7 @@ func TestIsZero(t *testing.T) {
  * Tests the negate method.
  */
 
-func TestNegate(t *testing.T) {
+func TestVector3Negate(t *testing.T) {
 	v := NewVector3FromFloats(1.0, -6.0, 2.0)
 
 	v.Negate()
@@ -369,7 +369,7 @@ func TestNegate(t *testing.T) {
  * Tests the zero method.
  */
 
-func TestZero(t *testing.T) {
+func TestVector3Zero(t *testing.T) {
 	v := NewVector3FromFloats(1.0, -2.0, 3.0)
 
 	v.Zero()
@@ -382,7 +382,7 @@ func TestZero(t *testing.T) {
  * Tests the project method.
  */
 
-func TestProject(t *testing.T) {
+func TestVector3Project(t *testing.T) {
 	v1 := NewVector3FromFloats(1.0, 1.0, 0.0)
 	v2 := NewVector3FromFloats(0.5, 1.0, 1.0)
 
@@ -397,7 +397,7 @@ func TestProject(t *testing.T) {
  * Tests the normalize method.
  */
 
-func TestNormalize(t *testing.T) {
+func TestVector3Normalize(t *testing.T) {
 	v := NewVector3FromFloats(2.0, 1.0, 2.0)
 	v.Normalise()
 

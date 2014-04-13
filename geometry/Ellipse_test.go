@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -6,10 +6,16 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestEllipseInterfaces(t *testing.T) {
+	e := NewEllipse(2, 1)
+	var _ Convexer = e
+	var _ Shaper = e
+}
+
 /**
  * Tests a zero width.
  */
-func TestCreateZeroWidth(t *testing.T) {
+func TestEllipseCreateZeroWidth(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewEllipse(0.0, 1.0)
 }
@@ -17,7 +23,7 @@ func TestCreateZeroWidth(t *testing.T) {
 /**
  * Tests a negative width.
  */
-func TestCreateNegativeWidth(t *testing.T) {
+func TestEllipseCreateNegativeWidth(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewEllipse(-1.0, 1.0)
 }
@@ -25,7 +31,7 @@ func TestCreateNegativeWidth(t *testing.T) {
 /**
  * Tests a zero height.
  */
-func TestCreateZeroHeight(t *testing.T) {
+func TestEllipseCreateZeroHeight(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewEllipse(1.0, 0.0)
 }
@@ -33,7 +39,7 @@ func TestCreateZeroHeight(t *testing.T) {
 /**
  * Tests a negative height.
  */
-func TestCreateNegativeHeight(t *testing.T) {
+func TestEllipseCreateNegativeHeight(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewEllipse(1.0, -1.0)
 }
@@ -41,7 +47,7 @@ func TestCreateNegativeHeight(t *testing.T) {
 /**
  * Tests the constructor.
  */
-func TestCreateSuccess(t *testing.T) {
+func TestEllipseCreateSuccess(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	e := NewEllipse(1.0, 2.0)
 	dyn4go.AssertEqual(t, 1.0, e.GetHalfHeight())
@@ -53,40 +59,40 @@ func TestCreateSuccess(t *testing.T) {
 /**
  * Tests the contains method.
  */
-func TestContains(t *testing.T) {
+func TestEllipseContains(t *testing.T) {
 	e := NewEllipse(2.0, 1.0)
 	transform := NewTransform()
 	p := NewVector2FromXY(0.75, 0.35)
 
 	// shouldn't be in the circle
-	dyn4go.AssertTrue(t, !e.ContainsTransform(p, transform))
+	dyn4go.AssertTrue(t, !e.ContainsVector2Transform(p, transform))
 
 	// move the circle a bit
 	transform.TranslateXY(0.5, 0.0)
 
 	// should be in the circle
-	dyn4go.AssertTrue(t, e.ContainsTransform(p, transform))
+	dyn4go.AssertTrue(t, e.ContainsVector2Transform(p, transform))
 
 	p.SetToXY(1.5, 0.0)
 
 	// should be on the edge
-	dyn4go.AssertTrue(t, e.ContainsTransform(p, transform))
+	dyn4go.AssertTrue(t, e.ContainsVector2Transform(p, transform))
 
 	// test with local translation
 	e.RotateAboutOrigin(dyn4go.DegToRad(90))
 	e.TranslateXY(0.5, 1.0)
 
-	dyn4go.AssertFalse(t, e.ContainsTransform(p, transform))
+	dyn4go.AssertFalse(t, e.ContainsVector2Transform(p, transform))
 	p.SetToXY(1.0, 2.1)
-	dyn4go.AssertFalse(t, e.ContainsTransform(p, transform))
+	dyn4go.AssertFalse(t, e.ContainsVector2Transform(p, transform))
 	p.SetToXY(1.0, 2.0)
-	dyn4go.AssertTrue(t, e.ContainsTransform(p, transform))
+	dyn4go.AssertTrue(t, e.ContainsVector2Transform(p, transform))
 }
 
 /**
  * Tests the project method.
  */
-func TestProject(t *testing.T) {
+func TestEllipseProject(t *testing.T) {
 	e := NewEllipse(2.0, 1.0)
 	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
@@ -94,26 +100,26 @@ func TestProject(t *testing.T) {
 
 	// try some translation
 	transform.TranslateXY(1.0, 0.5)
-	i := e.ProjectTransform(x, transform)
+	i := e.ProjectVector2Transform(x, transform)
 	dyn4go.AssertEqualWithinError(t, 0.000, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 2.000, i.max, 1.0e-3)
 
 	// try some rotation
 	transform.RotateAboutXY(dyn4go.DegToRad(30), 1.0, 0.5)
-	i = e.ProjectTransform(y, transform)
+	i = e.ProjectVector2Transform(y, transform)
 	dyn4go.AssertEqualWithinError(t, -1.161, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 0.161, i.max, 1.0e-3)
 
 	// try some local rotation
 	e.TranslateXY(1.0, 0.5)
 	e.RotateAboutXY(dyn4go.DegToRad(30), 1.0, 0.5)
-	i = e.ProjectTransform(y, NewTransform())
+	i = e.ProjectVector2Transform(y, NewTransform())
 	dyn4go.AssertEqualWithinError(t, -1.161, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 0.161, i.max, 1.0e-3)
 
 	transform.Identity()
 	transform.TranslateXY(0.0, 1.0)
-	i = e.ProjectTransform(y, transform)
+	i = e.ProjectVector2Transform(y, transform)
 	dyn4go.AssertEqualWithinError(t, -2.161, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, -0.839, i.max, 1.0e-3)
 }
@@ -121,7 +127,7 @@ func TestProject(t *testing.T) {
 /**
  * Tests the farthest methods.
  */
-func TestGetFarthest(t *testing.T) {
+func TestEllipseGetFarthest(t *testing.T) {
 	e := NewEllipse(2.0, 1.0)
 	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
@@ -159,7 +165,7 @@ func TestGetFarthest(t *testing.T) {
 /**
  * Tests the getAxes method.
  */
-func TestGetAxes(t *testing.T) {
+func TestEllipseGetAxes(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	e := NewEllipse(1.0, 0.5)
 	e.GetAxes([]*Vector2{new(Vector2)}, NewTransform())
@@ -168,7 +174,7 @@ func TestGetAxes(t *testing.T) {
 /**
  * Tests the getFoci method.
  */
-func TestGetFoci(t *testing.T) {
+func TestEllipseGetFoci(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	e := NewEllipse(1.0, 0.5)
 	e.GetFoci(NewTransform())
@@ -177,7 +183,7 @@ func TestGetFoci(t *testing.T) {
 /**
  * Tests the rotate methods.
  */
-func TestRotate(t *testing.T) {
+func TestEllipseRotate(t *testing.T) {
 	e := NewEllipse(1.0, 0.5)
 
 	// rotate about center
@@ -201,7 +207,7 @@ func TestRotate(t *testing.T) {
 /**
  * Tests the translate methods.
  */
-func TestTranslate(t *testing.T) {
+func TestEllipseTranslate(t *testing.T) {
 	e := NewEllipse(1.0, 0.5)
 
 	e.TranslateXY(1.0, -0.5)
@@ -213,7 +219,7 @@ func TestTranslate(t *testing.T) {
 /**
  * Tests the generated AABB.
  */
-func TestCreateAABB(t *testing.T) {
+func TestEllipseCreateAABB(t *testing.T) {
 	e := NewEllipse(1.0, 0.5)
 
 	// using an identity transform

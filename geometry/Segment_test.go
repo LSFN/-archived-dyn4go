@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -6,11 +6,20 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestSegmentInterfaces(t *testing.T) {
+	s := NewSegment(
+		NewVector2FromXY(0.0, 1.0),
+		NewVector2FromXY(1.5, 3.0),
+	)
+	var _ Convexer = s
+	var _ Wounder = s
+}
+
 /**
  * Tests a failed create using one nil point.
  * @since 3.1.0
  */
-func TestCreateNullPoint1(t *testing.T) {
+func TestSegmentCreateNullPoint1(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSegment(nil, new(Vector2))
 }
@@ -19,7 +28,7 @@ func TestCreateNullPoint1(t *testing.T) {
  * Tests a failed create using one nil point.
  * @since 3.1.0
  */
-func TestCreateNullPoint2(t *testing.T) {
+func TestSegmentCreateNullPoint2(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSegment(new(Vector2), nil)
 }
@@ -27,7 +36,7 @@ func TestCreateNullPoint2(t *testing.T) {
 /**
  * Tests coincident points.
  */
-func TestCreateCoincident(t *testing.T) {
+func TestSegmentCreateCoincident(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSegment(new(Vector2), new(Vector2))
 }
@@ -35,7 +44,7 @@ func TestCreateCoincident(t *testing.T) {
 /**
  * Tests a successful creation.
  */
-func TestCreatSuccess(t *testing.T) {
+func TestSegmentCreatSuccess(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
@@ -49,7 +58,7 @@ func TestCreatSuccess(t *testing.T) {
 /**
  * Tests the length method.
  */
-func TestGetLength(t *testing.T) {
+func TestSegmentGetLength(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(1.5, 3.0),
@@ -61,7 +70,7 @@ func TestGetLength(t *testing.T) {
 /**
  * Tests the getLocation method.
  */
-func TestGetLocation(t *testing.T) {
+func TestSegmentGetLocation(t *testing.T) {
 	// test invalid line
 	loc := GetLocation(NewVector2FromXY(1.0, 1.0), new(Vector2), new(Vector2))
 	dyn4go.AssertEqualWithinError(t, 0.000, loc, 1.0e-3)
@@ -82,7 +91,7 @@ func TestGetLocation(t *testing.T) {
 /**
  * Tests the get closest point methods.
  */
-func TestGetPointClosest(t *testing.T) {
+func TestSegmentGetPointClosest(t *testing.T) {
 	pt := NewVector2FromXY(1.0, -1.0)
 
 	// test invalid line/segment
@@ -119,7 +128,7 @@ func TestGetPointClosest(t *testing.T) {
 /**
  * Tests the getAxes method.
  */
-func TestGetAxes(t *testing.T) {
+func TestSegmentGetAxes(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(1.5, 3.0),
@@ -164,7 +173,7 @@ func TestGetAxes(t *testing.T) {
 /**
  * Tests the getFoci method.
  */
-func TestGetFoci(t *testing.T) {
+func TestSegmentGetFoci(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(1.5, 3.0),
@@ -178,21 +187,21 @@ func TestGetFoci(t *testing.T) {
 /**
  * Tests the contains method.
  */
-func TestContains(t *testing.T) {
+func TestSegmentContains(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(1.5, 3.0),
 	)
 	transform := NewTransform()
 
-	dyn4go.AssertFalse(t, s.ContainsTransform(NewVector2FromXY(2.0, 2.0), transform))
-	dyn4go.AssertTrue(t, s.ContainsTransform(NewVector2FromXY(0.75, 2.0), transform))
+	dyn4go.AssertFalse(t, s.ContainsVector2Transform(NewVector2FromXY(2.0, 2.0), transform))
+	dyn4go.AssertTrue(t, s.ContainsVector2Transform(NewVector2FromXY(0.75, 2.0), transform))
 }
 
 /**
  * Tests the contains with radius method.
  */
-func TestContainsRadius(t *testing.T) {
+func TestSegmentContainsRadius(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(1.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),
@@ -207,7 +216,7 @@ func TestContainsRadius(t *testing.T) {
 /**
  * Tests the project method.
  */
-func TestProject(t *testing.T) {
+func TestSegmentProject(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(1.5, 3.0),
@@ -215,19 +224,19 @@ func TestProject(t *testing.T) {
 	transform := NewTransform()
 	n := NewVector2FromXY(1.0, 0.0)
 
-	i := s.ProjectTransform(n, transform)
+	i := s.ProjectVector2Transform(n, transform)
 
 	dyn4go.AssertEqualWithinError(t, 0.000, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 1.500, i.max, 1.0e-3)
 
 	n.SetToXY(1.0, 1.0)
-	i = s.ProjectTransform(n, transform)
+	i = s.ProjectVector2Transform(n, transform)
 
 	dyn4go.AssertEqualWithinError(t, 1.000, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 4.500, i.max, 1.0e-3)
 
 	n.SetToXY(0.0, 1.0)
-	i = s.ProjectTransform(n, transform)
+	i = s.ProjectVector2Transform(n, transform)
 
 	dyn4go.AssertEqualWithinError(t, 1.000, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 3.000, i.max, 1.0e-3)
@@ -236,7 +245,7 @@ func TestProject(t *testing.T) {
 	transform.TranslateXY(1.0, 2.0)
 	transform.RotateAboutVector2(dyn4go.DegToRad(90), transform.GetTransformedVector2(s.center))
 
-	i = s.ProjectTransform(n, transform)
+	i = s.ProjectVector2Transform(n, transform)
 
 	dyn4go.AssertEqualWithinError(t, 3.250, i.min, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 4.750, i.max, 1.0e-3)
@@ -245,7 +254,7 @@ func TestProject(t *testing.T) {
 /**
  * Tests the getFarthest methods.
  */
-func TestGetFarthest(t *testing.T) {
+func TestSegmentGetFarthest(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(1.5, 3.0),
@@ -255,13 +264,14 @@ func TestGetFarthest(t *testing.T) {
 
 	f := s.GetFarthestFeature(n, transform)
 	dyn4go.AssertTrue(t, f.IsEdge())
-	dyn4go.AssertEqualWithinError(t, 1.500, f.max.point.X, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 3.000, f.max.point.Y, 1.0e-3)
+	e := f.(*Edge)
+	dyn4go.AssertEqualWithinError(t, 1.500, e.max.point.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 3.000, e.max.point.Y, 1.0e-3)
 
-	dyn4go.AssertEqualWithinError(t, 0.000, f.vertex1.point.X, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 1.000, f.vertex1.point.Y, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 1.500, f.vertex2.point.X, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 3.000, f.vertex2.point.Y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.000, e.vertex1.point.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 1.000, e.vertex1.point.Y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 1.500, e.vertex2.point.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 3.000, e.vertex2.point.Y, 1.0e-3)
 
 	p := s.GetFarthestPoint(n, transform)
 	dyn4go.AssertEqualWithinError(t, 1.500, p.X, 1.0e-3)
@@ -279,7 +289,7 @@ func TestGetFarthest(t *testing.T) {
 /**
  * Tests the rotate method.
  */
-func TestRotate(t *testing.T) {
+func TestSegmentRotate(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 0.0),
 		NewVector2FromXY(1.0, 1.0),
@@ -296,7 +306,7 @@ func TestRotate(t *testing.T) {
 /**
  * Tests the translate method.
  */
-func TestTranslate(t *testing.T) {
+func TestSegmentTranslate(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 0.0),
 		NewVector2FromXY(1.0, 1.0),
@@ -313,7 +323,7 @@ func TestTranslate(t *testing.T) {
  * Tests the createAABB method.
  * @since 3.1.0
  */
-func TestCreateAABB(t *testing.T) {
+func TestSegmentCreateAABB(t *testing.T) {
 	s := NewSegment(
 		NewVector2FromXY(0.0, 0.0),
 		NewVector2FromXY(1.0, 1.0),
@@ -346,7 +356,7 @@ func TestCreateAABB(t *testing.T) {
  * Tests the getLineIntersection method.
  * @since 3.1.1
  */
-func TestGetLineIntersection(t *testing.T) {
+func TestSegmentGetLineIntersection(t *testing.T) {
 	// normal case
 	p := GetLineIntersection(
 		NewVector2FromXY(-1.0, -1.0), NewVector2FromXY(2.0, 0.0),
@@ -450,7 +460,7 @@ func TestGetLineIntersection(t *testing.T) {
  * Tests the getLineIntersection method.
  * @since 3.1.1
  */
-func TestGetSegmentIntersection(t *testing.T) {
+func TestSegmentGetSegmentIntersection(t *testing.T) {
 	p := GetSegmentIntersection(
 		NewVector2FromXY(-3.0, -1.0), NewVector2FromXY(3.0, 1.0),
 		NewVector2FromXY(-1.0, -2.0), NewVector2FromXY(1.0, 2.0))

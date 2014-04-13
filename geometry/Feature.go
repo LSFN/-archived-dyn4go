@@ -1,12 +1,13 @@
-package geometry
+package geometry2
 
-const (
-	NOT_INDEXED    = -1
-	EDGE_FEATURE   = 0
-	VERTEX_FEATURE = 1
-)
+type Feature struct {
+	featureType int
+}
 
-type Feature interface {
-	IsEdge() bool
-	IsVertex() bool
+func (f *Feature) IsEdge() bool {
+	return f.featureType == FEATURE_EDGE
+}
+
+func (f *Feature) IsVertex() bool {
+	return f.featureType == FEATURE_VERTEX
 }

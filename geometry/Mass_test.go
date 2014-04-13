@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -12,7 +12,7 @@ import (
  * <p>
  * Should throw an exception because the mass must be > 0.
  */
-func TestCreateNegativeMass(t *testing.T) {
+func TestMassCreateNegativeMass(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewMassFromCenterMassInertia(new(Vector2), -1.0, 1.0)
 }
@@ -22,7 +22,7 @@ func TestCreateNegativeMass(t *testing.T) {
  * <p>
  * Should throw an exception because the inertia tensor must be > 0.
  */
-func TestCreateNegativeInertia(t *testing.T) {
+func TestMassCreateNegativeInertia(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewMassFromCenterMassInertia(new(Vector2), 1.0, -1.0)
 }
@@ -33,7 +33,7 @@ func TestCreateNegativeInertia(t *testing.T) {
  * Should throw an exception because the center is null.
  * @since 2.0.0
  */
-func TestCreateNullCenter(t *testing.T) {
+func TestMassCreateNullCenter(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewMassFromCenterMassInertia(nil, 1.0, 1.0)
 }
@@ -41,7 +41,7 @@ func TestCreateNullCenter(t *testing.T) {
 /**
  * Test the create method.
  */
-func TestCreateSuccess(t *testing.T) {
+func TestMassCreateSuccess(t *testing.T) {
 	m := NewMassFromCenterMassInertia(new(Vector2), 1.0, 1.0)
 	dyn4go.AssertTrue(t, *m.GetCenter() == *new(Vector2))
 	dyn4go.AssertEqual(t, m.GetMass(), 1.0)
@@ -52,7 +52,7 @@ func TestCreateSuccess(t *testing.T) {
  * Test the create infinite method.
  * @since 2.0.0
  */
-func TestCreateInfinite(t *testing.T) {
+func TestMassCreateInfinite(t *testing.T) {
 	m := NewMassFromCenterMassInertia(new(Vector2), 0, 0)
 	dyn4go.AssertTrue(t, m.IsInfinite())
 	dyn4go.AssertTrue(t, *m.GetCenter() == *new(Vector2))
@@ -64,7 +64,7 @@ func TestCreateInfinite(t *testing.T) {
  * Test the create fixed linear velocity method.
  * @since 2.0.0
  */
-func TestCreateFixedLinearVelocity(t *testing.T) {
+func TestMassCreateFixedLinearVelocity(t *testing.T) {
 	m := NewMassFromCenterMassInertia(new(Vector2), 0, 1.0)
 	dyn4go.AssertFalse(t, m.IsInfinite())
 	dyn4go.AssertEqual(t, FIXED_LINEAR_VELOCITY, m.GetType())
@@ -77,7 +77,7 @@ func TestCreateFixedLinearVelocity(t *testing.T) {
  * Test the create fixed angular velocity method.
  * @since 2.0.0
  */
-func TestCreateFixedAngularVelocity(t *testing.T) {
+func TestMassCreateFixedAngularVelocity(t *testing.T) {
 	m := NewMassFromCenterMassInertia(new(Vector2), 1.0, 0.0)
 	dyn4go.AssertFalse(t, m.IsInfinite())
 	dyn4go.AssertEqual(t, FIXED_ANGULAR_VELOCITY, m.GetType())
@@ -92,7 +92,7 @@ func TestCreateFixedAngularVelocity(t *testing.T) {
  * Should throw an exception because the mass to copy is null.
  * @since 2.0.0
  */
-func TestCreateCopyNull(t *testing.T) {
+func TestMassCreateCopyNull(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewMassFromMass(nil)
 }
@@ -101,7 +101,7 @@ func TestCreateCopyNull(t *testing.T) {
  * Test the create method.
  * @since 2.0.0
  */
-func TestCreateCopy(t *testing.T) {
+func TestMassCreateCopy(t *testing.T) {
 	m := NewMassFromCenterMassInertia(NewVector2FromXY(1.0, 0.0), 2.0, 1.0)
 	m2 := NewMassFromMass(m)
 
@@ -117,7 +117,7 @@ func TestCreateCopy(t *testing.T) {
 /**
  * Test case for the circle create method.
  */
-func TestCreateCircle(t *testing.T) {
+func TestMassCreateCircle(t *testing.T) {
 	c := NewCircle(3.0)
 	m := c.CreateMass(2.0)
 	// the mass should be pi * r * r * d
@@ -129,7 +129,7 @@ func TestCreateCircle(t *testing.T) {
 /**
  * Test case for the polygon create method.
  */
-func TestCreatePolygon(t *testing.T) {
+func TestMassCreatePolygon(t *testing.T) {
 	p := CreateUnitCirclePolygon(5, 0.5)
 	m := p.CreateMass(1.0)
 	// the polygon mass should be the area * d
@@ -140,18 +140,18 @@ func TestCreatePolygon(t *testing.T) {
 /**
  * Test case for the rectangle create method.
  */
-func TestCreateRectangle(t *testing.T) {
+func TestMassCreateRectangle(t *testing.T) {
 	r := NewRectangle(1.0, 1.0)
 	m := r.CreateMass(1.5)
 	// the mass of a rectangle should be h * w * d
-	dyn4go.AssertEqual(t, 1.500, m.GetMass(), 1.0e-3)
-	dyn4go.AssertEqual(t, 0.250, m.GetInertia(), 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 1.500, m.GetMass(), 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.250, m.GetInertia(), 1.0e-3)
 }
 
 /**
  * Test case for the segment create method.
  */
-func TestCreateSegment(t *testing.T) {
+func TestMassCreateSegment(t *testing.T) {
 	s := NewSegment(NewVector2FromXY(-1.0, 0.0), NewVector2FromXY(1.0, 0.5))
 	m := s.CreateMass(1.0)
 	// the mass of a segment should be l * d
@@ -166,7 +166,7 @@ func TestCreateSegment(t *testing.T) {
  * Renamed from createArray
  * @since 2.0.0
  */
-func TestCreateList(t *testing.T) {
+func TestMassCreateList(t *testing.T) {
 	masses := []*Mass{
 		NewMassFromCenterMassInertia(NewVector2FromXY(1.0, 1.0), 3.00, 1.00),
 		NewMassFromCenterMassInertia(NewVector2FromXY(-1.0, 0.0), 0.50, 0.02),
@@ -175,8 +175,8 @@ func TestCreateList(t *testing.T) {
 	m := CreateMass(masses)
 
 	c := m.GetCenter()
-	dyn4go.AssertEqualWithinError(t, 0.818, c.x, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, -0.181, c.y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.818, c.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, -0.181, c.Y, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 5.500, m.GetMass(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 16.656, m.GetInertia(), 1.0e-3)
 }
@@ -185,16 +185,16 @@ func TestCreateList(t *testing.T) {
  * Test the create method accepting an array of infinite {@link Mass} objects.
  * @since 2.0.0
  */
-func TestCreateListInfinite(t *testing.T) {
+func TestMassCreateListInfinite(t *testing.T) {
 	masses := []*Mass{
-		new(Mass), new(Mass), new(Mass),
+		NewMass(), NewMass(), NewMass(),
 	}
 	m := CreateMass(masses)
 
 	c := m.GetCenter()
 	dyn4go.AssertTrue(t, m.IsInfinite())
-	dyn4go.AssertEqualWithinError(t, 0.000, c.x, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 0.000, c.y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.000, c.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.000, c.Y, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 0.000, m.GetMass(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 0.000, m.GetInertia(), 1.0e-3)
 }
@@ -203,7 +203,7 @@ func TestCreateListInfinite(t *testing.T) {
  * Test the create method accepting a list of one mass.
  * @since 2.0.0
  */
-func TestCreateListOneElement(t *testing.T) {
+func TestMassCreateListOneElement(t *testing.T) {
 	m1 := NewMassFromCenterMassInertia(new(Vector2), 1.0, 2.0)
 	masses := []*Mass{
 		NewMassFromCenterMassInertia(new(Vector2), 1.0, 2.0),
@@ -213,8 +213,8 @@ func TestCreateListOneElement(t *testing.T) {
 	c := m.GetCenter()
 	dyn4go.AssertFalse(t, m.IsInfinite())
 	dyn4go.AssertNotEqual(t, m1, m)
-	dyn4go.AssertEqualWithinError(t, 0.000, c.x, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 0.000, c.y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.000, c.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 0.000, c.Y, 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 1.000, m.GetMass(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 2.000, m.GetInertia(), 1.0e-3)
 }
@@ -223,7 +223,7 @@ func TestCreateListOneElement(t *testing.T) {
  * Test the create method accepting a null list.
  * @since 3.1.0
  */
-func TestCreateListNull(t *testing.T) {
+func TestMassCreateListNull(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	CreateMass(nil)
 }
@@ -232,7 +232,7 @@ func TestCreateListNull(t *testing.T) {
  * Test the create method accepting an empty list.
  * @since 3.1.0
  */
-func TestCreateListEmpty(t *testing.T) {
+func TestMassCreateListEmpty(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	CreateMass(make([]*Mass, 0))
 }
@@ -241,7 +241,7 @@ func TestCreateListEmpty(t *testing.T) {
  * Test the create method accepting a list of one null mass.
  * @since 2.0.0
  */
-func TestCreateListOneNullElement(t *testing.T) {
+func TestMassCreateListOneNullElement(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	masses := []*Mass{nil}
 	CreateMass(masses)
@@ -251,7 +251,7 @@ func TestCreateListOneNullElement(t *testing.T) {
  * Test the create method accepting a list masses where 1 is null.
  * @since 2.0.0
  */
-func TestCreateListNullElement(t *testing.T) {
+func TestMassCreateListNullElement(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	masses := []*Mass{
 		NewMassFromCenterMassInertia(new(Vector2), 1.0, 2.0),
@@ -265,7 +265,7 @@ func TestCreateListNullElement(t *testing.T) {
  * Tests setting the type of mass.
  * @since 1.0.2
  */
-func TestSetType(t *testing.T) {
+func TestMassSetType(t *testing.T) {
 	c := CreateCircle(2.0)
 	mi := c.CreateMass(1.0)
 
@@ -304,17 +304,17 @@ func TestSetType(t *testing.T) {
  * Tests setting the type of mass to null.
  * @since 3.1.0
  */
-func TestSetNullType(t *testing.T) {
-	dyn4go.AssertPanic(t)
+func TestMassSetNullType(t *testing.T) {
+	defer dyn4go.AssertPanic(t)
 	m := new(Mass)
-	m.SetType(nil)
+	m.SetType(-1)
 }
 
 /**
  * Tests the inertia and COM calculations for polygon shapes.
  * @since 3.1.4
  */
-func TestPolygonInertiaAndCOM(t *testing.T) {
+func TestMassPolygonInertiaAndCOM(t *testing.T) {
 	// a polygon of a simple shape should match a simple shape's mass and inertia
 	p := CreateUnitCirclePolygon(4, math.Hypot(0.5, 0.5))
 	r := CreateSquare(1.0)
@@ -330,12 +330,12 @@ func TestPolygonInertiaAndCOM(t *testing.T) {
  * Make sure the center of mass does not effect the mass or inertia.
  * @since 3.1.5
  */
-func TestPolygonInertiaAndMass(t *testing.T) {
+func TestMassPolygonInertiaAndMass(t *testing.T) {
 	// a polygon of a simple shape should match a simple shape's mass and inertia
 	p := CreateUnitCirclePolygon(4, math.Hypot(0.5, 0.5))
 	m1 := p.CreateMass(10.0)
 
-	p.Translate(0.5, -2.0)
+	p.TranslateXY(0.5, -2.0)
 	m2 := p.CreateMass(10.0)
 
 	dyn4go.AssertEqualWithinError(t, m1.mass, m2.mass, 1.0e-3)

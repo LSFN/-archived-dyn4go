@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 type AbstractShape struct {
 	id       string
@@ -6,8 +6,6 @@ type AbstractShape struct {
 	radius   float64
 	userData interface{}
 }
-
-/*
 
 func (a *AbstractShape) GetID() string {
 	return a.id
@@ -29,6 +27,17 @@ func (a *AbstractShape) SetUserData(data interface{}) {
 	a.userData = data
 }
 
+func (a *AbstractShape) RotateAboutXY(theta, x, y float64) {
+	if !(a.center.X == x && a.center.Y == y) {
+		a.center.RotateAboutXY(theta, x, y)
+	}
+}
+
+func (a *AbstractShape) TranslateXY(x, y float64) {
+	a.center.AddXY(x, y)
+}
+
+/*
 func (a *AbstractShape) RotateAboutOrigin(theta float64) {
 	a.RotateAboutXY(theta, 0, 0)
 }
@@ -41,30 +50,7 @@ func (a *AbstractShape) RotateAboutVector2(theta float64, v *Vector2) {
 	a.RotateAboutXY(theta, v.X, v.Y)
 }
 
-func (a *AbstractShape) RotateAboutXY(theta, x, y float64) {
-	if !(a.center.X == x && a.center.Y == y) {
-		a.center.RotateAboutXY(theta, x, y)
-	}
-}
-
-func (a *AbstractShape) TranslateXY(x, y float64) {
-	a.center.AddXY(x, y)
-}
-
 func (a *AbstractShape) TranslateVector2(v *Vector2) {
 	a.TranslateXY(v.X, v.Y)
 }
-
-func (a *AbstractShape) ProjectVector2(v *Vector2) *Interval {
-	return a.ProjectVector2Transform(v, NewTransform())
-}
-
-func (a *AbstractShape) ContainsVector2(v *Vector2) bool {
-	return a.ContainsVector2Transform(v, NewTransform())
-}
-
-func (a *AbstractShape) CreateAABB() *AABB {
-	return a.CreateAABBTransform(NewTransform())
-}
-
 */

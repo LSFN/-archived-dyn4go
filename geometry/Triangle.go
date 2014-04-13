@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -105,7 +105,7 @@ func (t *Triangle) ProjectVector2Transform(n *Vector2, transform *Transform) *In
 	return NewIntervalFromMinMax(min, max)
 }
 
-func (t *Triangle) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
+func (t *Triangle) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	localn := transform.GetInverseTransformedR(n)
 	maximum := new(Vector2)
 	max := math.Inf(-1)
@@ -133,14 +133,14 @@ func (t *Triangle) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
 	leftN := t.normals[c]
 	rightN := t.normals[index]
 	transform.Transform(maximum)
-	vm := NewVertexFromVector2Int(maximum, index)
+	vm := NewVertexVector2Int(maximum, index)
 	if leftN.DotVector2(localn) < rightN.DotVector2(localn) {
 		left := transform.GetTransformedVector2(t.vertices[l])
-		vl := NewVertexFromVector2Int(left, l)
+		vl := NewVertexVector2Int(left, l)
 		return NewEdge(vm, vl, vm, maximum.HereToVector2(left), index+1)
 	} else {
 		right := transform.GetTransformedVector2(t.vertices[r])
-		vr := NewVertexFromVector2Int(right, r)
+		vr := NewVertexVector2Int(right, r)
 		return NewEdge(vr, vm, vm, right.HereToVector2(maximum), index)
 	}
 }
@@ -208,28 +208,16 @@ func (t *Triangle) CreateAABBTransform(transform *Transform) *AABB {
 	return NewAABBFromFloats(minX, minY, maxX, maxY)
 }
 
-func (t *Triangle) GetVertices() []*Vector2 {
-	return t.vertices
+func (t *Triangle) ContainsVector2(v *Vector2) bool {
+	return t.ContainsVector2Transform(v, NewTransform())
 }
 
-func (t *Triangle) GetNormals() []*Vector2 {
-	return t.normals
+func (t *Triangle) ProjectVector2(v *Vector2) *Interval {
+	return t.ProjectVector2Transform(v, NewTransform())
 }
 
-func (t *Triangle) GetID() string {
-	return t.id
-}
-
-func (t *Triangle) GetCenter() *Vector2 {
-	return t.center
-}
-
-func (t *Triangle) GetUserData() interface{} {
-	return t.userData
-}
-
-func (t *Triangle) SetUserData(data interface{}) {
-	t.userData = data
+func (t *Triangle) CreateAABB() *AABB {
+	return t.CreateAABBTransform(NewTransform())
 }
 
 func (t *Triangle) RotateAboutOrigin(theta float64) {
@@ -246,16 +234,4 @@ func (t *Triangle) RotateAboutVector2(theta float64, v *Vector2) {
 
 func (t *Triangle) TranslateVector2(v *Vector2) {
 	t.TranslateXY(v.X, v.Y)
-}
-
-func (t *Triangle) ProjectVector2(v *Vector2) *Interval {
-	return t.ProjectVector2Transform(v, NewTransform())
-}
-
-func (t *Triangle) ContainsVector2(v *Vector2) bool {
-	return t.ContainsVector2Transform(v, NewTransform())
-}
-
-func (t *Triangle) CreateAABB() *AABB {
-	return t.CreateAABBTransform(NewTransform())
 }

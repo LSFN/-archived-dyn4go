@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -123,7 +123,7 @@ func (r *Rectangle) ProjectVector2Transform(axis *Vector2, transform *Transform)
 	return NewIntervalFromMinMax(c-e, c+e)
 }
 
-func (r *Rectangle) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
+func (r *Rectangle) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	localn := transform.GetInverseTransformedR(n)
 	maximum := new(Vector2)
 	max := math.Inf(-1)
@@ -151,14 +151,14 @@ func (r *Rectangle) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
 	leftN := r.normals[c]
 	rightN := r.normals[index]
 	transform.Transform(maximum)
-	vm := NewVertexFromVector2Int(maximum, index)
+	vm := NewVertexVector2Int(maximum, index)
 	if leftN.DotVector2(localn) < rightN.DotVector2(localn) {
 		left := transform.GetTransformedVector2(r.vertices[l])
-		vl := NewVertexFromVector2Int(left, l)
+		vl := NewVertexVector2Int(left, l)
 		return NewEdge(vm, vl, vm, maximum.HereToVector2(left), index+1)
 	} else {
 		right := transform.GetTransformedVector2(r.vertices[r2])
-		vr := NewVertexFromVector2Int(right, r2)
+		vr := NewVertexVector2Int(right, r2)
 		return NewEdge(vr, vm, vm, right.HereToVector2(maximum), index)
 	}
 }

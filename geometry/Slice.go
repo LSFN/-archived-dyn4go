@@ -1,7 +1,9 @@
-package geometry
+package geometry2
 
 import (
 	"math"
+
+	"code.google.com/p/uuid"
 )
 
 type Slice struct {
@@ -37,6 +39,7 @@ func NewSlice(radius, theta float64) *Slice {
 	cToTop := s.center.DistanceSquaredFromVector2(s.vertices[1])
 	s.radius = math.Sqrt(math.Max(cToOrigin, cToTop))
 	s.localXAxis = NewVector2FromXY(1, 0)
+	s.id = uuid.New()
 	return s
 }
 
@@ -97,11 +100,11 @@ func (s *Slice) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
 	}
 }
 
-func (s *Slice) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
+func (s *Slice) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	localAxis := transform.GetInverseTransformedR(n)
 	if math.Abs(localAxis.GetAngleBetween(s.localXAxis)) <= s.alpha {
 		point := s.GetFarthestPoint(n, transform)
-		return NewVertexFromVector2(point)
+		return NewVertexVector2(point)
 	} else {
 		if math.Pi-s.theta <= 1.0e-6 {
 			return GetFarthestFeature(s.vertices[1], s.vertices[2], n, transform)
@@ -111,7 +114,7 @@ func (s *Slice) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
 		} else if localAxis.Y < 0 {
 			return GetFarthestFeature(s.vertices[0], s.vertices[2], n, transform)
 		} else {
-			return NewVertexFromVector2(transform.GetTransformedVector2(s.vertices[0]))
+			return NewVertexVector2(transform.GetTransformedVector2(s.vertices[0]))
 		}
 	}
 }
@@ -191,20 +194,16 @@ func (s *Slice) GetCircleCenter() *Vector2 {
 	return s.vertices[0]
 }
 
-func (s *Slice) GetID() string {
-	return s.id
+func (s *Slice) ContainsVector2(v *Vector2) bool {
+	return s.ContainsVector2Transform(v, NewTransform())
 }
 
-func (s *Slice) GetCenter() *Vector2 {
-	return s.center
+func (s *Slice) ProjectVector2(v *Vector2) *Interval {
+	return s.ProjectVector2Transform(v, NewTransform())
 }
 
-func (s *Slice) GetUserData() interface{} {
-	return s.userData
-}
-
-func (s *Slice) SetUserData(data interface{}) {
-	s.userData = data
+func (s *Slice) CreateAABB() *AABB {
+	return s.CreateAABBTransform(NewTransform())
 }
 
 func (s *Slice) RotateAboutOrigin(theta float64) {
@@ -221,20 +220,4 @@ func (s *Slice) RotateAboutVector2(theta float64, v *Vector2) {
 
 func (s *Slice) TranslateVector2(v *Vector2) {
 	s.TranslateXY(v.X, v.Y)
-}
-
-func (s *Slice) ProjectVector2(v *Vector2) *Interval {
-	return s.ProjectVector2Transform(v, NewTransform())
-}
-
-func (s *Slice) ContainsVector2(v *Vector2) bool {
-	return s.ContainsVector2Transform(v, NewTransform())
-}
-
-func (s *Slice) CreateAABB() *AABB {
-	return s.CreateAABBTransform(NewTransform())
-}
-
-func (s *Slice) GetRadius() float64 {
-	return s.radius
 }

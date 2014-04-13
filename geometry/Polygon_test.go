@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -6,10 +6,21 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestPolygonInterfaces(t *testing.T) {
+	vertices := []*Vector2{
+		NewVector2FromXY(0.0, 1.0),
+		NewVector2FromXY(-2.0, -2.0),
+		NewVector2FromXY(1.0, -2.0),
+	}
+	p := NewPolygon(vertices...)
+	var _ Convexer = p
+	var _ Wounder = p
+}
+
 /**
  * Tests not enough points.
  */
-func TestCreateNotEnoughPoints(t *testing.T) {
+func TestPolygonCreateNotEnoughPoints(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		new(Vector2),
@@ -21,7 +32,7 @@ func TestCreateNotEnoughPoints(t *testing.T) {
 /**
  * Tests not CCW.
  */
-func TestCreateNotCCW(t *testing.T) {
+func TestPolygonCreateNotCCW(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		new(Vector2),
@@ -34,7 +45,7 @@ func TestCreateNotCCW(t *testing.T) {
 /**
  * Tests that the triangle is CCW.
  */
-func TestCreateCCW(t *testing.T) {
+func TestPolygonCreateCCW(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	vertices := []*Vector2{
 		NewVector2FromXY(0.5, 0.5),
@@ -47,7 +58,7 @@ func TestCreateCCW(t *testing.T) {
 /**
  * Tests coincident points
  */
-func TestCreateCoincident(t *testing.T) {
+func TestPolygonCreateCoincident(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		new(Vector2),
@@ -61,7 +72,7 @@ func TestCreateCoincident(t *testing.T) {
 /**
  * Tests non convex.
  */
-func TestCreateNonConvex(t *testing.T) {
+func TestPolygonCreateNonConvex(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		NewVector2FromXY(1.0, 1.0),
@@ -76,7 +87,7 @@ func TestCreateNonConvex(t *testing.T) {
 /**
  * Tests nil point array.
  */
-func TestCreateNullPoints(t *testing.T) {
+func TestPolygonCreateNullPoints(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewPolygon(nil)
 }
@@ -84,7 +95,7 @@ func TestCreateNullPoints(t *testing.T) {
 /**
  * Tests an array with nil points
  */
-func TestCreateNullPoint(t *testing.T) {
+func TestPolygonCreateNullPoint(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	vertices := []*Vector2{
 		new(Vector2),
@@ -97,7 +108,7 @@ func TestCreateNullPoint(t *testing.T) {
 /**
  * Tests the constructor.
  */
-func TestCreateSuccess(t *testing.T) {
+func TestPolygonCreateSuccess(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-2.0, -2.0),
@@ -109,7 +120,7 @@ func TestCreateSuccess(t *testing.T) {
 /**
  * Tests the contains method.
  */
-func TestContains(t *testing.T) {
+func TestPolygonContains(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, 0.0),
@@ -138,7 +149,7 @@ func TestContains(t *testing.T) {
 /**
  * Tests the project method.
  */
-func TestProject(t *testing.T) {
+func TestPolygonProject(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, 0.0),
@@ -168,7 +179,7 @@ func TestProject(t *testing.T) {
 /**
  * Tests the farthest methods.
  */
-func TestGetFarthest(t *testing.T) {
+func TestPolygonGetFarthest(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),
@@ -181,12 +192,13 @@ func TestGetFarthest(t *testing.T) {
 	f := p.GetFarthestFeature(y, transform)
 	// should always get an edge
 	dyn4go.AssertTrue(t, f.IsEdge())
-	dyn4go.AssertEqualWithinError(t, -1.000, f.max.point.X, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, -1.000, f.max.point.Y, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, -1.000, f.vertex1.point.X, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, -1.000, f.vertex1.point.Y, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, 1.000, f.vertex2.point.X, 1.0e-3)
-	dyn4go.AssertEqualWithinError(t, -1.000, f.vertex2.point.Y, 1.0e-3)
+	e := f.(*Edge)
+	dyn4go.AssertEqualWithinError(t, -1.000, e.max.point.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, -1.000, e.max.point.Y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, -1.000, e.vertex1.point.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, -1.000, e.vertex1.point.Y, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, 1.000, e.vertex2.point.X, 1.0e-3)
+	dyn4go.AssertEqualWithinError(t, -1.000, e.vertex2.point.Y, 1.0e-3)
 
 	pt := p.GetFarthestPoint(y, transform)
 
@@ -205,7 +217,7 @@ func TestGetFarthest(t *testing.T) {
 /**
  * Tests the getAxes method.
  */
-func TestGetAxes(t *testing.T) {
+func TestPolygonGetAxes(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),
@@ -215,7 +227,7 @@ func TestGetAxes(t *testing.T) {
 	transform := NewTransform()
 
 	axes := p.GetAxes(nil, transform)
-	dyn4go.AssertNotNil(t, axes)
+	dyn4go.AssertFalse(t, axes == nil)
 	dyn4go.AssertEqual(t, 3, len(axes))
 
 	// test passing some focal points
@@ -239,7 +251,7 @@ func TestGetAxes(t *testing.T) {
 /**
  * Tests the getFoci method.
  */
-func TestGetFoci(t *testing.T) {
+func TestPolygonGetFoci(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),
@@ -255,7 +267,7 @@ func TestGetFoci(t *testing.T) {
 /**
  * Tests the rotate methods.
  */
-func TestRotate(t *testing.T) {
+func TestPolygonRotate(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),
@@ -279,7 +291,7 @@ func TestRotate(t *testing.T) {
 /**
  * Tests the translate methods.
  */
-func TestTranslate(t *testing.T) {
+func TestPolygonTranslate(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),
@@ -303,7 +315,7 @@ func TestTranslate(t *testing.T) {
  * Tests the createAABB method.
  * @since 3.1.0
  */
-func TestCreateAABB(t *testing.T) {
+func TestPolygonCreateAABB(t *testing.T) {
 	vertices := []*Vector2{
 		NewVector2FromXY(0.0, 1.0),
 		NewVector2FromXY(-1.0, -1.0),

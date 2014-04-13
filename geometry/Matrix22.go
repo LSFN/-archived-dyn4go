@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -16,6 +16,7 @@ func NewMatrix22FromFloats(m00, m01, m10, m11 float64) *Matrix22 {
 	m.m01 = m01
 	m.m10 = m10
 	m.m11 = m11
+	return m
 }
 
 func NewMatrix22FromFloatSlice(values []float64) *Matrix22 {
@@ -23,10 +24,11 @@ func NewMatrix22FromFloatSlice(values []float64) *Matrix22 {
 		panic("2x2 Matrices must be created with exactly 4 floats")
 	}
 	m := new(Matrix22)
-	m.m00 = m00
-	m.m01 = m01
-	m.m10 = m10
-	m.m11 = m11
+	m.m00 = values[0]
+	m.m01 = values[1]
+	m.m10 = values[2]
+	m.m11 = values[3]
+	return m
 }
 
 func NewMatrix22FromMatrix22(m2 *Matrix22) *Matrix22 {
@@ -124,7 +126,7 @@ func (m *Matrix22) MultiplyScalar(s float64) *Matrix22 {
 	m.m00 *= s
 	m.m01 *= s
 	m.m10 *= s
-	m.m10 *= s
+	m.m11 *= s
 	return m
 }
 
@@ -133,7 +135,7 @@ func (m *Matrix22) ProductScalar(s float64) *Matrix22 {
 	m2.m00 *= s
 	m2.m01 *= s
 	m2.m10 *= s
-	m2.m10 *= s
+	m2.m11 *= s
 	return m2
 }
 
@@ -141,7 +143,7 @@ func (m *Matrix22) Identity() *Matrix22 {
 	m.m00 = 1
 	m.m01 = 0
 	m.m10 = 0
-	m.m10 = 1
+	m.m11 = 1
 	return m
 }
 
@@ -164,10 +166,10 @@ func (m *Matrix22) Invert() *Matrix22 {
 	if math.Abs(det) > dyn4go.Epsilon {
 		det = 1 / det
 	}
-	a = m.m00
-	b = m.m01
-	c = m.m10
-	d = m.m11
+	a := m.m00
+	b := m.m01
+	c := m.m10
+	d := m.m11
 	m.m00 = det * d
 	m.m01 = -det * b
 	m.m10 = -det * c

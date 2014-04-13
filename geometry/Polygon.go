@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -7,7 +7,9 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
-type Polygon Wound
+type Polygon struct {
+	Wound
+}
 
 func NewPolygon(vertices ...*Vector2) *Polygon {
 	if vertices == nil || len(vertices) < 3 {
@@ -164,7 +166,7 @@ func (p *Polygon) ProjectVector2Transform(n *Vector2, transform *Transform) *Int
 	return NewIntervalFromMinMax(min, max)
 }
 
-func (p *Polygon) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
+func (p *Polygon) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	localn := transform.GetInverseTransformedR(n)
 	maximum := new(Vector2)
 	max := math.Inf(-1)
@@ -192,14 +194,14 @@ func (p *Polygon) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
 	leftN := p.normals[c]
 	rightN := p.normals[index]
 	transform.Transform(maximum)
-	vm := NewVertexFromVector2Int(maximum, index)
+	vm := NewVertexVector2Int(maximum, index)
 	if leftN.DotVector2(localn) < rightN.DotVector2(localn) {
 		left := transform.GetTransformedVector2(p.vertices[l])
-		vl := NewVertexFromVector2Int(left, l)
+		vl := NewVertexVector2Int(left, l)
 		return NewEdge(vm, vl, vm, maximum.HereToVector2(left), index+1)
 	} else {
 		right := transform.GetTransformedVector2(p.vertices[r])
-		vr := NewVertexFromVector2Int(right, r)
+		vr := NewVertexVector2Int(right, r)
 		return NewEdge(vr, vm, vm, right.HereToVector2(maximum), index)
 	}
 }
@@ -267,28 +269,16 @@ func (p *Polygon) CreateAABBTransform(transform *Transform) *AABB {
 	return NewAABBFromFloats(minX, minY, maxX, maxY)
 }
 
-func (p *Polygon) GetVertices() []*Vector2 {
-	return p.vertices
+func (p *Polygon) ContainsVector2(v *Vector2) bool {
+	return p.ContainsVector2Transform(v, NewTransform())
 }
 
-func (p *Polygon) GetNormals() []*Vector2 {
-	return p.normals
+func (p *Polygon) ProjectVector2(v *Vector2) *Interval {
+	return p.ProjectVector2Transform(v, NewTransform())
 }
 
-func (p *Polygon) GetID() string {
-	return p.id
-}
-
-func (p *Polygon) GetCenter() *Vector2 {
-	return p.center
-}
-
-func (p *Polygon) GetUserData() interface{} {
-	return p.userData
-}
-
-func (p *Polygon) SetUserData(data interface{}) {
-	p.userData = data
+func (p *Polygon) CreateAABB() *AABB {
+	return p.CreateAABBTransform(NewTransform())
 }
 
 func (p *Polygon) RotateAboutOrigin(theta float64) {
@@ -305,16 +295,4 @@ func (p *Polygon) RotateAboutVector2(theta float64, v *Vector2) {
 
 func (p *Polygon) TranslateVector2(v *Vector2) {
 	p.TranslateXY(v.X, v.Y)
-}
-
-func (p *Polygon) ProjectVector2(v *Vector2) *Interval {
-	return p.ProjectVector2Transform(v, NewTransform())
-}
-
-func (p *Polygon) ContainsVector2(v *Vector2) bool {
-	return p.ContainsVector2Transform(v, NewTransform())
-}
-
-func (p *Polygon) CreateAABB() *AABB {
-	return p.CreateAABBTransform(NewTransform())
 }

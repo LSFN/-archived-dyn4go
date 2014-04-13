@@ -1,10 +1,14 @@
-package geometry
+package geometry2
 
 import (
 	"math"
+
+	"code.google.com/p/uuid"
 )
 
-type Circle AbstractShape
+type Circle struct {
+	AbstractShape
+}
 
 func NewCircle(radius float64) *Circle {
 	if radius <= 0 {
@@ -13,28 +17,29 @@ func NewCircle(radius float64) *Circle {
 	c := new(Circle)
 	c.center = new(Vector2)
 	c.radius = radius
+	c.id = uuid.New()
 	return c
 }
 
-func (c *Circle) GetRadius(v *Vector2) float64 {
+func (c *Circle) GetRadiusVector2(v *Vector2) float64 {
 	return c.radius + v.DistanceFromVector2(c.center)
 }
 
-func (c *Circle) ContainsTransform(v *Vector2, t *Transform) bool {
+func (c *Circle) ContainsVector2Transform(v *Vector2, t *Transform) bool {
 	v2 := t.GetTransformedVector2(c.center)
 	radiusSquared := c.radius * c.radius
 	v2.SubtractVector2(v)
 	return v2.GetMagnitudeSquared() <= radiusSquared
 }
 
-func (c *Circle) ProjectTransform(v *Vector2, t *Transform) *Interval {
+func (c *Circle) ProjectVector2Transform(v *Vector2, t *Transform) *Interval {
 	center := t.GetTransformedVector2(c.center)
 	c2 := center.DotVector2(v)
 	return NewIntervalFromMinMax(c2-c.radius, c2+c.radius)
 }
 
-func (c *Circle) GetFarthestFeature(v *Vector2, t *Transform) *Vertex {
-	return NewVertexFromVector2(c.GetFarthestPoint(v, t))
+func (c *Circle) GetFarthestFeature(v *Vector2, t *Transform) Featurer {
+	return NewVertexVector2(c.GetFarthestPoint(v, t))
 }
 
 func (c *Circle) GetFarthestPoint(v *Vector2, t *Transform) *Vector2 {
@@ -65,20 +70,16 @@ func (c *Circle) CreateAABBTransform(t *Transform) *AABB {
 	return NewAABBFromCenterRadius(center, c.radius)
 }
 
-func (c *Circle) GetID() string {
-	return c.id
+func (c *Circle) ContainsVector2(v *Vector2) bool {
+	return c.ContainsVector2Transform(v, NewTransform())
 }
 
-func (c *Circle) GetCenter() *Vector2 {
-	return c.center
+func (c *Circle) ProjectVector2(v *Vector2) *Interval {
+	return c.ProjectVector2Transform(v, NewTransform())
 }
 
-func (c *Circle) GetUserData() interface{} {
-	return c.userData
-}
-
-func (c *Circle) SetUserData(data interface{}) {
-	c.userData = data
+func (c *Circle) CreateAABB() *AABB {
+	return c.CreateAABBTransform(NewTransform())
 }
 
 func (c *Circle) RotateAboutOrigin(theta float64) {
@@ -93,28 +94,6 @@ func (c *Circle) RotateAboutVector2(theta float64, v *Vector2) {
 	c.RotateAboutXY(theta, v.X, v.Y)
 }
 
-func (c *Circle) RotateAboutXY(theta, x, y float64) {
-	if !(c.center.X == x && c.center.Y == y) {
-		c.center.RotateAboutXY(theta, x, y)
-	}
-}
-
-func (c *Circle) TranslateXY(x, y float64) {
-	c.center.AddXY(x, y)
-}
-
 func (c *Circle) TranslateVector2(v *Vector2) {
 	c.TranslateXY(v.X, v.Y)
-}
-
-func (c *Circle) Project(v *Vector2) *Interval {
-	return c.ProjectTransform(v, NewTransform())
-}
-
-func (c *Circle) Contains(v *Vector2) bool {
-	return c.ContainsTransform(v, NewTransform())
-}
-
-func (c *Circle) CreateAABB() *AABB {
-	return c.CreateAABBTransform(NewTransform())
 }

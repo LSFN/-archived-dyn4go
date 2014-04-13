@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -7,7 +7,7 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
-func TestCreate(t *testing.T) {
+func TestVector2Create(t *testing.T) {
 	v1 := new(Vector2)
 	// should default to zero
 	dyn4go.AssertEqual(t, 0.0, v1.X)
@@ -39,7 +39,7 @@ func TestCreate(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 1.000, v6.Y, 1.0e-3)
 }
 
-func TestCopy(t *testing.T) {
+func TestVector2Copy(t *testing.T) {
 	v := NewVector2FromXY(1.0, 3.0)
 	vc := NewVector2FromVector2(v)
 
@@ -48,7 +48,7 @@ func TestCopy(t *testing.T) {
 	dyn4go.AssertEqual(t, v.Y, vc.Y)
 }
 
-func TestDistance(t *testing.T) {
+func TestVector2Distance(t *testing.T) {
 	v := new(Vector2)
 
 	dyn4go.AssertEqualWithinError(t, 4.000, v.DistanceSquaredFromXY(2.0, 0.0), 1.0e-3)
@@ -62,7 +62,7 @@ func TestDistance(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 5.000, v.DistanceFromVector2(NewVector2FromXY(3.0, 4.0)), 1.0e-3)
 }
 
-func TestDistanceBugInVersions_1_1_0_to_3_1_7(t *testing.T) {
+func TestVector2DistanceBugInVersions_1_1_0_to_3_1_7(t *testing.T) {
 	v := NewVector2FromXY(1.0, 2.0)
 	dyn4go.AssertEqualWithinError(t, 2.236, v.GetMagnitude(), 1.0e-3)
 	dyn4go.AssertEqualWithinError(t, 2.236, v.DistanceFromXY(2.0, 0.0), 1.0e-3)
@@ -71,7 +71,7 @@ func TestDistanceBugInVersions_1_1_0_to_3_1_7(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 4.242, v.DistanceFromXY(-2.0, -1.0), 1.0e-3)
 }
 
-func TestTripleProduct(t *testing.T) {
+func TestVector2TripleProduct(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 1.0)
 	v2 := NewVector2FromXY(1.0, -1.0)
 
@@ -82,7 +82,7 @@ func TestTripleProduct(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, -2.000, r.Y, 1.0e-3)
 }
 
-func TestEquals(t *testing.T) {
+func TestVector2Equals(t *testing.T) {
 	v := NewVector2FromXY(1.0, 2.0)
 
 	dyn4go.AssertTrue(t, v.EqualsVector2(v))
@@ -94,7 +94,7 @@ func TestEquals(t *testing.T) {
 	dyn4go.AssertFalse(t, v.EqualsXY(2.0, 2.0))
 }
 
-func TestSet(t *testing.T) {
+func TestVector2Set(t *testing.T) {
 	v := new(Vector2)
 
 	v2 := NewVector2FromXY(1.0, -3.0)
@@ -118,7 +118,7 @@ func TestSet(t *testing.T) {
 	dyn4go.AssertEqual(t, 3.0, v.Y)
 }
 
-func TestGet(t *testing.T) {
+func TestVector2Get(t *testing.T) {
 	v := NewVector2FromXY(3.0, 4.0)
 
 	x := v.GetXComponent()
@@ -153,7 +153,7 @@ func TestGet(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 0.800, v2.Y, 1.0e-3)
 }
 
-func TestAdd(t *testing.T) {
+func TestVector2Add(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 2.0)
 	v2 := NewVector2FromXY(-2.0, 1.0)
 
@@ -174,7 +174,7 @@ func TestAdd(t *testing.T) {
 	dyn4go.AssertEqual(t, 4.0, v1.Y)
 }
 
-func TestSubtract(t *testing.T) {
+func TestVector2Subtract(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 2.0)
 	v2 := NewVector2FromXY(-2.0, 1.0)
 
@@ -195,7 +195,7 @@ func TestSubtract(t *testing.T) {
 	dyn4go.AssertEqual(t, 0.0, v1.Y)
 }
 
-func TestTo(t *testing.T) {
+func TestVector2To(t *testing.T) {
 	p1 := NewVector2FromXY(1.0, 1.0)
 	p2 := NewVector2FromXY(0.0, 1.0)
 
@@ -210,7 +210,7 @@ func TestTo(t *testing.T) {
 	dyn4go.AssertEqual(t, -1.0, r.Y)
 }
 
-func TestMultiply(t *testing.T) {
+func TestVector2Multiply(t *testing.T) {
 	v1 := NewVector2FromXY(2.0, 1.0)
 
 	r := v1.Product(-1.5)
@@ -222,7 +222,7 @@ func TestMultiply(t *testing.T) {
 	dyn4go.AssertEqual(t, -1.5, v1.Y)
 }
 
-func TestDot(t *testing.T) {
+func TestVector2Dot(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 1.0)
 	v2 := NewVector2FromXY(0.0, 1.0)
 
@@ -237,7 +237,7 @@ func TestDot(t *testing.T) {
 	dyn4go.AssertEqual(t, 2.0, v1.DotXY(1.0, 1.0))
 }
 
-func TestCross(t *testing.T) {
+func TestVector2Cross(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 1.0)
 	v2 := NewVector2FromXY(0.0, 1.0)
 
@@ -255,7 +255,7 @@ func TestCross(t *testing.T) {
 	dyn4go.AssertEqual(t, 3.0, r.Y)
 }
 
-func TestIsOrthogonal(t *testing.T) {
+func TestVector2IsOrthogonal(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 1.0)
 	v2 := NewVector2FromXY(0.0, 1.0)
 
@@ -270,7 +270,7 @@ func TestIsOrthogonal(t *testing.T) {
 	dyn4go.AssertFalse(t, v1.IsOrthogonalXY(1.0, 1.0))
 }
 
-func TestIsZero(t *testing.T) {
+func TestVector2IsZero(t *testing.T) {
 	v := new(Vector2)
 
 	dyn4go.AssertTrue(t, v.IsZero())
@@ -285,7 +285,7 @@ func TestIsZero(t *testing.T) {
 	dyn4go.AssertFalse(t, v.IsZero())
 }
 
-func TestNegate(t *testing.T) {
+func TestVector2Negate(t *testing.T) {
 	v := NewVector2FromXY(1.0, -6.0)
 
 	v.Negate()
@@ -293,7 +293,7 @@ func TestNegate(t *testing.T) {
 	dyn4go.AssertEqual(t, 6.0, v.Y)
 }
 
-func TestZero(t *testing.T) {
+func TestVector2Zero(t *testing.T) {
 	v := NewVector2FromXY(1.0, -2.0)
 
 	v.Zero()
@@ -301,7 +301,7 @@ func TestZero(t *testing.T) {
 	dyn4go.AssertEqual(t, 0.0, v.Y)
 }
 
-func TestRotate(t *testing.T) {
+func TestVector2Rotate(t *testing.T) {
 	v := NewVector2FromXY(2.0, 1.0)
 
 	v.RotateAboutOrigin(math.Pi / 2)
@@ -313,7 +313,7 @@ func TestRotate(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 0.634, v.Y, 1.0e-3)
 }
 
-func TestProject(t *testing.T) {
+func TestVector2Project(t *testing.T) {
 	v1 := NewVector2FromXY(1.0, 1.0)
 	v2 := NewVector2FromXY(0.5, 1.0)
 
@@ -323,7 +323,7 @@ func TestProject(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 1.200, r.Y, 1.0e-3)
 }
 
-func TestLeft(t *testing.T) {
+func TestVector2Left(t *testing.T) {
 	v := NewVector2FromXY(11.0, 2.5)
 	v.Left()
 
@@ -331,7 +331,7 @@ func TestLeft(t *testing.T) {
 	dyn4go.AssertEqual(t, -11.0, v.Y)
 }
 
-func TestRight(t *testing.T) {
+func TestVector2Right(t *testing.T) {
 	v := NewVector2FromXY(11.0, 2.5)
 	v.Right()
 
@@ -339,7 +339,7 @@ func TestRight(t *testing.T) {
 	dyn4go.AssertEqual(t, 11.0, v.Y)
 }
 
-func TestNormalize(t *testing.T) {
+func TestVector2Normalize(t *testing.T) {
 	v := NewVector2FromXY(3.0, 4.0)
 	v.Normalize()
 
@@ -347,7 +347,7 @@ func TestNormalize(t *testing.T) {
 	dyn4go.AssertEqualWithinError(t, 4.0/5.0, v.Y, 1.0e-3)
 }
 
-func TestGetAngleBetweenRange(t *testing.T) {
+func TestVector2GetAngleBetweenRange(t *testing.T) {
 	v1 := NewVector2FromXY(-1.0, 2.0)
 	v2 := NewVector2FromXY(-2.0, -1.0)
 

@@ -1,6 +1,6 @@
-package geometry
+package geometry2
 
-type Transformable interface {
+type Transformer interface {
 	RotateAboutOrigin(theta float64)
 	RotateAboutVector2(theta float64, v *Vector2)
 	RotateAboutXY(theta, x, y float64)

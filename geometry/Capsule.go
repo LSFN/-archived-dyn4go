@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -78,14 +78,14 @@ func (c *Capsule) GetFarthestPoint(v *Vector2, t *Transform) *Vector2 {
 	return p.AddVector2(v.Product(c.capRadius))
 }
 
-func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
+func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	localAxis := transform.GetInverseTransformedVector2(n)
 	n1 := c.localXAxis.GetLeftHandOrthogonalVector()
 	d := localAxis.DotVector2(localAxis)
 	d1 := localAxis.DotVector2(n1)
 	if math.Abs(d1) < d {
 		point := c.GetFarthestPoint(n, transform)
-		return NewVertexFromVector2(point)
+		return NewVertexVector2(point)
 	} else {
 		v := n1.Multiply(c.capRadius)
 		e := c.localXAxis.Product(c.length * 0.5 * EDGE_FEATURE_EXPANSION_FACTOR)
@@ -101,7 +101,7 @@ func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
 	}
 }
 
-func (c *Capsule) ProjectTransform(n *Vector2, transform *Transform) *Interval {
+func (c *Capsule) ProjectVector2Transform(n *Vector2, transform *Transform) *Interval {
 	p1 := c.GetFarthestPoint(n, transform)
 	center := transform.GetTransformedVector2(c.center)
 	cDot := center.DotVector2(n)
@@ -110,8 +110,8 @@ func (c *Capsule) ProjectTransform(n *Vector2, transform *Transform) *Interval {
 }
 
 func (c *Capsule) CreateAABBTransform(transform *Transform) *AABB {
-	x := c.ProjectTransform(NewVector2FromVector2(&X_AXIS), transform)
-	y := c.ProjectTransform(NewVector2FromVector2(&Y_AXIS), transform)
+	x := c.ProjectVector2Transform(NewVector2FromVector2(&X_AXIS), transform)
+	y := c.ProjectVector2Transform(NewVector2FromVector2(&Y_AXIS), transform)
 	return NewAABBFromFloats(x.GetMin(), y.GetMin(), x.GetMax(), y.GetMax())
 }
 
@@ -135,7 +135,7 @@ func (c *Capsule) GetRadiusVector2(center *Vector2) float64 {
 	return c.radius + c.center.DistanceFromVector2(center)
 }
 
-func (c *Capsule) ContainsTransform(point *Vector2, transform *Transform) bool {
+func (c *Capsule) ContainsVector2Transform(point *Vector2, transform *Transform) bool {
 	p := GetPointOnSegmentClosestToPoint(point, transform.GetTransformedVector2(c.foci[0]), transform.GetTransformedVector2(c.foci[1]))
 	r2 := c.capRadius * c.capRadius
 	d2 := p.DistanceSquaredFromVector2(point)
@@ -169,24 +169,16 @@ func (c *Capsule) GetCapRadius() float64 {
 	return c.capRadius
 }
 
-func (c *Capsule) GetID() string {
-	return c.id
+func (c *Capsule) ContainsVector2(v *Vector2) bool {
+	return c.ContainsVector2Transform(v, NewTransform())
 }
 
-func (c *Capsule) GetCenter() *Vector2 {
-	return c.center
+func (c *Capsule) ProjectVector2(v *Vector2) *Interval {
+	return c.ProjectVector2Transform(v, NewTransform())
 }
 
-func (c *Capsule) GetRadius() float64 {
-	return c.radius
-}
-
-func (c *Capsule) GetUserData() interface{} {
-	return c.userData
-}
-
-func (c *Capsule) SetUserData(data interface{}) {
-	c.userData = data
+func (c *Capsule) CreateAABB() *AABB {
+	return c.CreateAABBTransform(NewTransform())
 }
 
 func (c *Capsule) RotateAboutOrigin(theta float64) {
@@ -203,16 +195,4 @@ func (c *Capsule) RotateAboutVector2(theta float64, v *Vector2) {
 
 func (c *Capsule) TranslateVector2(v *Vector2) {
 	c.TranslateXY(v.X, v.Y)
-}
-
-func (c *Capsule) Project(v *Vector2) *Interval {
-	return c.ProjectTransform(v, NewTransform())
-}
-
-func (c *Capsule) Contains(v *Vector2) bool {
-	return c.ContainsTransform(v, NewTransform())
-}
-
-func (c *Capsule) CreateAABB() *AABB {
-	return c.CreateAABBTransform(NewTransform())
 }

@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -7,10 +7,16 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestSliceInterfaces(t *testing.T) {
+	s := NewSlice(1.0, dyn4go.DegToRad(50))
+	var _ Convexer = s
+	var _ Shaper = s
+}
+
 /**
  * Tests a zero radius.
  */
-func TestCreateZeroRadius(t *testing.T) {
+func TestSliceCreateZeroRadius(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSlice(0.0, dyn4go.DegToRad(50))
 
@@ -19,7 +25,7 @@ func TestCreateZeroRadius(t *testing.T) {
 /**
  * Tests a negative radius.
  */
-func TestCreateNegativeRadius(t *testing.T) {
+func TestSliceCreateNegativeRadius(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSlice(-1.0, dyn4go.DegToRad(50))
 }
@@ -27,7 +33,7 @@ func TestCreateNegativeRadius(t *testing.T) {
 /**
  * Tests a zero theta.
  */
-func TestCreateZeroTheta(t *testing.T) {
+func TestSliceCreateZeroTheta(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSlice(1.0, 0)
 }
@@ -35,7 +41,7 @@ func TestCreateZeroTheta(t *testing.T) {
 /**
  * Tests a negative theta.
  */
-func TestCreateNegativeTheta(t *testing.T) {
+func TestSliceCreateNegativeTheta(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewSlice(1.0, -dyn4go.DegToRad(50))
 }
@@ -43,7 +49,7 @@ func TestCreateNegativeTheta(t *testing.T) {
 /**
  * Tests the constructor.
  */
-func TestCreateSuccess(t *testing.T) {
+func TestSliceCreateSuccess(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	slice := NewSlice(1.0, dyn4go.DegToRad(50))
 
@@ -55,7 +61,7 @@ func TestCreateSuccess(t *testing.T) {
 /**
  * Tests the contains method.
  */
-func TestContains(t *testing.T) {
+func TestSliceContains(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	transform := NewTransform()
 	p := NewVector2FromXY(0.5, -0.3)
@@ -77,7 +83,7 @@ func TestContains(t *testing.T) {
 /**
  * Tests the project method.
  */
-func TestProject(t *testing.T) {
+func TestSliceProject(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
@@ -115,7 +121,7 @@ func TestProject(t *testing.T) {
 /**
  * Tests the farthest methods.
  */
-func TestGetFarthest(t *testing.T) {
+func TestSliceGetFarthest(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
@@ -153,7 +159,7 @@ func TestGetFarthest(t *testing.T) {
 /**
  * Tests the getAxes method.
  */
-func TestGetAxes(t *testing.T) {
+func TestSliceGetAxes(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	// should be two axes + number of foci
 	foci := []*Vector2{
@@ -174,7 +180,7 @@ func TestGetAxes(t *testing.T) {
 /**
  * Tests the getFoci method.
  */
-func TestGetFoci(t *testing.T) {
+func TestSliceGetFoci(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	foci := e.GetFoci(NewTransform())
 	// should be two foci
@@ -187,7 +193,7 @@ func TestGetFoci(t *testing.T) {
 /**
  * Tests the rotate methods.
  */
-func TestRotate(t *testing.T) {
+func TestSliceRotate(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	// note: the center is not at the origin
 
@@ -212,7 +218,7 @@ func TestRotate(t *testing.T) {
 /**
  * Tests the translate methods.
  */
-func TestTranslate(t *testing.T) {
+func TestSliceTranslate(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 
 	e.TranslateXY(1.0, -0.5)
@@ -224,7 +230,7 @@ func TestTranslate(t *testing.T) {
 /**
  * Tests the generated AABB.
  */
-func TestCreateAABB(t *testing.T) {
+func TestSliceCreateAABB(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 
 	// using an identity transform
@@ -256,7 +262,7 @@ func TestCreateAABB(t *testing.T) {
 /**
  * Verifies the output of the getRadius and getSliceRadius methods.
  */
-func TestSliceRadius(t *testing.T) {
+func TestSliceSliceRadius(t *testing.T) {
 	e := NewSlice(1.0, dyn4go.DegToRad(50))
 	dyn4go.AssertEqualWithinError(t, 1.000, e.GetSliceRadius(), 1.0e-3)
 	dyn4go.AssertFalse(t, math.Abs(1.0-e.GetRadius()) < dyn4go.Epsilon)

@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
  * Tests the min > max.
  */
 
-func TestCreateMinGreaterThanMax(t *testing.T) {
+func TestIntervalCreateMinGreaterThanMax(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewIntervalFromMinMax(0.0, -1.0)
 }
@@ -19,7 +19,7 @@ func TestCreateMinGreaterThanMax(t *testing.T) {
  * Tests the constructor.
  */
 
-func TestCreate(t *testing.T) {
+func TestIntervalCreate(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	NewIntervalFromMinMax(0.0, 2.0)
 }
@@ -28,7 +28,7 @@ func TestCreate(t *testing.T) {
  * Tests the copy constructor.
  */
 
-func TestCreateCopy(t *testing.T) {
+func TestIntervalCreateCopy(t *testing.T) {
 	i1 := NewIntervalFromMinMax(-1.0, 2.0)
 	i2 := NewIntervalFromInterval(i1)
 
@@ -41,7 +41,7 @@ func TestCreateCopy(t *testing.T) {
  * Tests an invalid max.
  */
 
-func TestSetInvalidMax(t *testing.T) {
+func TestIntervalSetInvalidMax(t *testing.T) {
 	i := NewIntervalFromMinMax(0.0, 2.0)
 	i.SetMax(-1.0)
 }
@@ -50,7 +50,7 @@ func TestSetInvalidMax(t *testing.T) {
  * Tests a valid max.
  */
 
-func TestSetMax(t *testing.T) {
+func TestIntervalSetMax(t *testing.T) {
 	i := NewIntervalFromMinMax(0.0, 2.0)
 	i.SetMax(1.5)
 }
@@ -59,7 +59,7 @@ func TestSetMax(t *testing.T) {
  * Tests an invalid min.
  */
 
-func TestSetInvalidMin(t *testing.T) {
+func TestIntervalSetInvalidMin(t *testing.T) {
 	i := NewIntervalFromMinMax(0.0, 2.0)
 	i.SetMin(3.0)
 }
@@ -68,7 +68,7 @@ func TestSetInvalidMin(t *testing.T) {
  * Tests a valid max.
  */
 
-func TestSetMin(t *testing.T) {
+func TestIntervalSetMin(t *testing.T) {
 	i := NewIntervalFromMinMax(0.0, 2.0)
 	i.SetMin(1.5)
 }
@@ -77,7 +77,7 @@ func TestSetMin(t *testing.T) {
  * Tests the includes methods.
  */
 
-func TestIncludes(t *testing.T) {
+func TestIntervalIncludes(t *testing.T) {
 	i := NewIntervalFromMinMax(-2.5, 100.521)
 
 	dyn4go.AssertTrue(t, i.IncludesExclusive(50.0))
@@ -103,7 +103,7 @@ func TestIncludes(t *testing.T) {
  * Tests the overlap methods.
  */
 
-func TestOverlaps(t *testing.T) {
+func TestIntervalOverlaps(t *testing.T) {
 	i1 := NewIntervalFromMinMax(-2.0, 5.0)
 	i2 := NewIntervalFromMinMax(-4.0, 1.0)
 
@@ -130,7 +130,7 @@ func TestOverlaps(t *testing.T) {
  * Tests the clamp methods.
  */
 
-func TestClamp(t *testing.T) {
+func TestIntervalClamp(t *testing.T) {
 	i := NewIntervalFromMinMax(-1.0, 6.5)
 
 	dyn4go.AssertEqual(t, 2.0, i.Clamp(2.0))
@@ -143,7 +143,7 @@ func TestClamp(t *testing.T) {
  * Tests the degenerate interval methods.
  */
 
-func TestDegenerate(t *testing.T) {
+func TestIntervalDegenerate(t *testing.T) {
 	i := NewIntervalFromMinMax(2.0, 2.0)
 
 	dyn4go.AssertTrue(t, i.IsDegenerate())
@@ -161,7 +161,7 @@ func TestDegenerate(t *testing.T) {
  * Tests the union methods.
  */
 
-func TestUnion(t *testing.T) {
+func TestIntervalUnion(t *testing.T) {
 	i1 := NewIntervalFromMinMax(-2.0, 3.0)
 	i2 := NewIntervalFromMinMax(-1.0, 4.0)
 
@@ -185,7 +185,7 @@ func TestUnion(t *testing.T) {
  * Test the intersection methods.
  */
 
-func TestIntersection(t *testing.T) {
+func TestIntervalIntersection(t *testing.T) {
 	i1 := NewIntervalFromMinMax(-2.0, 3.0)
 	i2 := NewIntervalFromMinMax(-1.0, 4.0)
 
@@ -210,7 +210,7 @@ func TestIntersection(t *testing.T) {
  * @since 3.1.0
  */
 
-func TestDistance(t *testing.T) {
+func TestIntervalDistance(t *testing.T) {
 	i1 := NewIntervalFromMinMax(-2.0, 3.0)
 	i2 := NewIntervalFromMinMax(-1.0, 4.0)
 
@@ -228,7 +228,7 @@ func TestDistance(t *testing.T) {
  * @since 3.1.0
  */
 
-func TestExpand(t *testing.T) {
+func TestIntervalExpand(t *testing.T) {
 	i := NewIntervalFromMinMax(-2.0, 2.0)
 
 	// test a normal expansion
@@ -280,7 +280,7 @@ func TestExpand(t *testing.T) {
  * Returns the length of the interval.
  */
 
-func TestGetLength(t *testing.T) {
+func TestIntervalGetLength(t *testing.T) {
 	i := NewIntervalFromMinMax(-2.0, 2.0)
 	dyn4go.AssertEqual(t, 4.0, i.GetLength())
 

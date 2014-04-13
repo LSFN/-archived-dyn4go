@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -6,10 +6,16 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestHalfEllipseInterfaces(t *testing.T) {
+	h := NewHalfEllipse(2, 1)
+	var _ Convexer = h
+	var _ Shaper = h
+}
+
 /**
  * Tests a zero width.
  */
-func TestCreateZeroWidth(t *testing.T) {
+func TestHalfEllipseCreateZeroWidth(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewHalfEllipse(0.0, 1.0)
 }
@@ -17,7 +23,7 @@ func TestCreateZeroWidth(t *testing.T) {
 /**
  * Tests a negative width.
  */
-func TestCreateNegativeWidth(t *testing.T) {
+func TestHalfEllipseCreateNegativeWidth(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewHalfEllipse(-1.0, 1.0)
 }
@@ -25,7 +31,7 @@ func TestCreateNegativeWidth(t *testing.T) {
 /**
  * Tests a zero height.
  */
-func TestCreateZeroHeight(t *testing.T) {
+func TestHalfEllipseCreateZeroHeight(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewHalfEllipse(1.0, 0.0)
 }
@@ -33,7 +39,7 @@ func TestCreateZeroHeight(t *testing.T) {
 /**
  * Tests a negative height.
  */
-func TestCreateNegativeHeight(t *testing.T) {
+func TestHalfEllipseCreateNegativeHeight(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewHalfEllipse(1.0, -1.0)
 }
@@ -41,7 +47,7 @@ func TestCreateNegativeHeight(t *testing.T) {
 /**
  * Tests the constructor.
  */
-func TestCreateSuccess(t *testing.T) {
+func TestHalfEllipseCreateSuccess(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	NewHalfEllipse(1.0, 2.0)
 }
@@ -49,7 +55,7 @@ func TestCreateSuccess(t *testing.T) {
 /**
  * Tests the contains method.
  */
-func TestContains(t *testing.T) {
+func TestHalfEllipseContains(t *testing.T) {
 	e := NewHalfEllipse(2.0, 0.5)
 	transform := NewTransform()
 	p := NewVector2FromXY(0.75, 0.35)
@@ -91,7 +97,7 @@ func TestContains(t *testing.T) {
 /**
  * Tests the project method.
  */
-func TestProject(t *testing.T) {
+func TestHalfEllipseProject(t *testing.T) {
 	e := NewHalfEllipse(2.0, 0.5)
 	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
@@ -133,7 +139,7 @@ func TestProject(t *testing.T) {
 /**
  * Tests the farthest methods.
  */
-func TestGetFarthest(t *testing.T) {
+func TestHalfEllipseGetFarthest(t *testing.T) {
 	e := NewHalfEllipse(2.0, 0.5)
 	transform := NewTransform()
 	x := NewVector2FromXY(1.0, 0.0)
@@ -171,7 +177,7 @@ func TestGetFarthest(t *testing.T) {
 /**
  * Tests the getAxes method.
  */
-func TestGetAxes(t *testing.T) {
+func TestHalfEllipseGetAxes(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	e := NewHalfEllipse(1.0, 0.5)
 	e.GetAxes([]*Vector2{new(Vector2)}, NewTransform())
@@ -180,7 +186,7 @@ func TestGetAxes(t *testing.T) {
 /**
  * Tests the getFoci method.
  */
-func TestGetFoci(t *testing.T) {
+func TestHalfEllipseGetFoci(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	e := NewHalfEllipse(1.0, 0.5)
 	e.GetFoci(NewTransform())
@@ -189,7 +195,7 @@ func TestGetFoci(t *testing.T) {
 /**
  * Tests the rotate methods.
  */
-func TestRotate(t *testing.T) {
+func TestHalfEllipseRotate(t *testing.T) {
 	e := NewHalfEllipse(1.0, 0.25)
 
 	// rotate about center
@@ -213,7 +219,7 @@ func TestRotate(t *testing.T) {
 /**
  * Tests the translate methods.
  */
-func TestTranslate(t *testing.T) {
+func TestHalfEllipseTranslate(t *testing.T) {
 	e := NewHalfEllipse(1.0, 0.25)
 
 	e.TranslateXY(1.0, -0.5)
@@ -225,7 +231,7 @@ func TestTranslate(t *testing.T) {
 /**
  * Tests the generated AABB.
  */
-func TestCreateAABB(t *testing.T) {
+func TestHalfEllipseCreateAABB(t *testing.T) {
 	e := NewHalfEllipse(1.0, 0.25)
 
 	// using an identity transform

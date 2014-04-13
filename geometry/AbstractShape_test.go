@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -7,83 +7,44 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
-type TestShape AbstractShape
+type testShape struct {
+	AbstractShape
+}
 
-func NewTestShape() *TestShape {
-	ts := new(TestShape)
+func newTestShape() *testShape {
+	ts := new(testShape)
 	ts.id = uuid.New()
 	return ts
 }
 
-func (t *TestShape) ContainsTransform(point *Vector2, transform *Transform) bool { return false }
-func (t *TestShape) CreateAABBTransform(transform *Transform) *AABB              { return nil }
-func (t *TestShape) CreateMass(density float64) *Mass                            { return new(Mass) }
-func (t *TestShape) GetRadius(center *Vector2) float64                           { return 0.0 }
-func (t *TestShape) ProjectTransform(n *Vector2, transform *Transform) *Interval { return nil }
-func (t *TestShape) GetID() string {
-	return t.id
+func (t *testShape) ContainsVector2Transform(point *Vector2, transform *Transform) bool { return false }
+func (t *testShape) CreateAABBTransform(transform *Transform) *AABB                     { return nil }
+func (t *testShape) CreateMass(density float64) *Mass                                   { return new(Mass) }
+func (t *testShape) GetRadiusVector2(v *Vector2) float64                                { return 0.0 }
+func (t *testShape) ProjectVector2Transform(n *Vector2, transform *Transform) *Interval { return nil }
+func (t *testShape) CreateAABB() *AABB                                                  { return nil }
+func (t *testShape) ProjectVector2(v *Vector2) *Interval                                { return nil }
+func (t *testShape) ContainsVector2(v *Vector2) bool                                    { return false }
+func (t *testShape) RotateAboutOrigin(theta float64)                                    { t.RotateAboutXY(theta, 0, 0) }
+func (t *testShape) RotateAboutCenter(theta float64)                                    { t.RotateAboutXY(theta, t.center.X, t.center.Y) }
+func (t *testShape) RotateAboutVector2(theta float64, v *Vector2)                       { t.RotateAboutXY(theta, v.X, v.Y) }
+func (t *testShape) TranslateVector2(v *Vector2)                                        { t.TranslateXY(v.X, v.Y) }
+
+func TestAbstractShapeInterfaces(t *testing.T) {
+	s := newTestShape()
+	var _ Shaper = s
 }
 
-func (t *TestShape) GetCenter() *Vector2 {
-	return t.center
-}
-
-func (t *TestShape) GetUserData() interface{} {
-	return t.userData
-}
-
-func (t *TestShape) SetUserData(data interface{}) {
-	t.userData = data
-}
-
-func (t *TestShape) RotateAboutOrigin(theta float64) {
-	t.RotateAboutXY(theta, 0, 0)
-}
-
-func (t *TestShape) RotateAboutCenter(theta float64) {
-	t.RotateAboutXY(theta, t.center.X, t.center.Y)
-}
-
-func (t *TestShape) RotateAboutVector2(theta float64, v *Vector2) {
-	t.RotateAboutXY(theta, v.X, v.Y)
-}
-
-func (t *TestShape) RotateAboutXY(theta, x, y float64) {
-	if !(t.center.X == x && t.center.Y == y) {
-		t.center.RotateAboutXY(theta, x, y)
-	}
-}
-
-func (t *TestShape) TranslateXY(x, y float64) {
-	t.center.AddXY(x, y)
-}
-
-func (t *TestShape) TranslateVector2(v *Vector2) {
-	t.TranslateXY(v.X, v.Y)
-}
-
-func (t *TestShape) Project(v *Vector2) *Interval {
-	return t.ProjectTransform(v, NewTransform())
-}
-
-func (t *TestShape) Contains(v *Vector2) bool {
-	return t.ContainsTransform(v, NewTransform())
-}
-
-func (t *TestShape) CreateAABB() *AABB {
-	return t.CreateAABBTransform(NewTransform())
-}
-
-func TestGetID(t *testing.T) {
-	s := NewTestShape()
+func TestAbstractShapeGetID(t *testing.T) {
+	s := newTestShape()
 	dyn4go.AssertNotEqual(t, s.GetID(), "")
 }
 
-func TestSetUserData(t *testing.T) {
-	s := new(TestShape)
-	dyn4go.AssertNil(t, s.GetUserData())
+func TestAbstractShapeSetUserData(t *testing.T) {
+	s := newTestShape()
+	dyn4go.AssertTrue(t, s.GetUserData() == nil)
 	obj := "hello"
 	s.SetUserData(obj)
-	dyn4go.AssertNotNil(t, s.GetUserData())
+	dyn4go.AssertFalse(t, s.GetUserData() == nil)
 	dyn4go.AssertEqual(t, s.GetUserData(), obj)
 }

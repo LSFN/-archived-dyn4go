@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -145,7 +145,7 @@ func (m *Matrix33) ProductMatrix33(m2 *Matrix33) *Matrix33 {
 	return m3
 }
 
-func (m *Matrix33) MultiplyVector3(Vector3 v) *Vector3 {
+func (m *Matrix33) MultiplyVector3(v *Vector3) *Vector3 {
 	x := v.X
 	y := v.Y
 	z := v.Z
@@ -155,7 +155,7 @@ func (m *Matrix33) MultiplyVector3(Vector3 v) *Vector3 {
 	return v
 }
 
-func (m *Matrix33) ProductVector3(Vector3 v) *Vector3 {
+func (m *Matrix33) ProductVector3(v *Vector3) *Vector3 {
 	v2 := new(Vector3)
 	v2.X = m.m00*v.X + m.m01*v.Y + m.m02*v.Z
 	v2.Y = m.m10*v.X + m.m11*v.Y + m.m12*v.Z
@@ -163,7 +163,7 @@ func (m *Matrix33) ProductVector3(Vector3 v) *Vector3 {
 	return v2
 }
 
-func (m *Matrix33) MultiplyTVector3(Vector3 v) *Vector3 {
+func (m *Matrix33) MultiplyTVector3(v *Vector3) *Vector3 {
 	x := v.X
 	y := v.Y
 	z := v.Z
@@ -173,7 +173,7 @@ func (m *Matrix33) MultiplyTVector3(Vector3 v) *Vector3 {
 	return v
 }
 
-func (m *Matrix33) ProductTVector3(Vector3 v) *Vector3 {
+func (m *Matrix33) ProductTVector3(v *Vector3) *Vector3 {
 	v2 := new(Vector3)
 	v2.X = m.m00*v.X + m.m10*v.Y + m.m20*v.Z
 	v2.Y = m.m01*v.X + m.m11*v.Y + m.m21*v.Z
@@ -247,7 +247,7 @@ func (m *Matrix33) Determinant() float64 {
 }
 
 func (m *Matrix33) Invert() *Matrix33 {
-	det := m.determinant()
+	det := m.Determinant()
 	if math.Abs(det) > dyn4go.Epsilon {
 		det = 1.0 / det
 	}
@@ -276,7 +276,7 @@ func (m *Matrix33) Invert() *Matrix33 {
 }
 
 func (m *Matrix33) GetInverse() *Matrix33 {
-	det := m.determinant()
+	det := m.Determinant()
 	if math.Abs(det) > dyn4go.Epsilon {
 		det = 1.0 / det
 	}
@@ -294,8 +294,8 @@ func (m *Matrix33) GetInverse() *Matrix33 {
 	return m3
 }
 
-func (m *Matrix33) Solve33(v *Vector3) *Matrix33 {
-	det := m.determinant()
+func (m *Matrix33) Solve33(v *Vector3) *Vector3 {
+	det := m.Determinant()
 	if math.Abs(det) > dyn4go.Epsilon {
 		det = 1.0 / det
 	}
@@ -317,7 +317,7 @@ func (m *Matrix33) Solve33(v *Vector3) *Matrix33 {
 	return v2
 }
 
-func (m *Matrix22) Solve22(v *Vector2) *Vector2 {
+func (m *Matrix33) Solve22(v *Vector2) *Vector2 {
 	det := m.m00*m.m11 - m.m01*m.m10
 	if math.Abs(det) > dyn4go.Epsilon {
 		det = 1 / det

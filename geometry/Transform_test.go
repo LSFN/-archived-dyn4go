@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -7,10 +7,15 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestTransformInterfaces(t *testing.T) {
+	transform := NewTransform()
+	var _ Transformer = transform
+}
+
 /**
  * Tests the identity method.
  */
-func TestIdentity(t *testing.T) {
+func TestTransformIdentity(t *testing.T) {
 	trans := NewTransform()
 	trans.TranslateXY(5, 2)
 
@@ -23,7 +28,7 @@ func TestIdentity(t *testing.T) {
 /**
  * Test the translate method.
  */
-func TestTranslate(t *testing.T) {
+func TestTransformTranslate(t *testing.T) {
 	trans := NewTransform()
 	trans.TranslateXY(2, -1)
 
@@ -36,7 +41,7 @@ func TestTranslate(t *testing.T) {
 /**
  * Tests the rotate method.
  */
-func TestRotate(t *testing.T) {
+func TestTransformRotate(t *testing.T) {
 	trans := NewTransform()
 	trans.RotateAboutOrigin(math.Pi / 6)
 
@@ -72,7 +77,7 @@ func TestRotate(t *testing.T) {
 /**
  * Tests the copy method.
  */
-func TestCopy(t *testing.T) {
+func TestTransformCopy(t *testing.T) {
 	trans := NewTransform()
 	trans.TranslateXY(2.0, -1.0)
 	trans.RotateAboutXY(math.Pi/9, -2.0, 6.0)
@@ -90,7 +95,7 @@ func TestCopy(t *testing.T) {
 /**
  * Tests the getTransformed methods.
  */
-func TestGetTransformed(t *testing.T) {
+func TestTransformGetTransformed(t *testing.T) {
 	trans := NewTransform()
 	trans.TranslateXY(2.0, 1.0)
 	trans.RotateAboutXY(math.Pi*5/36, 1.0, -1.0)
@@ -122,7 +127,7 @@ func TestGetTransformed(t *testing.T) {
  * Tests the transform methods.
  * @since 3.1.0
  */
-func TestTransform(t *testing.T) {
+func TestTransformTransform(t *testing.T) {
 	trans := NewTransform()
 	trans.TranslateXY(2.0, 1.0)
 	trans.RotateAboutXY(math.Pi*5/36, 1.0, -1.0)
@@ -153,7 +158,7 @@ func TestTransform(t *testing.T) {
 /**
  * Tests the setTransform method.
  */
-func TestSetTransform(t *testing.T) {
+func TestTransformSetTransform(t *testing.T) {
 	tx := NewTransform()
 	tx.RotateAboutOrigin(math.Pi / 6)
 	tx.TranslateXY(2.0, 0.5)
@@ -175,7 +180,7 @@ func TestSetTransform(t *testing.T) {
 /**
  * Tests the setTranslation methods.
  */
-func TestSetTranslation(t *testing.T) {
+func TestTransformSetTranslation(t *testing.T) {
 	tx := NewTransform()
 	tx.TranslateXY(1.0, 2.0)
 	tx.RotateAboutOrigin(math.Pi / 4)
@@ -199,7 +204,7 @@ func TestSetTranslation(t *testing.T) {
 /**
  * Tests the setRotation method.
  */
-func TestSetRotation(t *testing.T) {
+func TestTransformSetRotation(t *testing.T) {
 	tx := NewTransform()
 	tx.RotateAboutOrigin(math.Pi / 4)
 	tx.TranslateXY(1.0, 0.0)
@@ -213,7 +218,7 @@ func TestSetRotation(t *testing.T) {
 /**
  * Tests the linear interpolation methods.
  */
-func TestLerp(t *testing.T) {
+func TestTransformLerp(t *testing.T) {
 	p := new(Vector2)
 
 	start := NewTransform()
@@ -271,7 +276,7 @@ func TestLerp(t *testing.T) {
  * Tests the getValues method.
  * @since 3.0.1
  */
-func TestValues(t *testing.T) {
+func TestTransformValues(t *testing.T) {
 	trans := NewTransform()
 	trans.TranslateXY(2.0, -1.0)
 

@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -29,7 +29,7 @@ func NewSegment(p1, p2 *Vector2) *Segment {
 	s.normals[1] = p1.HereToVector2(p2).Left()
 	s.normals[1].Normalize()
 	s.center = GetAverageCenterFromList(s.vertices)
-	s.length = p1.DistanceSquaredFromVector2(p2)
+	s.length = p1.DistanceFromVector2(p2)
 	s.radius = s.length * 0.5
 	s.id = uuid.New()
 	return s
@@ -129,7 +129,7 @@ func (s *Segment) GetSegmentIntersection(segment *Segment) *Vector2 {
 	return GetSegmentIntersection(s.vertices[0], s.vertices[1], segment.vertices[0], segment.vertices[1])
 }
 
-func GetFarthestFeature(v1, v2, n *Vector2, t *Transform) *Edge {
+func GetFarthestFeature(v1, v2, n *Vector2, t *Transform) Featurer {
 	p1 := t.GetTransformedVector2(v1)
 	p2 := t.GetTransformedVector2(v2)
 	dot1 := n.DotVector2(p1)
@@ -140,9 +140,9 @@ func GetFarthestFeature(v1, v2, n *Vector2, t *Transform) *Edge {
 		max = p2
 		index = 1
 	}
-	vp1 := NewVertexFromVector2Int(p1, 0)
-	vp2 := NewVertexFromVector2Int(p2, 1)
-	vm := NewVertexFromVector2Int(max, index)
+	vp1 := NewVertexVector2Int(p1, 0)
+	vp2 := NewVertexVector2Int(p2, 1)
+	vm := NewVertexVector2Int(max, index)
 	if p1.HereToVector2(p2).Right().DotVector2(n) > 0 {
 		return NewEdge(vp2, vp1, vm, p2.HereToVector2(p1), 0)
 	} else {
@@ -193,7 +193,7 @@ func (s *Segment) GetFoci(transform *Transform) []*Vector2 {
 	return nil
 }
 
-func (s *Segment) ContainsTransform(point *Vector2, transform *Transform) bool {
+func (s *Segment) ContainsVector2Transform(point *Vector2, transform *Transform) bool {
 	p := transform.GetInverseTransformedVector2(point)
 	value := GetLocation(p, s.vertices[0], s.vertices[1])
 	if math.Abs(value) <= dyn4go.Epsilon {
@@ -208,7 +208,7 @@ func (s *Segment) ContainsTransform(point *Vector2, transform *Transform) bool {
 
 func (s *Segment) ContainsTransformRadius(point *Vector2, transform *Transform, radius float64) bool {
 	if radius <= 0 {
-		return s.ContainsTransform(point, transform)
+		return s.ContainsVector2Transform(point, transform)
 	} else {
 		p := transform.GetInverseTransformedVector2(point)
 		if s.vertices[0].DistanceSquaredFromVector2(p) <= radius*radius ||
@@ -227,7 +227,7 @@ func (s *Segment) ContainsTransformRadius(point *Vector2, transform *Transform, 
 	return false
 }
 
-func (s *Segment) ProjectTransform(n *Vector2, transform *Transform) *Interval {
+func (s *Segment) ProjectVector2Transform(n *Vector2, transform *Transform) *Interval {
 	p1 := transform.GetTransformedVector2(s.vertices[0])
 	p2 := transform.GetTransformedVector2(s.vertices[1])
 	min := n.DotVector2(p1)
@@ -245,7 +245,7 @@ func (s *Segment) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
 	return GetFarthestPoint(s.vertices[0], s.vertices[1], n, transform)
 }
 
-func (s *Segment) GetFarthestFeature(n *Vector2, transform *Transform) *Edge {
+func (s *Segment) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	return GetFarthestFeature(s.vertices[0], s.vertices[1], n, transform)
 }
 
@@ -288,7 +288,7 @@ func (s *Segment) CreateAABBTransform(transform *Transform) *AABB {
 	return NewAABBFromFloats(minX, minY, maxX, maxY)
 }
 
-func (s *Segment) GetRadius(v *Vector2) float64 {
+func (s *Segment) GetRadiusVector2(v *Vector2) float64 {
 	r2 := 0.0
 	for _, v2 := range s.vertices {
 		r2t := v.DistanceSquaredFromVector2(v2)
@@ -297,28 +297,16 @@ func (s *Segment) GetRadius(v *Vector2) float64 {
 	return math.Sqrt(r2)
 }
 
-func (s *Segment) GetVertices() []*Vector2 {
-	return s.vertices
+func (s *Segment) ContainsVector2(v *Vector2) bool {
+	return s.ContainsVector2Transform(v, NewTransform())
 }
 
-func (s *Segment) GetNormals() []*Vector2 {
-	return s.normals
+func (s *Segment) ProjectVector2(v *Vector2) *Interval {
+	return s.ProjectVector2Transform(v, NewTransform())
 }
 
-func (s *Segment) GetID() string {
-	return s.id
-}
-
-func (s *Segment) GetCenter() *Vector2 {
-	return s.center
-}
-
-func (s *Segment) GetUserData() interface{} {
-	return s.userData
-}
-
-func (s *Segment) SetUserData(data interface{}) {
-	s.userData = data
+func (s *Segment) CreateAABB() *AABB {
+	return s.CreateAABBTransform(NewTransform())
 }
 
 func (s *Segment) RotateAboutOrigin(theta float64) {
@@ -335,16 +323,4 @@ func (s *Segment) RotateAboutVector2(theta float64, v *Vector2) {
 
 func (s *Segment) TranslateVector2(v *Vector2) {
 	s.TranslateXY(v.X, v.Y)
-}
-
-func (s *Segment) Project(v *Vector2) *Interval {
-	return s.ProjectTransform(v, NewTransform())
-}
-
-func (s *Segment) Contains(v *Vector2) bool {
-	return s.ContainsTransform(v, NewTransform())
-}
-
-func (s *Segment) CreateAABB() *AABB {
-	return s.CreateAABBTransform(NewTransform())
 }

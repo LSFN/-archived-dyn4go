@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"math"
@@ -50,12 +50,12 @@ func (e *Ellipse) GetFarthestPoint(n *Vector2, transform *Transform) *Vector2 {
 	return p
 }
 
-func (e *Ellipse) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
+func (e *Ellipse) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	farthest := e.GetFarthestPoint(n, transform)
-	return NewVertexFromVector2(farthest)
+	return NewVertexVector2(farthest)
 }
 
-func (e *Ellipse) ProjectTransform(n *Vector2, transform *Transform) *Interval {
+func (e *Ellipse) ProjectVector2Transform(n *Vector2, transform *Transform) *Interval {
 	p1 := e.GetFarthestPoint(n, transform)
 	center := transform.GetTransformedVector2(e.center)
 	c := center.DotVector2(n)
@@ -64,8 +64,8 @@ func (e *Ellipse) ProjectTransform(n *Vector2, transform *Transform) *Interval {
 }
 
 func (e *Ellipse) CreateAABBTransform(transform *Transform) *AABB {
-	x := e.ProjectTransform(NewVector2FromVector2(&X_AXIS), transform)
-	y := e.ProjectTransform(NewVector2FromVector2(&Y_AXIS), transform)
+	x := e.ProjectVector2Transform(NewVector2FromVector2(&X_AXIS), transform)
+	y := e.ProjectVector2Transform(NewVector2FromVector2(&Y_AXIS), transform)
 	return NewAABBFromFloats(x.GetMin(), y.GetMin(), x.GetMax(), y.GetMax())
 }
 
@@ -76,11 +76,11 @@ func (e *Ellipse) CreateMass(density float64) *Mass {
 	return NewMassFromCenterMassInertia(e.center, m, I)
 }
 
-func (e *Ellipse) GetRadius(center *Vector2) float64 {
+func (e *Ellipse) GetRadiusVector2(center *Vector2) float64 {
 	return e.radius + center.DistanceFromVector2(e.center)
 }
 
-func (e *Ellipse) ContainsTransform(point *Vector2, transform *Transform) bool {
+func (e *Ellipse) ContainsVector2Transform(point *Vector2, transform *Transform) bool {
 	localPoint := transform.GetInverseTransformedVector2(point)
 	r := e.GetRotation()
 	localPoint.RotateAboutXY(-r, e.center.X, e.center.Y)
@@ -91,7 +91,7 @@ func (e *Ellipse) ContainsTransform(point *Vector2, transform *Transform) bool {
 	a2 := e.a * e.a
 	b2 := e.b * e.b
 	value := x2/a2 + y2/b2
-	return value <= 1
+	return value <= 1.0
 }
 
 func (e *Ellipse) RotateAboutXY(theta, x, y float64) {
@@ -121,20 +121,16 @@ func (e *Ellipse) GetHalfHeight() float64 {
 	return e.b
 }
 
-func (e *Ellipse) GetID() string {
-	return e.id
+func (e *Ellipse) ContainsVector2(v *Vector2) bool {
+	return e.ContainsVector2Transform(v, NewTransform())
 }
 
-func (e *Ellipse) GetCenter() *Vector2 {
-	return e.center
+func (e *Ellipse) ProjectVector2(v *Vector2) *Interval {
+	return e.ProjectVector2Transform(v, NewTransform())
 }
 
-func (e *Ellipse) GetUserData() interface{} {
-	return e.userData
-}
-
-func (e *Ellipse) SetUserData(data interface{}) {
-	e.userData = data
+func (e *Ellipse) CreateAABB() *AABB {
+	return e.CreateAABBTransform(NewTransform())
 }
 
 func (e *Ellipse) RotateAboutOrigin(theta float64) {
@@ -149,22 +145,6 @@ func (e *Ellipse) RotateAboutVector2(theta float64, v *Vector2) {
 	e.RotateAboutXY(theta, v.X, v.Y)
 }
 
-func (e *Ellipse) TranslateXY(x, y float64) {
-	e.center.AddXY(x, y)
-}
-
 func (e *Ellipse) TranslateVector2(v *Vector2) {
 	e.TranslateXY(v.X, v.Y)
-}
-
-func (e *Ellipse) Project(v *Vector2) *Interval {
-	return e.ProjectTransform(v, NewTransform())
-}
-
-func (e *Ellipse) Contains(v *Vector2) bool {
-	return e.ContainsTransform(v, NewTransform())
-}
-
-func (e *Ellipse) CreateAABB() *AABB {
-	return e.CreateAABBTransform(NewTransform())
 }

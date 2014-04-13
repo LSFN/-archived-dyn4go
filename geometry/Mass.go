@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"github.com/LSFN/dyn4go"
@@ -84,7 +84,7 @@ func CreateMass(masses []*Mass) *Mass {
 	var m, i float64
 	for _, mass := range masses {
 		if mass == nil {
-			panic("Mass must be created from at least one other mass")
+			panic("Cannot create mass from nil")
 		}
 		c.AddVector2(mass.center.Product(mass.mass))
 		m += mass.mass
@@ -93,7 +93,7 @@ func CreateMass(masses []*Mass) *Mass {
 		c.Multiply(1 / m)
 	}
 	for _, mass := range masses {
-		i += mass.inertia + mass.mass*mass.center.DistanceFromVector2(c)
+		i += mass.inertia + mass.mass*mass.center.DistanceSquaredFromVector2(c)
 	}
 	return NewMassFromCenterMassInertia(c, m, i)
 }
@@ -103,7 +103,7 @@ func (m *Mass) IsInfinite() bool {
 }
 
 func (m *Mass) SetType(massType int) {
-	if massType != NORMAL || massType != INFINITE || massType != FIXED_LINEAR_VELOCITY || massType != FIXED_ANGULAR_VELOCITY {
+	if !(massType == NORMAL || massType == INFINITE || massType == FIXED_LINEAR_VELOCITY || massType == FIXED_ANGULAR_VELOCITY) {
 		panic("Not a valid mass type")
 	}
 	m.massType = massType

@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 type Ray struct {
 	start, direction *Vector2
@@ -30,11 +30,11 @@ func (r *Ray) GetStart() *Vector2 {
 	return r.start
 }
 
-func (r *Ray) SetStart(v *Vector2) {
+func (r *Ray) SetStart(start *Vector2) {
 	if start == nil {
 		panic("Cannot set Ray to have a nil start point")
 	}
-	r.start = v
+	r.start = start
 }
 
 func (r *Ray) GetDirectionFloat() float64 {

@@ -1,7 +1,9 @@
-package geometry
+package geometry2
 
 import (
 	"math"
+
+	"code.google.com/p/uuid"
 )
 
 const (
@@ -31,6 +33,7 @@ func NewHalfEllipse(width, height float64) *HalfEllipse {
 		NewVector2FromXY(h.a, 0),
 	}
 	h.radius = h.center.DistanceFromVector2(h.vertices[1])
+	h.id = uuid.New()
 	return h
 }
 
@@ -61,10 +64,10 @@ func (h *HalfEllipse) GetFarthestPoint(n *Vector2, transform *Transform) *Vector
 	return p
 }
 
-func (h *HalfEllipse) GetFarthestFeature(n *Vector2, transform *Transform) Feature {
+func (h *HalfEllipse) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
 	localAxis := transform.GetInverseTransformedR(n)
 	if localAxis.GetAngleBetween(h.localXAxis) < 0 {
-		return NewVertexFromVector2(h.GetFarthestPoint(n, transform))
+		return NewVertexVector2(h.GetFarthestPoint(n, transform))
 	} else {
 		return GetFarthestFeature(h.vertices[0], h.vertices[1], n, transform)
 	}
@@ -91,7 +94,7 @@ func (h *HalfEllipse) CreateMass(density float64) *Mass {
 	return NewMassFromCenterMassInertia(h.center, m, I)
 }
 
-func (h *HalfEllipse) GetRadius(center *Vector2) float64 {
+func (h *HalfEllipse) GetRadiusVector2(center *Vector2) float64 {
 	return h.radius + center.DistanceFromVector2(h.center)
 }
 
@@ -109,7 +112,7 @@ func (h *HalfEllipse) ContainsVector2Transform(point *Vector2, transform *Transf
 	a2 := h.a * h.a
 	b2 := h.height * h.height
 	value := x2/a2 + y2/b2
-	return value <= 1
+	return value <= 1.0
 }
 
 func (h *HalfEllipse) RotateAboutXY(theta, x, y float64) {
@@ -151,20 +154,16 @@ func (h *HalfEllipse) GetEllipseCenter() *Vector2 {
 	return h.ellipseCenter
 }
 
-func (h *HalfEllipse) GetID() string {
-	return h.id
+func (h *HalfEllipse) ContainsVector2(v *Vector2) bool {
+	return h.ContainsVector2Transform(v, NewTransform())
 }
 
-func (h *HalfEllipse) GetCenter() *Vector2 {
-	return h.center
+func (h *HalfEllipse) ProjectVector2(v *Vector2) *Interval {
+	return h.ProjectVector2Transform(v, NewTransform())
 }
 
-func (h *HalfEllipse) GetUserData() interface{} {
-	return h.userData
-}
-
-func (h *HalfEllipse) SetUserData(data interface{}) {
-	h.userData = data
+func (h *HalfEllipse) CreateAABB() *AABB {
+	return h.CreateAABBTransform(NewTransform())
 }
 
 func (h *HalfEllipse) RotateAboutOrigin(theta float64) {
@@ -181,16 +180,4 @@ func (h *HalfEllipse) RotateAboutVector2(theta float64, v *Vector2) {
 
 func (h *HalfEllipse) TranslateVector2(v *Vector2) {
 	h.TranslateXY(v.X, v.Y)
-}
-
-func (h *HalfEllipse) ProjectVector2(v *Vector2) *Interval {
-	return h.ProjectVector2Transform(v, NewTransform())
-}
-
-func (h *HalfEllipse) ContainsVector2(v *Vector2) bool {
-	return h.ContainsVector2Transform(v, NewTransform())
-}
-
-func (h *HalfEllipse) CreateAABB() *AABB {
-	return h.CreateAABBTransform(NewTransform())
 }

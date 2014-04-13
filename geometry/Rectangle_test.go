@@ -1,4 +1,4 @@
-package geometry
+package geometry2
 
 import (
 	"testing"
@@ -6,10 +6,16 @@ import (
 	"github.com/LSFN/dyn4go"
 )
 
+func TestRectangleInterfaces(t *testing.T) {
+	r := NewRectangle(2.0, 1.0)
+	var _ Convexer = r
+	var _ Wounder = r
+}
+
 /**
  * Tests the constructor with an invalid width.
  */
-func TestCreateInvalidWidth(t *testing.T) {
+func TestRectangleCreateInvalidWidth(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewRectangle(-1.0, 3.0)
 }
@@ -17,7 +23,7 @@ func TestCreateInvalidWidth(t *testing.T) {
 /**
  * Tests the constructor with an invalid height.
  */
-func TestCreateInvalidHeight(t *testing.T) {
+func TestRectangleCreateInvalidHeight(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	NewRectangle(2.0, 0.0)
 }
@@ -25,7 +31,7 @@ func TestCreateInvalidHeight(t *testing.T) {
 /**
  * Tests a successful creation.
  */
-func TestCreateSuccess(t *testing.T) {
+func TestRectangleCreateSuccess(t *testing.T) {
 	defer dyn4go.AssertNoPanic(t)
 	r := NewRectangle(2.0, 2.0)
 	// make sure the center is 0,0
@@ -48,7 +54,7 @@ func TestCreateSuccess(t *testing.T) {
 /**
  * Tests the getAxes method.
  */
-func TestGetAxes(t *testing.T) {
+func TestRectangleGetAxes(t *testing.T) {
 	r := NewRectangle(1.0, 1.0)
 	transform := NewTransform()
 	axes := r.GetAxes(nil, transform)
@@ -76,7 +82,7 @@ func TestGetAxes(t *testing.T) {
 /**
  * Test the contains method.
  */
-func TestContains(t *testing.T) {
+func TestRectangleContains(t *testing.T) {
 	r := NewRectangle(1.0, 2.0)
 	transform := NewTransform()
 
@@ -100,7 +106,7 @@ func TestContains(t *testing.T) {
 /**
  * Tests the project method.
  */
-func TestProject(t *testing.T) {
+func TestRectangleProject(t *testing.T) {
 	r := NewRectangle(2.0, 1.0)
 	transform := NewTransform()
 
