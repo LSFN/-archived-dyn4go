@@ -9,14 +9,14 @@ type Raycast struct {
 	distance      float64
 }
 
-func NewSeparation() *Raycast {
+func NewRaycast() *Raycast {
 	r := new(Raycast)
 	r.normal = new(geometry.Vector2)
 	r.point = new(geometry.Vector2)
 	return r
 }
 
-func NewSeparationVector2Vector2Float64(point, normal *geometry.Vector2, distance float64) *Raycast {
+func NewRaycastVector2Vector2Float64(point, normal *geometry.Vector2, distance float64) *Raycast {
 	r := new(Raycast)
 	r.point = point
 	r.normal = normal
@@ -42,7 +42,7 @@ func (r *Raycast) GetDistance() float64 {
 	return r.distance
 }
 
-func (r *Raycast) SetPoint(point1 *geometry.Vector2) {
+func (r *Raycast) SetPoint(point *geometry.Vector2) {
 	r.point = point
 }
 
@@ -50,6 +50,6 @@ func (r *Raycast) SetNormal(normal *geometry.Vector2) {
 	r.normal = normal
 }
 
-func (r *Raycast) SetDistance(distance flaot64) {
+func (r *Raycast) SetDistance(distance float64) {
 	r.distance = distance
 }

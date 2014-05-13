@@ -1,7 +1,6 @@
 package narrowphase
 
 import (
-	"github.com/LSFN/dyn4go/geometry"
 	"reflect"
 )
 
@@ -11,7 +10,7 @@ type PairwiseTypedFallbackCondition struct {
 }
 
 func NewPairwiseTypedFallbackCondition(type1, type2 reflect.Type) *PairwiseTypedFallbackCondition {
-	return NewPairwiseTypedFallbackCondition(type1, type2, 0)
+	return NewPairwiseTypedFallbackConditionInt(type1, type2, 0)
 }
 
 func NewPairwiseTypedFallbackConditionInt(type1, type2 reflect.Type, sortIndex int) *PairwiseTypedFallbackCondition {
@@ -22,6 +21,6 @@ func NewPairwiseTypedFallbackConditionInt(type1, type2 reflect.Type, sortIndex i
 	return p
 }
 
-func (p *PairwiseTypedFallbackCondition) IsMatch(type1, type2 reflect.Type) {
+func (p *PairwiseTypedFallbackCondition) IsMatch(type1, type2 reflect.Type) bool {
 	return (p.type1 == type1 && p.type2 == type2) || (p.type1 == type2 && p.type2 == type1)
 }

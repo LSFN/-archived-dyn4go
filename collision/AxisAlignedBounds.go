@@ -14,7 +14,7 @@ func NewAxisAlignedBounds(width, height float64) *AxisAlignedBounds {
 	if width <= 0 || height <= 0 {
 		panic("Width and height must be strictly positive")
 	}
-	InitAbstractBounds(a)
+	InitAbstractBounds(&a.AbstractBounds)
 	w2 := width * 0.5
 	h2 := height * 0.5
 	a.aabb = geometry.NewAABBFromFloats(-w2, -h2, w2, h2)
@@ -32,7 +32,7 @@ func (a *AxisAlignedBounds) GetBounds() *geometry.AABB {
 	return a.aabb.GetTranslated(a.transform.GetTranslation())
 }
 
-func (a *AxisAlignedBounds) GetTranslation() *Vector2 {
+func (a *AxisAlignedBounds) GetTranslation() *geometry.Vector2 {
 	return a.transform.GetTranslation()
 }
 

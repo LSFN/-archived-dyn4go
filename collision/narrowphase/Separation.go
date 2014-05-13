@@ -23,6 +23,7 @@ func NewSeparationVector2Float64Vector2Vector2(normal *geometry.Vector2, distanc
 	s.distance = distance
 	s.point1 = point1
 	s.point2 = point2
+	return s
 }
 
 func (s *Separation) Clear() {
@@ -52,7 +53,7 @@ func (s *Separation) SetNormal(normal *geometry.Vector2) {
 	s.normal = normal
 }
 
-func (s *Separation) SetDistance(distance flaot64) {
+func (s *Separation) SetDistance(distance float64) {
 	s.distance = distance
 }
 

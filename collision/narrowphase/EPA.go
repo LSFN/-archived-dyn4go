@@ -28,7 +28,7 @@ func NewEPA() *EPA {
 func (e *EPA) GetPenetration(simplex []*geometry.Vector2, minkowskiSum *MinkowskiSum, penetration *Penetration) {
 	winding := e.getWinding(simplex)
 	var point *geometry.Vector2
-	var edge EPAEdge
+	var edge *EPAEdge
 	for i := 0; i < e.maxIterations; i++ {
 		edge = e.findClosestEdge(simplex, winding)
 		point = minkowskiSum.Support(edge.normal)
@@ -38,15 +38,19 @@ func (e *EPA) GetPenetration(simplex []*geometry.Vector2, minkowskiSum *Minkowsk
 			penetration.depth = projection
 			return
 		}
-		simplex = append(simplex[:edge.index], e, simplex[edge.index:]...)
+		simplex = append(simplex, nil)
+		copy(simplex[edge.index+1:], simplex[edge.index:])
+		simplex[i] = point
 	}
 	penetration.normal = edge.normal
 	penetration.depth = point.DotVector2(edge.normal)
 }
 
-func (e *EPA) findClosestEdge(simplex []*Vector2, winding int) *EPAEdge {
+func (e *EPA) findClosestEdge(simplex []*geometry.Vector2, winding int) *EPAEdge {
 	size := len(simplex)
-	edge := EPAEdge{math.Inf(1), new(geometry.Vector2)}
+	edge := new(EPAEdge)
+	edge.distance = math.Inf(1)
+	edge.normal = new(geometry.Vector2)
 	normal := new(geometry.Vector2)
 	for i := 0; i < size; i++ {
 		j := i + 1
@@ -72,7 +76,7 @@ func (e *EPA) findClosestEdge(simplex []*Vector2, winding int) *EPAEdge {
 	return edge
 }
 
-func (e *EPA) getWinding(simplex []*geometry.Vector2) {
+func (e *EPA) getWinding(simplex []*geometry.Vector2) int {
 	size := len(simplex)
 	for i := 0; i < size; i++ {
 		j := i + 1
@@ -81,7 +85,7 @@ func (e *EPA) getWinding(simplex []*geometry.Vector2) {
 		}
 		a := simplex[i]
 		b := simplex[j]
-		if a.CrossVector2(b) {
+		if a.CrossVector2(b) > 0 {
 			return 1
 		} else if a.CrossVector2(b) < 0 {
 			return -1

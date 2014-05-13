@@ -1,6 +1,7 @@
 package geometry
 
 type WounderConvexer interface {
-	Wounder
+	GetVertices() []*Vector2
+	GetNormals() []*Vector2
 	Convexer
 }

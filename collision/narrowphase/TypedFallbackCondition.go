@@ -1,11 +1,5 @@
 package narrowphase
 
-import (
-	"reflect"
-
-	"github.com/LSFN/dyn4go/geometry"
-)
-
 type TypedFallbackCondition struct {
 	AbstractFallbackCondition
 }

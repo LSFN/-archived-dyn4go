@@ -2,8 +2,6 @@ package narrowphase
 
 import (
 	"reflect"
-
-	"github.com/LSFN/dyn4go/geometry"
 )
 
 type SingleTypedFallbackCondition struct {
@@ -12,7 +10,7 @@ type SingleTypedFallbackCondition struct {
 }
 
 func NewSingleTypedFallbackCondition(compareType reflect.Type) *SingleTypedFallbackCondition {
-	return NewSingleTypedFallbackConditionIntBool(compareType, 0, true)
+	return NewSingleTypedFallbackConditionInt(compareType, 0)
 }
 
 func NewSingleTypedFallbackConditionInt(compareType reflect.Type, sortIndex int) *SingleTypedFallbackCondition {

@@ -1,5 +1,5 @@
 package collision
 
 type Filterer interface {
-	isAllowed(filter Filterer) bool
+	IsAllowed(filter Filterer) bool
 }

@@ -19,7 +19,7 @@ func InitAbstractBoundsTransform(a *AbstractBounds, transform *geometry.Transfor
 	a.transform = transform
 }
 
-func (a *AbstractBounds) GetTransform() {
+func (a *AbstractBounds) GetTransform() *geometry.Transform {
 	return a.transform
 }
 
@@ -43,6 +43,6 @@ func (a *AbstractBounds) TranslateVector2(vector *geometry.Vector2) {
 	a.transform.TranslateVector2(vector)
 }
 
-func (a *AbstractBounds) ShiftCoordinates(shift *Vector2) {
+func (a *AbstractBounds) ShiftCoordinates(shift *geometry.Vector2) {
 	a.transform.TranslateVector2(shift)
 }

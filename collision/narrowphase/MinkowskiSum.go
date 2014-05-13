@@ -19,17 +19,17 @@ func NewMinkowskiSumPoint() *MinkowskiSumPoint {
 func NewMinkowskiSumPointVector2Vector2(p1, p2 *geometry.Vector2) *MinkowskiSumPoint {
 	m := new(MinkowskiSumPoint)
 	m.p = new(geometry.Vector2)
-	m.Set(p1, p2)
+	m.SetVector2s(p1, p2)
 	return m
 }
 
-func (m *MinkowskiSumPoint) Set(p1, p2 *geometry.Vector2) {
+func (m *MinkowskiSumPoint) SetVector2s(p1, p2 *geometry.Vector2) {
 	m.p1 = p1
 	m.p2 = p2
 	m.p = p1.DifferenceVector2(p2)
 }
 
-func (m *MinkowskiSumPoint) Set(p *MinkowskiSumPoint) {
+func (m *MinkowskiSumPoint) SetMinkowskiSumPoint(p *MinkowskiSumPoint) {
 	m.p1 = p.p1
 	m.p2 = p.p2
 	m.p = p.p
@@ -46,6 +46,7 @@ func NewMinkowskiSum(convex1 geometry.Convexer, transform1 *geometry.Transform, 
 	m.convex2 = convex2
 	m.transform1 = transform1
 	m.transform2 = transform2
+	return m
 }
 
 func (m *MinkowskiSum) Support(direction *geometry.Vector2) *geometry.Vector2 {
@@ -61,7 +62,7 @@ func (m *MinkowskiSum) SupportMinkowskiSumPoint(direction *geometry.Vector2, p *
 	direction.Negate()
 	point2 := m.convex2.GetFarthestPoint(direction, m.transform2)
 	direction.Negate()
-	p.Set(point1, point2)
+	p.SetVector2s(point1, point2)
 }
 
 func (m *MinkowskiSum) GetConvex1() geometry.Convexer {

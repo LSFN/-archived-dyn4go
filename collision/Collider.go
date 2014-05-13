@@ -7,9 +7,9 @@ import (
 type Collider interface {
 	geometry.Transformer
 	GetID() string
-	CreateAABB() *AABB
+	CreateAABB() *geometry.AABB
 	GetFixture(index int) *Fixture
 	GetFixtureCount() int
 	GetFixtures() []*Fixture
-	GetTransform() *Transform
+	GetTransform() *geometry.Transform
 }

@@ -12,6 +12,7 @@ type Penetration struct {
 func NewPenetration() *Penetration {
 	p := new(Penetration)
 	p.normal = new(geometry.Vector2)
+	return p
 }
 
 func (p *Penetration) Clear() {

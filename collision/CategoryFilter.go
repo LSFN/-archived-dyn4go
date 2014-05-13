@@ -1,9 +1,5 @@
 package collision
 
-import (
-	"math"
-)
-
 type CategoryFilter struct {
 	category, mask int
 }
