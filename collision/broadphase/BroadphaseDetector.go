@@ -6,15 +6,15 @@ import (
 )
 
 type BroadphaseDetector interface {
-	Add(collidable Collider)
-	Remove(collidable Collider)
-	Update(collidable Collider)
+	Add(collidable collision.Collider)
+	Remove(collidable collision.Collider)
+	Update(collidable collision.Collider)
 	Clear()
-	GetAABB(collidable Collider) *geometry.AABB
+	GetAABB(collidable collision.Collider) *geometry.AABB
 	DetectAABB(aabb *geometry.AABB) []collision.Collider
 	Raycast(ray *geometry.Ray, length float64) []collision.Collider
 	Detect(a, b interface{}) bool
-	DetectConvexTransform(convex1 *geometry.Convexer, transform1 *geometry.Transform, convex2 *geometry.Convexer, transform2 *geometry.Transform) bool
+	DetectConvexTransform(convex1 geometry.Convexer, transform1 *geometry.Transform, convex2 geometry.Convexer, transform2 *geometry.Transform) bool
 	GetAABBExpansion() float64
 	SetAABBExpansion(expansion float64)
 	ShiftCoordinates(shift *geometry.Vector2)

@@ -4,7 +4,7 @@ type BroadphasePair struct {
 	a, b interface{}
 }
 
-func NewBroadphasePair(a, b interface{}) {
+func NewBroadphasePair(a, b interface{}) *BroadphasePair {
 	c := new(BroadphasePair)
 	c.a = a
 	c.b = b
