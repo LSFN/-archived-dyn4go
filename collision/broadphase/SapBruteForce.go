@@ -7,12 +7,12 @@ import (
 	"sort"
 )
 
-type SapBruteForceProxy struct {
+type sapBruteForceProxy struct {
 	collidable collision.Collider
 	aabb       *geometry.AABB
 }
 
-func (s *SapBruteForceProxy) CompareTo(o *SapBruteForceProxy) int {
+func (s *sapBruteForceProxy) CompareTo(o *sapBruteForceProxy) int {
 	if s == 0 {
 		return 0
 	}
@@ -33,36 +33,36 @@ func (s *SapBruteForceProxy) CompareTo(o *SapBruteForceProxy) int {
 	}
 }
 
-type PairList struct {
-	proxy      *SapBruteForceProxy
-	potentials []*SapBruteForceProxy
+type sapBruteForcesapBruteForcePairList struct {
+	proxy      *sapBruteForceProxy
+	potentials []*sapBruteForceProxy
 }
 
-func NewPairList() *PairList {
-	p := new(PairList)
-	p.potentials = make([]*SapBruteForceProxy, 0)
+func NewsapBruteForcePairList() *sapBruteForcePairList {
+	p := new(sapBruteForcePairList)
+	p.potentials = make([]*sapBruteForceProxy, 0)
 	return p
 }
 
-type ProxyList []*SapBruteForceProxy
+type sapBruteForceProxyList []*sapBruteForceProxy
 
-func (p *ProxyList) Len() int {
+func (p *sapBruteForceProxyList) Len() int {
 	return len(p)
 }
 
-func (p *ProxyList) Less(i, j int) bool {
+func (p *sapBruteForceProxyList) Less(i, j int) bool {
 	return p[i].CompareTo(p[j]) < 0
 }
 
-func (p *ProxyList) Swap(i, j int) {
+func (p *sapBruteForceProxyList) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
 type SapBruteForce struct {
 	AbstractAABBDetector
-	proxyList      *ProxyList
-	proxyMap       map[string]*SapBruteForceProxy
-	potentialPairs []*PairList
+	proxyList      *sapBruteForceProxyList
+	proxyMap       map[string]*sapBruteForceProxy
+	potentialPairs []*sapBruteForcePairList
 	sort           bool
 }
 
@@ -74,16 +74,16 @@ func NewSapBruteForceInt(initialCapacity int) *SapBruteForce {
 	s := new(SapBruteForce)
 	InitAbstractAABBDetector(s.AbstractAABBDetector)
 	s.sort = false
-	s.proxyList = &make([]*SapBruteForceProxy, initialCapacity)
-	s.proxyMap = make(map[string]*SapBruteForceProxy, initialCapacity*4/3+1)
-	s.potentialPairs = make([]*PairList, initialCapacity)
+	s.proxyList = &make([]*sapBruteForceProxy, 0, initialCapacity)
+	s.proxyMap = make(map[string]*sapBruteForceProxy, 0, initialCapacity*4/3+1)
+	s.potentialPairs = make([]*sapBruteForcePairList, 0, initialCapacity)
 }
 
 func (s *SapBruteForce) Add(collidable collision.Collider) {
 	id := collidable.GetID()
 	aabb := collidable.CreateAABB()
 	aabb.Expand(s.expansion)
-	p := new(SapBruteForceProxy)
+	p := new(sapBruteForceProxy)
 	p.collidable = collidable
 	p.aabb = aabb
 	s.proxyList = append(s.proxyList, p)
@@ -141,10 +141,10 @@ func (s *SapBruteForce) Detect() []*BroadphasePair {
 	pairs := make([]*BroadphasePair, eSize)
 	s.potentialPairs = make([]*BroadphasePair, 0)
 	if s.sort {
-		sort.Sort(ProxyList)
+		sort.Sort(s.proxyList)
 		s.sort = false
 	}
-	pl := NewPairList()
+	pl := NewsapBruteForcePairList()
 	for i, current := range s.proxyList {
 		for j := i + 1; j < size; j++ {
 			test := s.proxyList[j]
@@ -157,7 +157,7 @@ func (s *SapBruteForce) Detect() []*BroadphasePair {
 		if len(pl.potentials) > 0 {
 			pl.proxy = current
 			s.potentialPairs = append(s.potentialPairs, pl)
-			pl := NewPairList()
+			pl := NewsapBruteForcePairList()
 		}
 	}
 	size = len(s.potentialPairs)
