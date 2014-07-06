@@ -13,7 +13,7 @@ func InitAbstractAABBDetector(abstractAABBDetector *AbstractAABBDetector) {
 	abstractAABBDetector.expansion = 0.2
 }
 
-func (a *AbstractAABBDetector) Detect(b, c collision.Collider) bool {
+func (a *AbstractAABBDetector) DetectColliders(b, c collision.Collider) bool {
 	bAABB := b.CreateAABB()
 	cAABB := c.CreateAABB()
 	return bAABB.Overlaps(cAABB)

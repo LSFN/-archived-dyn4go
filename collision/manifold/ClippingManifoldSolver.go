@@ -8,7 +8,7 @@ import (
 
 type ClippingManifoldSolver struct{}
 
-func (c *ClippingManifoldSolver) GetManifold(penetration *narrowphase.Penetration, convex1 *geometry.Convexer, transform1 *geometry.Transform, convex2 *geometry.Convexer, transform2 *geometry.Transform, manifold *Manifold) bool {
+func (c *ClippingManifoldSolver) GetManifold(penetration *narrowphase.Penetration, convex1 geometry.Convexer, transform1 *geometry.Transform, convex2 geometry.Convexer, transform2 *geometry.Transform, manifold *Manifold) bool {
 	manifold.Clear()
 	n := penetration.GetNormal()
 	feature1 := convex1.GetFarthestFeature(n, transform1)

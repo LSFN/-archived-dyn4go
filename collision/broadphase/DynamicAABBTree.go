@@ -31,7 +31,7 @@ func NewDynamicAABBTree() *DynamicAABBTree {
 
 func NewDynamicAABBTreeInt(initialCapacity int) *DynamicAABBTree {
 	d := new(DynamicAABBTree)
-	d.proxyList = make([]*DATNode, initialCapacity)
+	d.proxyList = make([]*DATNode, 0, initialCapacity)
 	d.proxyMap = make(map[string]*DATNode)
 	InitAbstractAABBDetector(&d.AbstractAABBDetector)
 	return d
@@ -51,18 +51,20 @@ func (d *DynamicAABBTree) Add(collidable collision.Collider) {
 func (d *DynamicAABBTree) Remove(collidable collision.Collider) {
 	node, ok := d.proxyMap[collidable.GetID()]
 	if ok {
-		delete(d, collidable.GetID())
+		d.remove(node)
 		found := false
+		index := 0
 		for i, v := range d.proxyList {
 			if v.collidable == collidable {
 				found = true
+				index = i
 				break
 			}
 		}
 		if found {
-			d.proxyList = append(d.proxyList[:i], d.proxyList[i+1:]...)
+			d.proxyList = append(d.proxyList[:index], d.proxyList[index+1:]...)
 		}
-		d.remove(collidable)
+		delete(d.proxyMap, collidable.GetID())
 	}
 }
 
@@ -103,36 +105,36 @@ func (d *DynamicAABBTree) Detect() []*BroadphasePair {
 		node.tested = false
 	}
 	eSize := collision.GetEstimatedCollisionPairs(size)
-	pairs := make([]*BroadphasePair, eSize)
+	pairs := make([]*BroadphasePair, 0, eSize)
 	for _, node := range d.proxyList {
-		detectNonRecursive(node, d.root, pairs)
+		d.detectNonRecursive(node, d.root, &pairs)
 		node.tested = true
 	}
 	return pairs
 }
 
 func (d *DynamicAABBTree) DetectAABB(aabb *geometry.AABB) []collision.Collider {
-	return d.detectNonRecursive(aabb, d.root)
+	return d.detectNonRecursiveAABB(aabb, d.root)
 }
 
-func (dyn *DynamicAABBTree) Raycast(ray *geometry.Ray, length float64) []collision.Collider {
+func (d *DynamicAABBTree) Raycast(ray *geometry.Ray, length float64) []collision.Collider {
 	if len(d.proxyList) == 0 {
 		return []collision.Collider{}
 	}
 	s := ray.GetStart()
-	d := ray.GetDirectionVector2()
+	dir := ray.GetDirectionVector2()
 	l := length
 	if l <= 0 {
 		l = math.Inf(1)
 	}
 	x1 := s.X
-	x2 := s.x + d.X*l
+	x2 := s.X + dir.X*l
 	y1 := s.Y
-	y2 := s.Y + d.Y*l
+	y2 := s.Y + dir.Y*l
 	min := geometry.NewVector2FromXY(math.Min(x1, x2), math.Min(y1, y2))
 	max := geometry.NewVector2FromXY(math.Max(x1, x2), math.Max(y1, y2))
 	aabb := geometry.NewAABBFromVector2(min, max)
-	return dyn.DetectAABB(aabb)
+	return d.DetectAABB(aabb)
 }
 
 func (d *DynamicAABBTree) ShiftCoordinates(shift *geometry.Vector2) {
@@ -217,7 +219,7 @@ func (d *DynamicAABBTree) detectNonRecursive(node, root *DATNode, pairs *[]*Broa
 func (d *DynamicAABBTree) detectAABB(aabb *geometry.AABB, node *DATNode, list *[]collision.Collider) {
 	if aabb.Overlaps(node.aabb) {
 		if node.left == nil {
-			*list = append(list, node.collidable)
+			*list = append(*list, node.collidable)
 			return
 		}
 		if node.left != nil {
@@ -229,7 +231,7 @@ func (d *DynamicAABBTree) detectAABB(aabb *geometry.AABB, node *DATNode, list *[
 	}
 }
 
-func (d *DynamicAABBTree) detectNonRecursiveAABB(aabb *geometry.AABB, node *DATNode) *[]collision.Collider {
+func (d *DynamicAABBTree) detectNonRecursiveAABB(aabb *geometry.AABB, node *DATNode) []collision.Collider {
 	eSize := collision.GetEstimatedCollisions()
 	list := make([]collision.Collider, eSize)
 	for node != nil {
@@ -331,7 +333,7 @@ func (d *DynamicAABBTree) insert(item *DATNode) {
 		node = d.balance(node)
 		left := node.left
 		right := node.right
-		node.height = 1 + math.Max(left.height, right.height)
+		node.height = 1 + int(math.Max(float64(left.height), float64(right.height)))
 		node.aabb = left.aabb.GetUnion(right.aabb)
 		node = node.parent
 	}
@@ -365,8 +367,8 @@ func (d *DynamicAABBTree) remove(node *DATNode) {
 			n := d.balance(n)
 			left := n.left
 			right := n.right
-			n.height = 1 + math.Max(left.height, right.height)
-			n.aabb = left.getUnion(right.aabb)
+			n.height = 1 + int(math.Max(float64(left.height), float64(right.height)))
+			n.aabb = left.aabb.GetUnion(right.aabb)
 			n = n.parent
 		}
 	} else {
@@ -404,16 +406,16 @@ func (d *DynamicAABBTree) balance(node *DATNode) *DATNode {
 			g.parent = a
 			a.aabb = b.aabb.GetUnion(g.aabb)
 			c.aabb = a.aabb.GetUnion(f.aabb)
-			a.height = 1 + math.Max(b.height, g.height)
-			c.height = 1 + math.Max(a.height, f.height)
+			a.height = 1 + int(math.Max(float64(b.height), float64(g.height)))
+			c.height = 1 + int(math.Max(float64(a.height), float64(f.height)))
 		} else {
 			c.right = g
 			a.right = f
 			f.parent = a
 			a.aabb = b.aabb.GetUnion(f.aabb)
 			c.aabb = a.aabb.GetUnion(g.aabb)
-			a.height = 1 + math.Max(b.height, g.height)
-			c.height = 1 + math.Max(a.height, f.height)
+			a.height = 1 + int(math.Max(float64(b.height), float64(g.height)))
+			c.height = 1 + int(math.Max(float64(a.height), float64(f.height)))
 		}
 		return c
 	}
@@ -438,16 +440,16 @@ func (d *DynamicAABBTree) balance(node *DATNode) *DATNode {
 			e.parent = a
 			a.aabb = c.aabb.GetUnion(e.aabb)
 			b.aabb = a.aabb.GetUnion(d2.aabb)
-			a.height = 1 + math.Max(c.height, e.height)
-			b.height = 1 + math.Max(a.height, d2.height)
+			a.height = 1 + int(math.Max(float64(c.height), float64(e.height)))
+			b.height = 1 + int(math.Max(float64(a.height), float64(d2.height)))
 		} else {
 			b.right = e
-			a.left = d
+			a.left = d2
 			d2.parent = a
 			a.aabb = c.aabb.GetUnion(d2.aabb)
 			b.aabb = a.aabb.GetUnion(e.aabb)
-			a.height = 1 + math.Max(c.height, d2.height)
-			b.height = 1 + math.Max(a.height, e.height)
+			a.height = 1 + int(math.Max(float64(c.height), float64(d2.height)))
+			b.height = 1 + int(math.Max(float64(a.height), float64(e.height)))
 		}
 		return b
 	}

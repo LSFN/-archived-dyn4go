@@ -13,7 +13,7 @@ type sapBruteForceProxy struct {
 }
 
 func (s *sapBruteForceProxy) CompareTo(o *sapBruteForceProxy) int {
-	if s == 0 {
+	if s == o {
 		return 0
 	}
 	diff := s.aabb.GetMinX() - o.aabb.GetMinX()
@@ -28,12 +28,16 @@ func (s *sapBruteForceProxy) CompareTo(o *sapBruteForceProxy) int {
 		} else if diff < 0 {
 			return -1
 		} else {
-			return s.collidable.GetID() > o.collidable.GetID()
+			if s.collidable.GetID() > o.collidable.GetID() {
+				return 1
+			} else {
+				return -1
+			}
 		}
 	}
 }
 
-type sapBruteForcesapBruteForcePairList struct {
+type sapBruteForcePairList struct {
 	proxy      *sapBruteForceProxy
 	potentials []*sapBruteForceProxy
 }
@@ -46,21 +50,21 @@ func NewsapBruteForcePairList() *sapBruteForcePairList {
 
 type sapBruteForceProxyList []*sapBruteForceProxy
 
-func (p *sapBruteForceProxyList) Len() int {
+func (p sapBruteForceProxyList) Len() int {
 	return len(p)
 }
 
-func (p *sapBruteForceProxyList) Less(i, j int) bool {
+func (p sapBruteForceProxyList) Less(i, j int) bool {
 	return p[i].CompareTo(p[j]) < 0
 }
 
-func (p *sapBruteForceProxyList) Swap(i, j int) {
+func (p sapBruteForceProxyList) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
 type SapBruteForce struct {
 	AbstractAABBDetector
-	proxyList      *sapBruteForceProxyList
+	proxyList      sapBruteForceProxyList
 	proxyMap       map[string]*sapBruteForceProxy
 	potentialPairs []*sapBruteForcePairList
 	sort           bool
@@ -72,11 +76,12 @@ func NewSapBruteForce() *SapBruteForce {
 
 func NewSapBruteForceInt(initialCapacity int) *SapBruteForce {
 	s := new(SapBruteForce)
-	InitAbstractAABBDetector(s.AbstractAABBDetector)
+	InitAbstractAABBDetector(&s.AbstractAABBDetector)
 	s.sort = false
-	s.proxyList = &make([]*sapBruteForceProxy, 0, initialCapacity)
-	s.proxyMap = make(map[string]*sapBruteForceProxy, 0, initialCapacity*4/3+1)
+	s.proxyList = make([]*sapBruteForceProxy, 0, initialCapacity)
+	s.proxyMap = make(map[string]*sapBruteForceProxy)
 	s.potentialPairs = make([]*sapBruteForcePairList, 0, initialCapacity)
+	return s
 }
 
 func (s *SapBruteForce) Add(collidable collision.Collider) {
@@ -92,14 +97,13 @@ func (s *SapBruteForce) Add(collidable collision.Collider) {
 }
 
 func (s *SapBruteForce) Remove(collidable collision.Collider) {
-	removeIndex := -1
 	for i, p := range s.proxyList {
 		if p.collidable == collidable {
-			removeIndex = i
+			s.proxyList = append(s.proxyList[:i], s.proxyList[i+1:]...)
 			break
 		}
 	}
-	s.proxyList = append(s.proxyList[:removeIndex], s.proxyList[removeIndex+1:]...)
+	delete(s.proxyMap, collidable.GetID())
 }
 
 func (s *SapBruteForce) Update(collidable collision.Collider) {
@@ -138,8 +142,8 @@ func (s *SapBruteForce) Detect() []*BroadphasePair {
 		return make([]*BroadphasePair, 0)
 	}
 	eSize := collision.GetEstimatedCollisionPairs(size)
-	pairs := make([]*BroadphasePair, eSize)
-	s.potentialPairs = make([]*BroadphasePair, 0)
+	pairs := make([]*BroadphasePair, 0, eSize)
+	s.potentialPairs = make([]*sapBruteForcePairList, 0)
 	if s.sort {
 		sort.Sort(s.proxyList)
 		s.sort = false
@@ -157,14 +161,11 @@ func (s *SapBruteForce) Detect() []*BroadphasePair {
 		if len(pl.potentials) > 0 {
 			pl.proxy = current
 			s.potentialPairs = append(s.potentialPairs, pl)
-			pl := NewsapBruteForcePairList()
+			pl = NewsapBruteForcePairList()
 		}
 	}
-	size = len(s.potentialPairs)
-	for i, current := range s.potentialPairs {
-		pls := len(current.potentials)
-		for j := i + 1; j < size; j++ {
-			test := current.potentials[j]
+	for _, current := range s.potentialPairs {
+		for _, test := range current.potentials {
 			if current.proxy.aabb.Overlaps(test.aabb) {
 				pair := NewBroadphasePair(current.proxy.collidable, test.collidable)
 				pairs = append(pairs, pair)
@@ -227,10 +228,10 @@ func (s *SapBruteForce) Raycast(ray *geometry.Ray, length float64) []collision.C
 	x2 := st.X + d.X*l
 	y1 := st.Y
 	y2 := st.Y + d.Y*l
-	min := geometry.NewVector2FromXY(math.Min(x1, x2), math.Min(x2, y2))
-	max := geometry.NewVector2FromXY(math.Max(x1, x2), math.Max(x2, y2))
+	min := geometry.NewVector2FromXY(math.Min(x1, x2), math.Min(y1, y2))
+	max := geometry.NewVector2FromXY(math.Max(x1, x2), math.Max(y2, y2))
 	aabb := geometry.NewAABBFromVector2(min, max)
-	return st.Detect(aabb)
+	return s.DetectAABB(aabb)
 }
 
 func (s *SapBruteForce) ShiftCoordinates(shift *geometry.Vector2) {

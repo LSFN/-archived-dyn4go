@@ -1,6 +1,7 @@
 package broadphase
 
 import (
+	"fmt"
 	"github.com/LSFN/dyn4go/collision"
 	"github.com/LSFN/dyn4go/geometry"
 	"math"
@@ -12,7 +13,7 @@ type SapTreeProxy struct {
 	tested     bool
 }
 
-func (s *SapTreeProxy) CompareTo(o SapTreeProxy) int {
+func (s *SapTreeProxy) CompareTo(o *SapTreeProxy) int {
 	if s == o {
 		return 0
 	}
@@ -32,8 +33,13 @@ func (s *SapTreeProxy) CompareTo(o SapTreeProxy) int {
 				return 1
 			} else if s.collidable == nil {
 				return -1
+			} else {
+				if s.collidable.GetID() > o.collidable.GetID() {
+					return 1
+				} else {
+					return -1
+				}
 			}
-			return s.collidable.GetID() > o.collidable.GetID()
 		}
 	}
 }
@@ -45,74 +51,57 @@ type SapTreePairList struct {
 
 func NewSapTreePairList() *SapTreePairList {
 	s := new(SapTreePairList)
-	s.potentials = make([]*SapTreeProxy)
+	s.potentials = make([]*SapTreeProxy, 0)
 	return s
 }
 
-type pretendTreeSet []*SapTreeProxy
+type pretendTreeSet struct {
+	list []*SapTreeProxy
+}
 
 func (p *pretendTreeSet) Add(proxy *SapTreeProxy) {
-	min := 0
-	max := len(p)
-	index := len(p) / 2
-	for min != max {
-		if p[index].CompareTo(proxy) >= 0 {
-			max = index
-		} else {
-			min = index
+	for i := range p.list {
+		if p.list[i].CompareTo(proxy) >= 0 {
+			p.list = append(p.list[:i], append([]*SapTreeProxy{proxy}, p.list[i:]...)...)
+			break
 		}
-		index = (max + min) / 2
 	}
-	p = append(p[:index], proxy, p[index:]...)
+
 }
 
 func (p *pretendTreeSet) Remove(proxy *SapTreeProxy) {
-	min := 0
-	max := len(p)
-	index := len(p) / 2
-	for min != max {
-		if p[index].CompareTo(proxy) >= 0 {
-			max = index
-		} else {
-			min = index
+	if len(p.list) > 0 {
+		for i := range p.list {
+			if p.list[i].CompareTo(proxy) == 0 {
+				p.list = append(p.list[:i], p.list[i+1:]...)
+				break
+			}
 		}
-		index = (max + min) / 2
 	}
-	p = append(p[:index], p[index+1:])
 }
 
 func (p *pretendTreeSet) Clear() {
-	p = p[0:0]
+	p.list = p.list[0:0]
 }
 
-func (p *pretendTreeSet) TailSet(current *SapTreeProxy, inclusive bool) *pretendTreeSet {
-	min := 0
-	max := len(p)
-	index := len(p) / 2
-	for min != max {
-		if p[index].CompareTo(proxy) <= 0 {
-			min = index
-		} else {
-			max = index
+func (p *pretendTreeSet) TailSet(current *SapTreeProxy, inclusive bool) []*SapTreeProxy {
+	for i := range p.list {
+		comp := p.list[i].CompareTo(current)
+		if (comp == 0 && inclusive) || comp > 0 {
+			return p.list[i:]
 		}
-		index = (max + min) / 2
 	}
-	return p[index:]
+	return p.list[len(p.list):]
 }
 
 func (p *pretendTreeSet) Ceiling(item *SapTreeProxy) *SapTreeProxy {
-	min := 0
-	max := len(p)
-	index := len(p) / 2
-	for min != max {
-		if p[index].CompareTo(item) >= 0 {
-			max = index
-		} else {
-			min = index
+	for i := range p.list {
+		comp := p.list[i].CompareTo(item)
+		if comp > 0 {
+			return p.list[i]
 		}
-		index = (max + min) / 2
 	}
-	return p[index]
+	return nil
 }
 
 type SapTree struct {
@@ -128,9 +117,10 @@ func NewSapTree() *SapTree {
 
 func NewSapTreeInt(initialCapacity int) *SapTree {
 	s := new(SapTree)
-	InitAbstractAABBDetector(s)
-	s.proxyTree = make(pretendTreeSet, 0, initialCapacity)
-	s.proxyMap = make(map[string]*SapTreeProxy, 0, initialCapacity)
+	InitAbstractAABBDetector(&s.AbstractAABBDetector)
+	s.proxyTree = new(pretendTreeSet)
+	s.proxyTree.list = make([]*SapTreeProxy, 0, initialCapacity)
+	s.proxyMap = make(map[string]*SapTreeProxy)
 	s.potentialPairs = make([]*SapTreePairList, 0, initialCapacity)
 	return s
 }
@@ -142,7 +132,9 @@ func (s *SapTree) Add(collidable collision.Collider) {
 	p := new(SapTreeProxy)
 	p.collidable = collidable
 	p.aabb = aabb
+	fmt.Println("before size:", len(s.proxyTree.list))
 	s.proxyTree.Add(p)
+	fmt.Println("after size:", len(s.proxyTree.list))
 	s.proxyMap[id] = p
 }
 
@@ -161,13 +153,13 @@ func (s *SapTree) Update(collidable collision.Collider) {
 	} else {
 		aabb.Expand(s.expansion)
 	}
-	delete(s.proxyTree, collidable.GetID())
+	s.proxyTree.Remove(p)
 	p.aabb = aabb
 	s.proxyTree.Add(p)
 }
 
 func (s *SapTree) Clear() {
-	s.proxyMap = s.proxyMap[0:0]
+	s.proxyTree.list = s.proxyTree.list[0:0]
 	for k := range s.proxyMap {
 		delete(s.proxyMap, k)
 	}
@@ -175,31 +167,34 @@ func (s *SapTree) Clear() {
 
 func (s *SapTree) GetAABB(collidable collision.Collider) *geometry.AABB {
 	p, ok := s.proxyMap[collidable.GetID()]
-	if !ok {
+	if ok {
 		return p.aabb
 	}
 	return nil
 }
 
 func (s *SapTree) Detect() []*BroadphasePair {
-	size := len(s.proxyTree)
+	size := len(s.proxyTree.list)
+	fmt.Println("size", size)
 	if size == 0 {
 		return make([]*BroadphasePair, 0)
 	}
 	eSize := collision.GetEstimatedCollisionPairs(size)
 	pairs := make([]*BroadphasePair, 0, eSize)
 	s.potentialPairs = s.potentialPairs[0:0]
-	for _, p := range s.proxyTree {
+	for _, p := range s.proxyTree.list {
 		p.tested = false
 	}
 	pl := NewSapTreePairList()
-	for _, current := range s.proxyTree {
+	for _, current := range s.proxyTree.list {
 		set := s.proxyTree.TailSet(current, false)
+		fmt.Println("len(set)", len(set))
 		for _, test := range set {
 			if test.collidable == current.collidable || test.tested {
 				continue
 			}
 			if current.aabb.GetMaxX() >= test.aabb.GetMinX() {
+				fmt.Println("Adding new potential")
 				pl.potentials = append(pl.potentials, test)
 			} else {
 				break
@@ -208,11 +203,10 @@ func (s *SapTree) Detect() []*BroadphasePair {
 		if len(pl.potentials) > 0 {
 			pl.proxy = current
 			s.potentialPairs = append(s.potentialPairs, pl)
-			pl := NewSapTreePairList()
+			pl = NewSapTreePairList()
 		}
 		current.tested = true
 	}
-	size = len(s.potentialPairs)
 	for _, current := range s.potentialPairs {
 		for _, test := range current.potentials {
 			if current.proxy.aabb.Overlaps(test.aabb) {
@@ -221,10 +215,11 @@ func (s *SapTree) Detect() []*BroadphasePair {
 			}
 		}
 	}
+	return pairs
 }
 
 func (s *SapTree) DetectAABB(aabb *geometry.AABB) []collision.Collider {
-	if len(s.proxyTree) == 0 {
+	if len(s.proxyTree.list) == 0 {
 		return make([]collision.Collider, 0)
 	}
 	list := make([]collision.Collider, 0, collision.GetEstimatedCollisions())
@@ -234,7 +229,7 @@ func (s *SapTree) DetectAABB(aabb *geometry.AABB) []collision.Collider {
 	p.tested = false
 	l := s.proxyTree.Ceiling(p)
 	found := false
-	for _, proxy := range s.proxyTree {
+	for _, proxy := range s.proxyTree.list {
 		if proxy == l {
 			found = true
 		}
@@ -252,7 +247,7 @@ func (s *SapTree) DetectAABB(aabb *geometry.AABB) []collision.Collider {
 }
 
 func (s *SapTree) Raycast(ray *geometry.Ray, length float64) []collision.Collider {
-	if len(s.proxyTree) == 0 {
+	if len(s.proxyTree.list) == 0 {
 		return make([]collision.Collider, 0)
 	}
 	st := ray.GetStart()
@@ -264,7 +259,7 @@ func (s *SapTree) Raycast(ray *geometry.Ray, length float64) []collision.Collide
 	x1 := st.X
 	x2 := st.X + d.X*l
 	y1 := st.Y
-	y2 := st.y + d.Y*l
+	y2 := st.Y + d.Y*l
 	min := geometry.NewVector2FromXY(math.Min(x1, x2), math.Min(y1, y2))
 	max := geometry.NewVector2FromXY(math.Max(x1, x2), math.Max(y1, y2))
 	aabb := geometry.NewAABBFromVector2(min, max)
@@ -272,7 +267,7 @@ func (s *SapTree) Raycast(ray *geometry.Ray, length float64) []collision.Collide
 }
 
 func (s *SapTree) ShiftCoordinates(shift *geometry.Vector2) {
-	for _, proxy := range s.proxyTree {
+	for _, proxy := range s.proxyTree.list {
 		proxy.aabb.Translate(shift)
 	}
 }

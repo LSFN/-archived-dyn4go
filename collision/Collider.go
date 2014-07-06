@@ -8,8 +8,8 @@ type Collider interface {
 	geometry.Transformer
 	GetID() string
 	CreateAABB() *geometry.AABB
-	GetFixture(index int) *Fixture
+	GetFixture(index int) Fixturer
 	GetFixtureCount() int
-	GetFixtures() []*Fixture
+	GetFixtures() []Fixturer
 	GetTransform() *geometry.Transform
 }

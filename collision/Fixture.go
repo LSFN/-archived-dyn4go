@@ -7,13 +7,13 @@ import (
 
 type Fixture struct {
 	id       string
-	shape    *geometry.Convexer
+	shape    geometry.Convexer
 	filter   Filterer
 	sensor   bool
 	userData interface{}
 }
 
-func NewFixture(shape *geometry.Convexer) *Fixture {
+func NewFixture(shape geometry.Convexer) *Fixture {
 	if shape == nil {
 		panic("Cannot create fixture from nil shape")
 	}
@@ -29,7 +29,7 @@ func (f *Fixture) GetID() string {
 	return f.id
 }
 
-func (f *Fixture) GetShape() *geometry.Convexer {
+func (f *Fixture) GetShape() geometry.Convexer {
 	return f.shape
 }
 

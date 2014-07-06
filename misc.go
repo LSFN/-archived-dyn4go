@@ -5,3 +5,12 @@ func ReverseSlice(s []interface{}) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
+
+func SliceContains(container []interface{}, containee interface{}) bool {
+	for _, v := range container {
+		if v == containee {
+			return true
+		}
+	}
+	return false
+}

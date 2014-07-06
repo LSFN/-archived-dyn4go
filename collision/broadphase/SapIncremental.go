@@ -4,7 +4,6 @@ import (
 	"github.com/LSFN/dyn4go/collision"
 	"github.com/LSFN/dyn4go/geometry"
 	"math"
-	"sort"
 )
 
 type sapIncrementalProxy struct {
@@ -28,38 +27,39 @@ func (s *sapIncrementalProxy) CompareTo(o *sapIncrementalProxy) int {
 		} else if diff < 0 {
 			return -1
 		} else {
-			return s.collidable.GetID() > o.collidable.GetID()
+			if s.collidable.GetID() > o.collidable.GetID() {
+				return 1
+			} else {
+				return -1
+			}
 		}
 	}
 }
 
 type sapIncrementalProxyList []*sapIncrementalProxy
 
-func (s *sapIncrementalProxyList) Len() int {
+func (s sapIncrementalProxyList) Len() int {
 	return len(s)
 }
 
-func (s *sapIncrementalProxyList) Less(i, j int) bool {
+func (s sapIncrementalProxyList) Less(i, j int) bool {
 	return s[i].CompareTo(s[j]) < 0
 }
 
-func (s *sapIncrementalProxyList) Swap(i, j int) {
+func (s sapIncrementalProxyList) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
-func (s *sapIncrementalProxyList) Search(item *sapIncrementalProxy) (int, bool) {
-	min := 0
-	max := len(s) - 1
-	current := (min + max) / 2
-	for min != max {
-		if s[current].CompareTo(item) >= 0 {
-			max = current
-		} else {
-			min = current
+func (s sapIncrementalProxyList) Search(item *sapIncrementalProxy) (int, bool) {
+	for i, v := range s {
+		compare := v.CompareTo(item)
+		if compare == 0 {
+			return i, true
+		} else if compare > 0 {
+			return i, false
 		}
-		current = (min + max) / 2
 	}
-	return current, s[current].CompareTo(item) == 0
+	return 0, false
 }
 
 type sapIncrementalPairList struct {
@@ -73,14 +73,9 @@ func NewSapIncrementalPairList() *sapIncrementalPairList {
 	return p
 }
 
-func NewSapIncrementalProxy() *sapIncrementalProxy {
-	s := new(sapIncrementalPairList)
-	s.potentials = make([]*sapIncrementalProxy, 0)
-}
-
 type SapIncremental struct {
 	AbstractAABBDetector
-	proxyList      *sapIncrementalProxyList
+	proxyList      sapIncrementalProxyList
 	proxyMap       map[string]*sapIncrementalProxy
 	potentialPairs []*sapIncrementalPairList
 }
@@ -91,10 +86,10 @@ func NewSapIncremental() *SapIncremental {
 
 func NewSapIncrementalInt(initialCapacity int) *SapIncremental {
 	s := new(SapIncremental)
-	InitAbstractAABBDetector(s.AbstractAABBDetector)
+	InitAbstractAABBDetector(&s.AbstractAABBDetector)
 	s.proxyList = make([]*sapIncrementalProxy, 0, initialCapacity)
-	s.proxyMap = make(map[string]*sapIncrementalProxy, 0, initialCapacity)
-	s.potentialPairs = make([]*sapIncrementalProxy, 0, initialCapacity)
+	s.proxyMap = make(map[string]*sapIncrementalProxy)
+	s.potentialPairs = make([]*sapIncrementalPairList, 0, initialCapacity)
 	return s
 }
 
@@ -102,13 +97,13 @@ func (s *SapIncremental) Add(collidable collision.Collider) {
 	id := collidable.GetID()
 	aabb := collidable.CreateAABB()
 	aabb.Expand(s.expansion)
-	p := NewSapIncrementalProxy()
+	p := new(sapIncrementalProxy)
 	p.collidable = collidable
 	p.aabb = aabb
-	index, ok := s.proxyList.Search(p)
-	if ok {
-		s.proxyList = append(s.proxyList[:index], p, s.proxyList[index:]...)
-	}
+	index, _ := s.proxyList.Search(p)
+	temp := s.proxyList[index:]
+	s.proxyList = append(s.proxyList[:index], p)
+	s.proxyList = append(s.proxyList, temp...)
 	s.proxyMap[id] = p
 }
 
@@ -148,7 +143,7 @@ func (s *SapIncremental) Update(collidable collision.Collider) {
 		s.proxyList = append(s.proxyList[:index], s.proxyList[index+1:]...)
 	}
 	p0.aabb = aabb
-	index, ok = s.proxyList.Search(p0)
+	index, ok := s.proxyList.Search(p0)
 	if ok {
 		s.proxyList = append(s.proxyList, p0)
 	}
@@ -163,7 +158,7 @@ func (s *SapIncremental) Clear() {
 
 func (s *SapIncremental) GetAABB(collidable collision.Collider) *geometry.AABB {
 	if proxy, ok := s.proxyMap[collidable.GetID()]; ok {
-		return proxy
+		return proxy.aabb
 	}
 	return nil
 }
@@ -191,7 +186,7 @@ func (s *SapIncremental) Detect() []*BroadphasePair {
 		if len(pl.potentials) > 0 {
 			pl.proxy = current
 			s.potentialPairs = append(s.potentialPairs, pl)
-			pl := NewSapIncrementalPairList()
+			pl = NewSapIncrementalPairList()
 		}
 	}
 	for _, current := range s.potentialPairs {

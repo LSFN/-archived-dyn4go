@@ -12,12 +12,14 @@ type Manifold struct {
 func NewManifold() *Manifold {
 	m := new(Manifold)
 	m.points = make([]*ManifoldPoint, 2)
+	return m
 }
 
 func NewManifoldManifoldPointsVector2(points []*ManifoldPoint, normal *geometry.Vector2) *Manifold {
 	m := new(Manifold)
 	m.points = points
 	m.normal = normal
+	return m
 }
 
 func (m *Manifold) Clear() {

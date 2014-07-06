@@ -5,6 +5,8 @@ import (
 	"github.com/LSFN/dyn4go/geometry"
 )
 
+var DEFAULT_AABB_EXPANSION float64 = 0.2
+
 type BroadphaseDetector interface {
 	Add(collidable collision.Collider)
 	Remove(collidable collision.Collider)
