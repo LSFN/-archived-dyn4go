@@ -180,7 +180,7 @@ func (s *SapBruteForce) DetectAABB(aabb *geometry.AABB) []collision.Collider {
 	if size == 0 {
 		return make([]collision.Collider, 0)
 	}
-	list := make([]collision.Collider, collision.GetEstimatedCollisions())
+	list := make([]collision.Collider, 0, collision.GetEstimatedCollisions())
 	if s.sort {
 		sort.Sort(s.proxyList)
 		s.sort = false
@@ -222,7 +222,7 @@ func (s *SapBruteForce) Raycast(ray *geometry.Ray, length float64) []collision.C
 	d := ray.GetDirectionVector2()
 	l := length
 	if length <= 0.0 {
-		l = math.Inf(1)
+		l = math.MaxFloat64
 	}
 	x1 := st.X
 	x2 := st.X + d.X*l

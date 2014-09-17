@@ -1,6 +1,7 @@
 package test
 
 import (
+	"code.google.com/p/uuid"
 	"github.com/LSFN/dyn4go/collision"
 	"github.com/LSFN/dyn4go/dynamics"
 	"github.com/LSFN/dyn4go/geometry"
@@ -10,12 +11,14 @@ type CollidableTest struct {
 	id        string
 	fixtures  []*dynamics.BodyFixture
 	transform *geometry.Transform
+	userData  interface{}
 }
 
 func NewCollidableTest(fixtures []*dynamics.BodyFixture) *CollidableTest {
 	c := new(CollidableTest)
 	c.fixtures = fixtures
 	c.transform = geometry.NewTransform()
+	c.id = uuid.New()
 	return c
 }
 
@@ -23,6 +26,7 @@ func NewCollidableTestShape(shape geometry.Convexer) *CollidableTest {
 	c := new(CollidableTest)
 	c.fixtures = []*dynamics.BodyFixture{dynamics.NewBodyFixture(shape)}
 	c.transform = geometry.NewTransform()
+	c.id = uuid.New()
 	return c
 }
 
@@ -83,4 +87,12 @@ func (c *CollidableTest) TranslateXY(x, y float64) {
 
 func (c *CollidableTest) TranslateVector2(vector *geometry.Vector2) {
 	c.transform.TranslateVector2(vector)
+}
+
+func (c *CollidableTest) SetUserData(data interface{}) {
+	c.userData = data
+}
+
+func (c *CollidableTest) GetUserData() interface{} {
+	return c.userData
 }

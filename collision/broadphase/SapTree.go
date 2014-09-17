@@ -1,7 +1,6 @@
 package broadphase
 
 import (
-	"fmt"
 	"github.com/LSFN/dyn4go/collision"
 	"github.com/LSFN/dyn4go/geometry"
 	"math"
@@ -60,13 +59,15 @@ type pretendTreeSet struct {
 }
 
 func (p *pretendTreeSet) Add(proxy *SapTreeProxy) {
+	index := 0
 	for i := range p.list {
-		if p.list[i].CompareTo(proxy) >= 0 {
-			p.list = append(p.list[:i], append([]*SapTreeProxy{proxy}, p.list[i:]...)...)
+		comp := p.list[i].CompareTo(proxy)
+		if comp >= 0 {
+			index = i
 			break
 		}
 	}
-
+	p.list = append(p.list[:index], append([]*SapTreeProxy{proxy}, p.list[index:]...)...)
 }
 
 func (p *pretendTreeSet) Remove(proxy *SapTreeProxy) {
@@ -132,9 +133,7 @@ func (s *SapTree) Add(collidable collision.Collider) {
 	p := new(SapTreeProxy)
 	p.collidable = collidable
 	p.aabb = aabb
-	fmt.Println("before size:", len(s.proxyTree.list))
 	s.proxyTree.Add(p)
-	fmt.Println("after size:", len(s.proxyTree.list))
 	s.proxyMap[id] = p
 }
 
@@ -175,7 +174,6 @@ func (s *SapTree) GetAABB(collidable collision.Collider) *geometry.AABB {
 
 func (s *SapTree) Detect() []*BroadphasePair {
 	size := len(s.proxyTree.list)
-	fmt.Println("size", size)
 	if size == 0 {
 		return make([]*BroadphasePair, 0)
 	}
@@ -188,13 +186,11 @@ func (s *SapTree) Detect() []*BroadphasePair {
 	pl := NewSapTreePairList()
 	for _, current := range s.proxyTree.list {
 		set := s.proxyTree.TailSet(current, false)
-		fmt.Println("len(set)", len(set))
 		for _, test := range set {
 			if test.collidable == current.collidable || test.tested {
 				continue
 			}
 			if current.aabb.GetMaxX() >= test.aabb.GetMinX() {
-				fmt.Println("Adding new potential")
 				pl.potentials = append(pl.potentials, test)
 			} else {
 				break
@@ -254,7 +250,7 @@ func (s *SapTree) Raycast(ray *geometry.Ray, length float64) []collision.Collide
 	d := ray.GetDirectionVector2()
 	l := length
 	if length <= 0 {
-		l = math.Inf(1)
+		l = math.MaxFloat64
 	}
 	x1 := st.X
 	x2 := st.X + d.X*l

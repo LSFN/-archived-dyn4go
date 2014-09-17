@@ -1,5 +1,9 @@
 package geometry
 
+import (
+	"fmt"
+)
+
 type Ray struct {
 	start, direction *Vector2
 }
@@ -54,4 +58,8 @@ func (r *Ray) SetDirectionVector2(direction *Vector2) {
 		panic("Ray direction cannot be created from nil argument or be zero")
 	}
 	r.direction = direction
+}
+
+func (r *Ray) String() string {
+	return fmt.Sprintf("Ray[Start=%v|Direction=%v]", r.start, r.direction)
 }

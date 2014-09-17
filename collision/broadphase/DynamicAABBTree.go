@@ -125,7 +125,7 @@ func (d *DynamicAABBTree) Raycast(ray *geometry.Ray, length float64) []collision
 	dir := ray.GetDirectionVector2()
 	l := length
 	if l <= 0 {
-		l = math.Inf(1)
+		l = math.MaxFloat64
 	}
 	x1 := s.X
 	x2 := s.X + dir.X*l
@@ -233,7 +233,7 @@ func (d *DynamicAABBTree) detectAABB(aabb *geometry.AABB, node *DATNode, list *[
 
 func (d *DynamicAABBTree) detectNonRecursiveAABB(aabb *geometry.AABB, node *DATNode) []collision.Collider {
 	eSize := collision.GetEstimatedCollisions()
-	list := make([]collision.Collider, eSize)
+	list := make([]collision.Collider, 0, eSize)
 	for node != nil {
 		if aabb.Overlaps(node.aabb) {
 			if node.left != nil {

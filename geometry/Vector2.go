@@ -1,6 +1,7 @@
 package geometry
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/LSFN/dyn4go"
@@ -353,4 +354,8 @@ func (v *Vector2) GetAngleBetween(v2 *Vector2) float64 {
 		return a + TWO_PI
 	}
 	return a
+}
+
+func (v *Vector2) String() string {
+	return fmt.Sprintf("(%v, %v)", v.X, v.Y)
 }

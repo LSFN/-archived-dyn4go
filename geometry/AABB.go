@@ -1,6 +1,7 @@
 package geometry
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -207,4 +208,8 @@ func (a *AABB) GetMinY() float64 {
 
 func (a *AABB) GetMaxY() float64 {
 	return a.max.Y
+}
+
+func (a *AABB) String() string {
+	return fmt.Sprintf("AABB[Min=%v|Max=%v]", a.min, a.max)
 }

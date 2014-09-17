@@ -101,9 +101,7 @@ func (s *SapIncremental) Add(collidable collision.Collider) {
 	p.collidable = collidable
 	p.aabb = aabb
 	index, _ := s.proxyList.Search(p)
-	temp := s.proxyList[index:]
-	s.proxyList = append(s.proxyList[:index], p)
-	s.proxyList = append(s.proxyList, temp...)
+	s.proxyList = append(s.proxyList[:index], append([]*sapIncrementalProxy{p}, s.proxyList[index:]...)...)
 	s.proxyMap[id] = p
 }
 
@@ -226,10 +224,8 @@ func (s *SapIncremental) DetectAABB(aabb *geometry.AABB) []collision.Collider {
 			if p.aabb.Overlaps(aabb) {
 				list = append(list, p.collidable)
 			}
-		} else {
-			if i >= index {
-				break
-			}
+		} else if i >= index {
+			break
 		}
 	}
 	return list
@@ -243,7 +239,7 @@ func (s *SapIncremental) Raycast(ray *geometry.Ray, length float64) []collision.
 	d := ray.GetDirectionVector2()
 	l := length
 	if length <= 0 {
-		l = math.Inf(1)
+		l = math.MaxFloat64
 	}
 	x1 := st.X
 	x2 := st.X + d.X*l

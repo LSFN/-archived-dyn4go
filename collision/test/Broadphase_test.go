@@ -351,7 +351,6 @@ func TestDetectAABB(t *testing.T) {
 	// this aabb should include:
 	// ct3 and ct4
 	aabb := geometry.NewAABBFromFloats(0.0, -2.0, 1.0, 1.0)
-
 	list := this.sapI.DetectAABB(aabb)
 	dyn4go.AssertEqual(t, 2, len(list))
 	dyn4go.AssertTrue(t, ColliderSliceContains(list, ct3))
