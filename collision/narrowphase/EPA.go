@@ -25,12 +25,12 @@ func NewEPA() *EPA {
 	return e
 }
 
-func (e *EPA) GetPenetration(simplex []*geometry.Vector2, minkowskiSum *MinkowskiSum, penetration *Penetration) {
-	winding := e.getWinding(simplex)
+func (e *EPA) GetPenetration(simplex *[]*geometry.Vector2, minkowskiSum *MinkowskiSum, penetration *Penetration) {
+	winding := e.getWinding(*simplex)
 	var point *geometry.Vector2
 	var edge *EPAEdge
 	for i := 0; i < e.maxIterations; i++ {
-		edge = e.findClosestEdge(simplex, winding)
+		edge = e.findClosestEdge(*simplex, winding)
 		point = minkowskiSum.Support(edge.normal)
 		projection := point.DotVector2(edge.normal)
 		if projection-edge.distance < e.distanceEpsilon {
@@ -38,9 +38,7 @@ func (e *EPA) GetPenetration(simplex []*geometry.Vector2, minkowskiSum *Minkowsk
 			penetration.depth = projection
 			return
 		}
-		simplex = append(simplex, nil)
-		copy(simplex[edge.index+1:], simplex[edge.index:])
-		simplex[i] = point
+		*simplex = append((*simplex)[:edge.index], append([]*geometry.Vector2{point}, (*simplex)[edge.index:]...)...)
 	}
 	penetration.normal = edge.normal
 	penetration.depth = point.DotVector2(edge.normal)
@@ -49,7 +47,7 @@ func (e *EPA) GetPenetration(simplex []*geometry.Vector2, minkowskiSum *Minkowsk
 func (e *EPA) findClosestEdge(simplex []*geometry.Vector2, winding int) *EPAEdge {
 	size := len(simplex)
 	edge := new(EPAEdge)
-	edge.distance = math.Inf(1)
+	edge.distance = math.MaxFloat64
 	edge.normal = new(geometry.Vector2)
 	normal := new(geometry.Vector2)
 	for i := 0; i < size; i++ {
@@ -85,9 +83,10 @@ func (e *EPA) getWinding(simplex []*geometry.Vector2) int {
 		}
 		a := simplex[i]
 		b := simplex[j]
-		if a.CrossVector2(b) > 0 {
+		cross := a.CrossVector2(b)
+		if cross > 0 {
 			return 1
-		} else if a.CrossVector2(b) < 0 {
+		} else if cross < 0 {
 			return -1
 		}
 	}
@@ -99,6 +98,9 @@ func (e *EPA) GetMaxIterations() int {
 }
 
 func (e *EPA) SetMaxIterations(maxIterations int) {
+	if maxIterations < 5 {
+		panic("Too few iterations")
+	}
 	e.maxIterations = maxIterations
 }
 

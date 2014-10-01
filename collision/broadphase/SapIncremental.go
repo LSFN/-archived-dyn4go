@@ -120,8 +120,8 @@ func (s *SapIncremental) Remove(collidable collision.Collider) {
 }
 
 func (s *SapIncremental) Update(collidable collision.Collider) {
-	p0 := s.proxyMap[collidable.GetID()]
-	if p0 == nil {
+	p0, ok := s.proxyMap[collidable.GetID()]
+	if !ok {
 		return
 	}
 	aabb := collidable.CreateAABB()
@@ -130,21 +130,7 @@ func (s *SapIncremental) Update(collidable collision.Collider) {
 	} else {
 		aabb.Expand(s.expansion)
 	}
-	index := -1
-	for i, p := range s.proxyList {
-		if p == p0 {
-			index = i
-			break
-		}
-	}
-	if index != -1 {
-		s.proxyList = append(s.proxyList[:index], s.proxyList[index+1:]...)
-	}
 	p0.aabb = aabb
-	index, ok := s.proxyList.Search(p0)
-	if ok {
-		s.proxyList = append(s.proxyList, p0)
-	}
 }
 
 func (s *SapIncremental) Clear() {

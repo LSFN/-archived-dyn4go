@@ -4,6 +4,7 @@ import (
 	"github.com/LSFN/dyn4go/collision"
 	"github.com/LSFN/dyn4go/geometry"
 	"math"
+	"strconv"
 )
 
 type SapTreeProxy struct {
@@ -43,6 +44,10 @@ func (s *SapTreeProxy) CompareTo(o *SapTreeProxy) int {
 	}
 }
 
+func (s *SapTreeProxy) String() string {
+	return "SapTreeProxy[aabb=" + s.aabb.String() + ",tested=" + strconv.FormatBool(s.tested) + "]"
+}
+
 type SapTreePairList struct {
 	proxy      *SapTreeProxy
 	potentials []*SapTreeProxy
@@ -59,15 +64,18 @@ type pretendTreeSet struct {
 }
 
 func (p *pretendTreeSet) Add(proxy *SapTreeProxy) {
-	index := 0
-	for i := range p.list {
-		comp := p.list[i].CompareTo(proxy)
-		if comp >= 0 {
-			index = i
+	inserted := false
+	for i, item := range p.list {
+		comp := proxy.CompareTo(item)
+		if comp <= 0 {
+			p.list = append(p.list[:i], append([]*SapTreeProxy{proxy}, p.list[i:]...)...)
+			inserted = true
 			break
 		}
 	}
-	p.list = append(p.list[:index], append([]*SapTreeProxy{proxy}, p.list[index:]...)...)
+	if !inserted {
+		p.list = append(p.list, proxy)
+	}
 }
 
 func (p *pretendTreeSet) Remove(proxy *SapTreeProxy) {

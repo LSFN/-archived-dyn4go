@@ -13,15 +13,15 @@ func (s *SAT) DetectPenetration(convex1 geometry.Convexer, transform1 *geometry.
 	if ok1 && ok2 {
 		return DetectCirclePenetration(circle1, transform1, circle2, transform2, penetration)
 	}
-	var n *geometry.Vector2
-	overlap := math.Inf(1)
+	n := new(geometry.Vector2)
+	overlap := math.MaxFloat64
 	foci1 := convex1.GetFoci(transform1)
 	foci2 := convex2.GetFoci(transform2)
 	axes1 := convex1.GetAxes(foci2, transform1)
 	axes2 := convex2.GetAxes(foci1, transform2)
 	if axes1 != nil {
 		for _, axis := range axes1 {
-			if axis.IsZero() {
+			if !axis.IsZero() {
 				intervalA := convex1.ProjectVector2Transform(axis, transform1)
 				intervalB := convex2.ProjectVector2Transform(axis, transform2)
 				if !intervalA.Overlaps(intervalB) {
@@ -34,7 +34,6 @@ func (s *SAT) DetectPenetration(convex1 geometry.Convexer, transform1 *geometry.
 						if max > min {
 							axis.Negate()
 							o += min
-
 						} else {
 							o += max
 						}
@@ -49,7 +48,7 @@ func (s *SAT) DetectPenetration(convex1 geometry.Convexer, transform1 *geometry.
 	}
 	if axes2 != nil {
 		for _, axis := range axes2 {
-			if axis.IsZero() {
+			if !axis.IsZero() {
 				intervalA := convex1.ProjectVector2Transform(axis, transform1)
 				intervalB := convex2.ProjectVector2Transform(axis, transform2)
 				if !intervalA.Overlaps(intervalB) {
@@ -62,7 +61,6 @@ func (s *SAT) DetectPenetration(convex1 geometry.Convexer, transform1 *geometry.
 						if max > min {
 							axis.Negate()
 							o += min
-
 						} else {
 							o += max
 						}
@@ -98,7 +96,7 @@ func (s *SAT) Detect(convex1 geometry.Convexer, transform1 *geometry.Transform, 
 	axes2 := convex2.GetAxes(foci1, transform2)
 	if axes1 != nil {
 		for _, axis := range axes1 {
-			if axis.IsZero() {
+			if !axis.IsZero() {
 				intervalA := convex1.ProjectVector2Transform(axis, transform1)
 				intervalB := convex2.ProjectVector2Transform(axis, transform2)
 				if !intervalA.Overlaps(intervalB) {
@@ -109,7 +107,7 @@ func (s *SAT) Detect(convex1 geometry.Convexer, transform1 *geometry.Transform, 
 	}
 	if axes2 != nil {
 		for _, axis := range axes2 {
-			if axis.IsZero() {
+			if !axis.IsZero() {
 				intervalA := convex1.ProjectVector2Transform(axis, transform1)
 				intervalB := convex2.ProjectVector2Transform(axis, transform2)
 				if !intervalA.Overlaps(intervalB) {

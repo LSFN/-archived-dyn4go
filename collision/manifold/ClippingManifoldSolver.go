@@ -19,7 +19,7 @@ func (c *ClippingManifoldSolver) GetManifold(penetration *narrowphase.Penetratio
 		manifold.normal = n.Negate()
 		return true
 	}
-	feature2 := convex2.GetFarthestFeature(n, transform2)
+	feature2 := convex2.GetFarthestFeature(n.GetNegative(), transform2)
 	if feature2.IsVertex() {
 		vertex := feature2.(*geometry.Vertex)
 		mp := NewManifoldPointInterfaceVector2Float64(DISTANCE, vertex.GetPoint(), penetration.GetDepth())
@@ -69,7 +69,7 @@ func (c *ClippingManifoldSolver) GetManifold(penetration *narrowphase.Penetratio
 }
 
 func (c *ClippingManifoldSolver) clip(v1, v2 *geometry.Vertex, n *geometry.Vector2, offset float64) []*geometry.Vertex {
-	points := make([]*geometry.Vertex, 2)
+	points := make([]*geometry.Vertex, 0, 2)
 	p1 := v1.GetPoint()
 	p2 := v2.GetPoint()
 	d1 := n.DotVector2(p1) - offset

@@ -2,6 +2,7 @@ package narrowphase
 
 import (
 	"github.com/LSFN/dyn4go/geometry"
+	"strconv"
 )
 
 type Penetration struct {
@@ -34,4 +35,8 @@ func (p *Penetration) SetNormal(normal *geometry.Vector2) {
 
 func (p *Penetration) SetDepth(depth float64) {
 	p.depth = depth
+}
+
+func (p *Penetration) String() string {
+	return "Penetration[normal=" + p.normal.String() + ",depth=" + strconv.FormatFloat(p.depth, 'g', -1, 64) + "]"
 }

@@ -5,5 +5,5 @@ import (
 )
 
 type MinkowskiPenetrationSolver interface {
-	GetPenetration(simplex []*geometry.Vector2, minkowskiSum *MinkowskiSum, penetration *Penetration)
+	GetPenetration(simplex *[]*geometry.Vector2, minkowskiSum *MinkowskiSum, penetration *Penetration)
 }

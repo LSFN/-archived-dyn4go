@@ -36,14 +36,16 @@ func (g *GJK) getInitialDirection(convex1 geometry.Convexer, transform1 *geometr
 }
 
 func (g *GJK) DetectPenetration(convex1 geometry.Convexer, transform1 *geometry.Transform, convex2 geometry.Convexer, transform2 *geometry.Transform, penetration *Penetration) bool {
-	if reflect.TypeOf(convex1) == reflect.TypeOf(new(geometry.Circle)) && reflect.TypeOf(convex2) == reflect.TypeOf(new(geometry.Circle)) {
+	_, ok1 := convex1.(*geometry.Circle)
+	_, ok2 := convex2.(*geometry.Circle)
+	if ok1 && ok2 {
 		return DetectCirclePenetration(convex1.(*geometry.Circle), transform1, convex2.(*geometry.Circle), transform2, penetration)
 	}
 	simplex := make([]*geometry.Vector2, 0, 3)
 	ms := NewMinkowskiSum(convex1, transform1, convex2, transform2)
 	d := g.getInitialDirection(convex1, transform1, convex2, transform2)
-	if g.detect(ms, simplex, d) {
-		g.minkowskiPenetrationSolver.GetPenetration(simplex, ms, penetration)
+	if g.detect(ms, &simplex, d) {
+		g.minkowskiPenetrationSolver.GetPenetration(&simplex, ms, penetration)
 		return true
 	}
 
@@ -51,30 +53,32 @@ func (g *GJK) DetectPenetration(convex1 geometry.Convexer, transform1 *geometry.
 }
 
 func (g *GJK) Detect(convex1 geometry.Convexer, transform1 *geometry.Transform, convex2 geometry.Convexer, transform2 *geometry.Transform) bool {
-	if reflect.TypeOf(convex1) == reflect.TypeOf(new(geometry.Circle)) && reflect.TypeOf(convex2) == reflect.TypeOf(new(geometry.Circle)) {
+	_, ok1 := convex1.(*geometry.Circle)
+	_, ok2 := convex2.(*geometry.Circle)
+	if ok1 && ok2 {
 		return DetectCircle(convex1.(*geometry.Circle), transform1, convex2.(*geometry.Circle), transform2)
 	}
 	simplex := make([]*geometry.Vector2, 0, 3)
 	ms := NewMinkowskiSum(convex1, transform1, convex2, transform2)
 	d := g.getInitialDirection(convex1, transform1, convex2, transform2)
-	return g.detect(ms, simplex, d)
+	return g.detect(ms, &simplex, d)
 }
 
-func (g *GJK) detect(ms *MinkowskiSum, simplex []*geometry.Vector2, d *geometry.Vector2) bool {
+func (g *GJK) detect(ms *MinkowskiSum, simplex *[]*geometry.Vector2, d *geometry.Vector2) bool {
 	if d.IsZero() {
 		d.SetToXY(1, 0)
 	}
-	simplex = append(simplex, ms.Support(d))
-	if simplex[0].DotVector2(d) <= 0 {
+	*simplex = append(*simplex, ms.Support(d))
+	if (*simplex)[0].DotVector2(d) <= 0 {
 		return false
 	}
 	d.Negate()
 	for true {
-		simplex = append(simplex, ms.Support(d))
-		if simplex[len(simplex)-1].DotVector2(d) <= 0 {
+		*simplex = append(*simplex, ms.Support(d))
+		if (*simplex)[len(*simplex)-1].DotVector2(d) <= 0 {
 			return false
 		} else {
-			if g.checkSimplex(simplex, d) {
+			if g.checkSimplex(*simplex, d) {
 				return true
 			}
 		}
@@ -94,14 +98,17 @@ func (g *GJK) checkSimplex(simplex []*geometry.Vector2, direction *geometry.Vect
 		acPerp := geometry.Vector2TripleProduct(ab, ac, ac)
 		acLocation := acPerp.DotVector2(ao)
 		if acLocation >= 0 {
-			simplex = append(simplex[:1], simplex[2:]...)
+			simplex[1] = simplex[2]
+			simplex[2] = nil
 			direction.SetToVector2(acPerp)
 		} else {
 			abLocation := abPerp.DotVector2(ao)
 			if abLocation < 0 {
 				return true
 			} else {
-				simplex = simplex[1:]
+				simplex[0] = simplex[1]
+				simplex[1] = simplex[2]
+				simplex[2] = nil
 				direction.SetToVector2(abPerp)
 			}
 		}

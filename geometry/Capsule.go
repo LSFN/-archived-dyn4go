@@ -49,27 +49,38 @@ func NewCapsule(width, height float64) *Capsule {
 }
 
 func (c *Capsule) GetAxes(foci []*Vector2, t *Transform) []*Vector2 {
-	if c.foci != nil {
-		axes := make([]*Vector2, 2+len(c.foci))
+	if foci != nil {
+		axes := make([]*Vector2, 2+len(foci))
 		axes[0] = t.GetTransformedR(c.localXAxis)
 		axes[1] = t.GetTransformedR(c.localXAxis.GetRightHandOrthogonalVector())
 		f1 := t.GetTransformedVector2(c.foci[0])
 		f2 := t.GetTransformedVector2(c.foci[1])
-		for i, f := range c.foci {
-			if f1.DistanceSquaredFromVector2(f) < f2.DistanceSquaredFromVector2(f) {
-				axes[2+i] = f1.HereToVector2(f)
+		for i, f := range foci {
+			d1 := f1.DistanceSquaredFromVector2(f)
+			d2 := f2.DistanceSquaredFromVector2(f)
+			var v *Vector2
+			if d1 < d2 {
+				v = f1.HereToVector2(f)
 			} else {
-				axes[2+i] = f2.HereToVector2(f)
+				v = f2.HereToVector2(f)
 			}
+			v.Normalize()
+			axes[2+i] = v
 		}
 		return axes
 	} else {
-		return []*Vector2{t.GetTransformedR(c.localXAxis), t.GetTransformedR(c.localXAxis).GetRightHandOrthogonalVector()}
+		return []*Vector2{
+			t.GetTransformedR(c.localXAxis),
+			t.GetTransformedR(c.localXAxis.GetRightHandOrthogonalVector()),
+		}
 	}
 }
 
 func (c *Capsule) GetFoci(t *Transform) []*Vector2 {
-	return []*Vector2{t.GetTransformedVector2(c.foci[0]), t.GetTransformedVector2(c.foci[1])}
+	return []*Vector2{
+		t.GetTransformedVector2(c.foci[0]),
+		t.GetTransformedVector2(c.foci[1]),
+	}
 }
 
 func (c *Capsule) GetFarthestPoint(v *Vector2, t *Transform) *Vector2 {
@@ -79,9 +90,9 @@ func (c *Capsule) GetFarthestPoint(v *Vector2, t *Transform) *Vector2 {
 }
 
 func (c *Capsule) GetFarthestFeature(n *Vector2, transform *Transform) Featurer {
-	localAxis := transform.GetInverseTransformedVector2(n)
+	localAxis := transform.GetInverseTransformedR(n)
 	n1 := c.localXAxis.GetLeftHandOrthogonalVector()
-	d := localAxis.DotVector2(localAxis)
+	d := localAxis.DotVector2(localAxis) * EDGE_FEATURE_SELECTION_CRITERIA
 	d1 := localAxis.DotVector2(n1)
 	if math.Abs(d1) < d {
 		point := c.GetFarthestPoint(n, transform)

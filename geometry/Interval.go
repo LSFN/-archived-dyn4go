@@ -1,6 +1,7 @@
 package geometry
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -89,7 +90,7 @@ func (i *Interval) IsDegenerateWithError(e float64) bool {
 }
 
 func (i *Interval) Contains(i2 *Interval) bool {
-	return i2.min > i.min && i2.max < i2.max
+	return i2.min > i.min && i2.max < i.max
 }
 
 func (i *Interval) Union(i2 *Interval) {
@@ -158,4 +159,8 @@ func (i *Interval) GetExpanded(x float64) *Interval {
 
 func (i *Interval) GetLength() float64 {
 	return i.max - i.min
+}
+
+func (i *Interval) String() string {
+	return fmt.Sprintf("[%v, %v]", i.min, i.max)
 }

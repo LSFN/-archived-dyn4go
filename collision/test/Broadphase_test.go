@@ -38,7 +38,7 @@ func ColliderSliceContains(container []collision.Collider, containee collision.C
  * Tests the add method.
  */
 
-func TestAdd(t *testing.T) {
+func TestBroadphaseAdd(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct := NewCollidableTestShape(geometry.CreateCircle(1.0))
 
@@ -65,7 +65,7 @@ func TestAdd(t *testing.T) {
  * Tests the remove method.
  */
 
-func TestRemove(t *testing.T) {
+func TestBroadphaseRemove(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct := NewCollidableTestShape(geometry.CreateCircle(1.0))
 
@@ -98,7 +98,7 @@ func TestRemove(t *testing.T) {
  * Tests the update method where the collidable moves very little.
  */
 
-func TestUpdateSmall(t *testing.T) {
+func TestBroadphaseUpdateSmall(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct := NewCollidableTestShape(geometry.CreateCircle(1.0))
 
@@ -138,7 +138,7 @@ func TestUpdateSmall(t *testing.T) {
  * Tests the update method where the collidable moves enough to update the AABB.
  */
 
-func TestUpdateLarge(t *testing.T) {
+func TestBroadphaseUpdateLarge(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct := NewCollidableTestShape(geometry.CreateCircle(1.0))
 
@@ -178,7 +178,7 @@ func TestUpdateLarge(t *testing.T) {
  * Tests the clear method.
  */
 
-func TestClear(t *testing.T) {
+func TestBroadphaseClear(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct := NewCollidableTestShape(geometry.CreateCircle(1.0))
 
@@ -205,7 +205,7 @@ func TestClear(t *testing.T) {
  * Tests the getAABB method.
  */
 
-func TestGetAABB(t *testing.T) {
+func TestBroadphaseGetAABB(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct := NewCollidableTestShape(geometry.CreateCircle(1.0))
 
@@ -248,7 +248,7 @@ func isEqualAABBAABB(aabb1, aabb2 *geometry.AABB) bool {
  * @since 3.1.0
  */
 
-func TestDetectAbstract(t *testing.T) {
+func TestBroadphaseDetectAbstract(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct1 := NewCollidableTestShape(geometry.CreateCircle(1.0))
 	ct2 := NewCollidableTestShape(geometry.CreateUnitCirclePolygon(5, 0.5))
@@ -268,7 +268,7 @@ func TestDetectAbstract(t *testing.T) {
  * @since 3.1.0
  */
 
-func TestDetect(t *testing.T) {
+func TestBroadphaseDetect(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct1 := NewCollidableTestShape(geometry.CreateCircle(1.0))
 	ct2 := NewCollidableTestShape(geometry.CreateUnitCirclePolygon(5, 0.5))
@@ -315,7 +315,7 @@ func TestDetect(t *testing.T) {
  * Tests the detect method using an AABB.
  */
 
-func TestDetectAABB(t *testing.T) {
+func TestBroadphaseDetectAABB(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct1 := NewCollidableTestShape(geometry.CreateCircle(1.0))
 	ct2 := NewCollidableTestShape(geometry.CreateUnitCirclePolygon(5, 0.5))
@@ -398,7 +398,7 @@ func TestDetectAABB(t *testing.T) {
  * Tests the raycast method.
  */
 
-func TestRaycast(t *testing.T) {
+func TestBroadphaseRaycast(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct1 := NewCollidableTestShape(geometry.CreateCircle(1.0))
 	ct2 := NewCollidableTestShape(geometry.CreateUnitCirclePolygon(5, 0.5))
@@ -496,7 +496,7 @@ func TestRaycast(t *testing.T) {
  * Tests the get/set expansion methods.
  */
 
-func TestExpansion(t *testing.T) {
+func TestBroadphaseExpansion(t *testing.T) {
 	this := NewBroadphaseTest()
 	// test the default
 	dyn4go.AssertEqual(t, broadphase.DEFAULT_AABB_EXPANSION, this.sapI.GetAABBExpansion())
@@ -542,7 +542,7 @@ func TestExpansion(t *testing.T) {
  * Tests the shiftCoordinates method.
  */
 
-func TestShiftCoordinates2(t *testing.T) {
+func TestBroadphaseShiftCoordinates2(t *testing.T) {
 	this := NewBroadphaseTest()
 	ct1 := NewCollidableTestShape(geometry.CreateCircle(1.0))
 	ct2 := NewCollidableTestShape(geometry.CreateUnitCirclePolygon(5, 0.5))
@@ -606,7 +606,7 @@ func TestShiftCoordinates2(t *testing.T) {
 /**
  * Tests creating a SapBruteForce detector using a negative capacity.
  */
-func TestSapBruteForceNegativeInitialCapacity(t *testing.T) {
+func TestBroadphaseSapBruteForceNegativeInitialCapacity(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	broadphase.NewSapBruteForceInt(-10)
 }
@@ -614,7 +614,7 @@ func TestSapBruteForceNegativeInitialCapacity(t *testing.T) {
 /**
  * Tests creating a SapIncremental detector using a negative capacity.
  */
-func TestSapIncrementalNegativeInitialCapacity(t *testing.T) {
+func TestBroadphaseSapIncrementalNegativeInitialCapacity(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	broadphase.NewSapIncrementalInt(-10)
 }
@@ -622,7 +622,7 @@ func TestSapIncrementalNegativeInitialCapacity(t *testing.T) {
 /**
  * Tests creating a SapTree detector using a negative capacity.
  */
-func TestSapTreeNegativeInitialCapacity(t *testing.T) {
+func TestBroadphaseSapTreeNegativeInitialCapacity(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	broadphase.NewSapTreeInt(-10)
 }
@@ -630,7 +630,7 @@ func TestSapTreeNegativeInitialCapacity(t *testing.T) {
 /**
  * Tests creating a DynamicAABBTree detector using a negative capacity.
  */
-func TestDynamicAABBTreeNegativeInitialCapacity(t *testing.T) {
+func TestBroadphaseDynamicAABBTreeNegativeInitialCapacity(t *testing.T) {
 	defer dyn4go.AssertPanic(t)
 	broadphase.NewDynamicAABBTreeInt(-10)
 }

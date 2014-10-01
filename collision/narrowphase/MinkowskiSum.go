@@ -1,6 +1,7 @@
 package narrowphase
 
 import (
+	"fmt"
 	"github.com/LSFN/dyn4go/geometry"
 )
 
@@ -95,4 +96,9 @@ func (m *MinkowskiSum) GetTransform2() *geometry.Transform {
 
 func (m *MinkowskiSum) SetTransform2(transform2 *geometry.Transform) {
 	m.transform2 = transform2
+}
+
+func (m *MinkowskiSum) String() string {
+	return fmt.Sprintf("MinkowskiSum[Shape1=%v|Transform1=%v|Shape2=%v|Transform2=%v]",
+		m.convex1, m.transform1, m.convex1, m.transform2)
 }
